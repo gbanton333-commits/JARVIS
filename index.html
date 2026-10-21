@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050d18">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>JARVIS</title>
+<style>
+  :root{--bg:#050d18;--ink:#d8ecf7;--dim:#6f8ea3;--glow:#4cc9f0;--warn:#f4a259;--line:#12304a}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+  body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
+  header{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
+  h1{font-size:1rem;letter-spacing:.3em;font-weight:500;margin:0}
+  #cfg{background:none;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:6px 10px;font-size:.8rem}
+  #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:8px 0}
+  .m{max-width:88%;line-height:1.45;font-size:.98rem}
+  .u{align-self:flex-end;color:var(--dim)}
+  .j{align-self:flex-start;border-left:2px solid var(--glow);padding-left:12px}
+  .e{align-self:flex-start;border-left:2px solid var(--warn);padding-left:12px;color:var(--warn)}
+  #stage{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0 6px}
+  #orb{width:96px;height:96px;border-radius:50%;border:2px solid var(--glow);background:radial-gradient(circle,#0b2a40 0%,#061522 70%);
+       box-shadow:0 0 24px #4cc9f044,inset 0 0 18px #4cc9f033;position:relative;cursor:pointer;transition:box-shadow .2s}
+  #orb::after{content:"";position:absolute;inset:26px;border-radius:50%;border:2px solid var(--glow);opacity:.7}
+  #orb.listening{animation:pulse 1.1s ease-in-out infinite}
+  #orb.thinking{animation:spin 1.4s linear infinite;border-style:dashed}
+  #orb.speaking{box-shadow:0 0 44px #4cc9f099,inset 0 0 24px #4cc9f066}
+  @keyframes pulse{50%{box-shadow:0 0 50px #4cc9f0aa,inset 0 0 26px #4cc9f077}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){#orb{animation:none!important}}
+  #status{font-size:.8rem;color:var(--dim);min-height:1.2em}
+  form{display:flex;gap:8px;padding:8px 0 12px}
+  input{flex:1;background:#091a2a;border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:12px;font-size:1rem}
+  input:focus,button:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
+  form button{background:var(--glow);color:#02101c;border:0;border-radius:10px;padding:0 16px;font-weight:600}
+</style>
+</head>
+<body>
+<header><h1>JARVIS</h1><button id="cfg">Set up</button></header>
+<div id="log" aria-live="polite"></div>
+<div id="stage">
+  <div id="orb" role="button" tabindex="0" aria-label="Tap to talk"></div>
+  <div id="status">Tap the orb and speak</div>
+</div>
+<form id="f"><input id="t" placeholder="Or type here" autocomplete="off"><button>Send</button></form>
+
+<script>
+const $=id=>document.getElementById(id);
+const log=$('log'),orb=$('orb'),status=$('status');
+const SYSTEM=`You are JARVIS, a dry-witted, composed British AI butler-assistant, speaking aloud to your user, G.
+Rules: replies are spoken, so keep them short (1-4 sentences), plain text only, no lists, no markdown, no emoji.
+Be warm, precise and lightly witty. Address the user as "sir" occasionally, not every time.
+You do not yet have live data (traffic, weather, news). If asked, say plainly that the feed is not connected yet, rather than guessing.`;
+let history=[];
+
+const getWorker=()=>localStorage.getItem('worker')||'';
+$('cfg').onclick=()=>{
+  const v=prompt('Paste your Cloudflare Worker URL:',getWorker());
+  if(v!==null) localStorage.setItem('worker',v.trim());
+};
+
+function add(cls,text){const d=document.createElement('div');d.className='m '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight}
+function setState(s,msg){orb.className=s;status.textContent=msg||''}
+
+// --- Speech out ---
+function pickVoice(){
+  const vs=speechSynthesis.getVoices();
+  return vs.find(v=>/en-GB/i.test(v.lang)&&/male|daniel|arthur|oliver/i.test(v.name))||vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang));
+}
+function speak(text){
+  return new Promise(res=>{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    const v=pickVoice(); if(v) u.voice=v;
+    u.rate=1.0;u.pitch=.9;
+    u.onstart=()=>setState('speaking','Speaking...');
+    u.onend=u.onerror=()=>{setState('', 'Tap the orb and speak');res()};
+    speechSynthesis.speak(u);
+  });
+}
+
+// --- Brain ---
+async function ask(text){
+  const url=getWorker();
+  if(!url){add('e','Tap "Set up" and add your Worker URL first.');return}
+  add('u',text);
+  history.push({role:'user',content:text});
+  setState('thinking','Thinking...');
+  try{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system:SYSTEM,messages:history.slice(-12)})});
+    if(!r.ok) throw new Error('Worker returned '+r.status);
+    const data=await r.json();
+    const reply=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(' ').trim();
+    if(!reply) throw new Error('Empty reply');
+    history.push({role:'assistant',content:reply});
+    add('j',reply);
+    await speak(reply);
+  }catch(e){
+    history.pop();
+    add('e','Could not reach the brain: '+e.message);
+    setState('','Tap the orb and speak');
+  }
+}
+
+// --- Speech in ---
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null,listening=false;
+function listen(){
+  if(!SR){add('e','Speech recognition is not supported here. Type instead, or open in Safari/Chrome.');return}
+  if(listening){rec&&rec.stop();return}
+  speechSynthesis.cancel();
+  rec=new SR();rec.lang='en-GB';rec.interimResults=false;rec.maxAlternatives=1;
+  rec.onstart=()=>{listening=true;setState('listening','Listening...')};
+  rec.onresult=e=>ask(e.results[0][0].transcript);
+  rec.onerror=e=>{add('e','Mic error: '+e.error);setState('','Tap the orb and speak')};
+  rec.onend=()=>{listening=false;if(orb.className==='listening')setState('','Tap the orb and speak')};
+  rec.start();
+}
+orb.onclick=listen;
+orb.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();listen()}};
+$('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';ask(v)}};
+speechSynthesis.onvoiceschanged=()=>{};
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
