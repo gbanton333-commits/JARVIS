@@ -1,6 +1,6 @@
-# JARVIS PWA — v0.1 foundation + live destination weather
+# JARVIS PWA — v0.1.1 destination lookup error handling
 
-This is a first incremental upgrade of the existing JARVIS PWA. It keeps the dark/cyan interface and existing voice/chat experience, adds a live destination-weather panel, and hardens basic Worker request handling.
+This is a first incremental upgrade of the existing JARVIS PWA. It keeps the dark/cyan interface and existing voice/chat experience, adds a live destination-weather panel, hardens basic Worker request handling, and displays clear errors if the front end receives an unexpected response.
 
 ## Files
 - `index.html` — PWA interface, voice/chat, live destination weather lookup.
@@ -20,7 +20,7 @@ Deploy `worker.js`, then open the PWA and use **Set up** to enter the Worker URL
 - Destination lookup uses Open-Meteo geocoding and forecast endpoints. No Open-Meteo API key is needed for this non-commercial prototype; follow Open-Meteo terms and attribution requirements.
 - Weather card shows current conditions, apparent temperature, wind/gusts, precipitation and today's forecast, with a retrieval timestamp and source attribution.
 - Worker validates request shape and limits message lengths/count, handles invalid JSON and upstream timeouts, and does not expose the Anthropic secret to the browser.
-- Service worker updates its cache version and avoids caching cross-origin API requests.
+- Service worker updates its cache version and avoids caching cross-origin API requests. The UI validates the weather response and avoids rendering raw JavaScript object values as error text.
 
 ## Important limitations before public use
 - Weather is for the destination only, not yet a route-corridor or arrival-time forecast.
