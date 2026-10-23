@@ -31,6 +31,13 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion:reduce){#orb{animation:none!important}}
   #status{font-size:.8rem;color:var(--dim);min-height:1.2em}
+  #journey{border:1px solid var(--line);border-radius:12px;padding:12px;margin:4px 0 8px;background:#071523}
+  #journey label{display:block;font-size:.76rem;color:var(--dim);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase}
+  #journeyrow{display:flex;gap:8px}
+  #destination{min-width:0;flex:1;background:#091a2a;border:1px solid var(--line);border-radius:9px;color:var(--ink);padding:10px;font-size:.95rem}
+  #weatherBtn{background:transparent;border:1px solid var(--glow);color:var(--glow);border-radius:9px;padding:0 12px;font-weight:600}
+  #weatherCard{display:none;border-left:2px solid var(--glow);padding:8px 12px;margin:0 0 8px;font-size:.9rem;line-height:1.5;color:var(--ink)}
+  #weatherCard small{color:var(--dim)}
   form{display:flex;gap:8px;padding:8px 0 12px}
   input{flex:1;background:#091a2a;border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:12px;font-size:1rem}
   input:focus,button:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
@@ -40,6 +47,11 @@
 <body>
 <header><h1>JARVIS</h1><button id="cfg">Set up</button></header>
 <div id="log" aria-live="polite"></div>
+<section id="journey" aria-label="Journey weather">
+  <label for="destination">Quick destination weather</label>
+  <div id="journeyrow"><input id="destination" placeholder="Town or destination" autocomplete="off"><button id="weatherBtn" type="button">Check</button></div>
+</section>
+<div id="weatherCard" aria-live="polite"></div>
 <div id="stage">
   <div id="orb" role="button" tabindex="0" aria-label="Tap to talk"></div>
   <div id="status">Tap the orb and speak</div>
@@ -52,7 +64,7 @@ const log=$('log'),orb=$('orb'),status=$('status');
 const SYSTEM=`You are JARVIS, a dry-witted, composed British AI butler-assistant, speaking aloud to your user, G.
 Rules: replies are spoken, so keep them short (1-4 sentences), plain text only, no lists, no markdown, no emoji.
 Be warm, precise and lightly witty. Address the user as "sir" occasionally, not every time.
-You do not yet have live data (traffic, weather, news). If asked, say plainly that the feed is not connected yet, rather than guessing.`;
+Live data is only available when a connected feature explicitly provides it. Never claim to have checked traffic, news, fuel prices or route conditions unless the relevant tool actually returned data. Be clear about uncertainty.`;
 let history=[];
 
 const getWorker=()=>localStorage.getItem('worker')||'';
@@ -62,6 +74,9 @@ $('cfg').onclick=()=>{
 };
 
 function add(cls,text){const d=document.createElement('div');d.className='m '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight}
+function weatherText(code){const map={0:'Clear',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Freezing fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Rain showers',81:'Rain showers',82:'Heavy rain showers',95:'Thunderstorms',96:'Thunderstorms with hail',99:'Severe thunderstorms'};return map[code]||'Conditions unavailable'}
+async function checkWeather(){const place=$('destination').value.trim(),card=$('weatherCard'),url=getWorker();if(!place){card.style.display='block';card.textContent='Enter a town or destination first.';return}if(!url){card.style.display='block';card.textContent='Set up your Cloudflare Worker URL first.';return}const btn=$('weatherBtn');btn.disabled=true;btn.textContent='…';card.style.display='block';card.textContent='Checking live destination weather…';try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'weather',place})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Weather lookup failed');const c=d.current,day=d.daily;const time=new Date(d.retrievedAt).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'});card.textContent='';const title=document.createElement('strong');title.textContent=d.place+(d.country?', '+d.country:'');card.appendChild(title);card.appendChild(document.createElement('br'));card.appendChild(document.createTextNode(`${Math.round(c.temperature_2m)}°C · feels like ${Math.round(c.apparent_temperature)}°C · ${weatherText(c.weather_code)} · wind ${Math.round(c.wind_speed_10m)} km/h`));card.appendChild(document.createElement('br'));card.appendChild(document.createTextNode(`Rain now: ${c.precipitation} mm · gusts ${Math.round(c.wind_gusts_10m)} km/h`));if(day?.time?.length){card.appendChild(document.createElement('br'));card.appendChild(document.createTextNode(`Today: ${Math.round(day.temperature_2m_min[0])}–${Math.round(day.temperature_2m_max[0])}°C · max rain chance ${day.precipitation_probability_max[0]??'—'}%`))}card.appendChild(document.createElement('br'));const small=document.createElement('small');small.textContent=`Source: Open-Meteo · checked ${time} · destination weather only, not a route-wide forecast.`;card.appendChild(small)}catch(e){card.textContent=e.message}finally{btn.disabled=false;btn.textContent='Check'}}
+$('weatherBtn').addEventListener('click',checkWeather);$('destination').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkWeather()}})
 function setState(s,msg){orb.className=s;status.textContent=msg||''}
 
 // --- Speech out ---
