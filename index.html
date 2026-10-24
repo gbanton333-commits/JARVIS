@@ -211,36 +211,73 @@ function briefingCard(d){
 }
 
 // ---------- brain ----------
+// ---------- JARVIS response ----------
 async function ask(text,opts){
   if(busy)return;
   const url=getWorker();
-  if(!url){add('e','Tap "Set up" and add your Worker URL first.');return}
+
+  if(!url){
+    add('e','Apologies, sir. Please configure my connection first.');
+    return;
+  }
+
   busy=true;
   add('u',text);
   history.push({role:'user',content:text});
-  setState('thinking','Thinking...');
+  setState('thinking','Processing request...');
+
   try{
     await getLive(opts&&opts.fresh);
+
     if(opts&&opts.card)briefingCard(live);
-    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({system:buildSystem(),messages:history.slice(-12)})});
-    if(!r.ok)throw new Error('Worker returned '+r.status);
+
+    const r=await fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system:buildSystem(),
+        messages:history.slice(-12)
+      })
+    });
+
+    if(!r.ok)throw new Error('Request failed ('+r.status+')');
+
     const data=await r.json();
-    const reply=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(' ').trim();
-    if(!reply)throw new Error(typeof data.error==='string'?data.error:'Empty reply');
+    const reply=(data.content||[])
+      .filter(b=>b.type==='text')
+      .map(b=>b.text)
+      .join(' ')
+      .trim();
+
+    if(!reply){
+      throw new Error(
+        typeof data.error==='string'?data.error:'No response received'
+      );
+    }
+
     history.push({role:'assistant',content:reply});
     lastReply=reply;
+
     if(data.ui&&data.ui.route)routeCard(data.ui.route);
+
     add('j',reply);
+
+    // Release the request lock before starting speech.
     busy=false;
+
+    // Allow the iPhone to finish rendering before speaking.
+    await new Promise(resolve=>setTimeout(resolve,250));
     await speak(reply);
+
     if(handsFree)setTimeout(listen,450);
+
   }catch(e){
-    history.pop();
-    add('e','Could not reach the brain: '+e.message);
+    console.error('JARVIS request error:',e);
+    add('e','Apologies, sir. I encountered a communications error: '+e.message);
     setState('');
+  }finally{
+    busy=false;
   }
-  busy=false;
 }
 const WORKQ="How's the drive from home to work right now?";
 const HOMEQ="How's the drive from work to home right now?";
