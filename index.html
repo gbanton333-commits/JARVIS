@@ -3,151 +3,278 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#050d18">
+<meta name="theme-color" content="#030a14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <title>JARVIS</title>
 <style>
-  :root{--bg:#050d18;--ink:#d8ecf7;--dim:#6f8ea3;--glow:#4cc9f0;--warn:#f4a259;--line:#12304a}
+  :root{--bg:#030a14;--panel:#08182a;--ink:#d8ecf7;--dim:#6f8ea3;--glow:#4cc9f0;--warn:#f4a259;--ok:#5ee6a8;--bad:#ff6b6b;--line:#12304a}
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
-  body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
-  header{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
-  h1{font-size:1rem;letter-spacing:.3em;font-weight:500;margin:0}
-  .hb{display:flex;gap:8px}
-  .hb button{background:none;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:6px 10px;font-size:.8rem}
-  #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:8px 0}
-  .m{max-width:88%;line-height:1.45;font-size:.98rem}
+  body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);
+       background:radial-gradient(120% 60% at 50% 100%,#0a2540 0%,var(--bg) 60%)}
+  header{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+  h1{font-size:.95rem;letter-spacing:.35em;font-weight:500;margin:0}
+  .hb{display:flex;gap:6px}
+  button{font:inherit}
+  .hb button,.q button{background:#06121f;border:1px solid var(--line);color:var(--dim);border-radius:999px;padding:6px 12px;font-size:.78rem}
+  .hb button.on{color:var(--glow);border-color:var(--glow)}
+  #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:6px 0 10px}
+  .m{max-width:90%;line-height:1.45;font-size:.97rem}
   .u{align-self:flex-end;color:var(--dim)}
   .j{align-self:flex-start;border-left:2px solid var(--glow);padding-left:12px}
   .e{align-self:flex-start;border-left:2px solid var(--warn);padding-left:12px;color:var(--warn)}
-  #stage{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0 6px}
-  #orb{width:96px;height:96px;border-radius:50%;border:2px solid var(--glow);background:radial-gradient(circle,#0b2a40 0%,#061522 70%);
-       box-shadow:0 0 24px #4cc9f044,inset 0 0 18px #4cc9f033;position:relative;cursor:pointer;transition:box-shadow .2s}
-  #orb::after{content:"";position:absolute;inset:26px;border-radius:50%;border:2px solid var(--glow);opacity:.7}
-  #orb.listening{animation:pulse 1.1s ease-in-out infinite}
-  #orb.thinking{animation:spin 1.4s linear infinite;border-style:dashed}
-  #orb.speaking{box-shadow:0 0 44px #4cc9f099,inset 0 0 24px #4cc9f066}
-  @keyframes pulse{50%{box-shadow:0 0 50px #4cc9f0aa,inset 0 0 26px #4cc9f077}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+  .ct{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .big .n{font-size:2rem;font-weight:600}
+  .chip{font-size:.78rem;padding:3px 9px;border-radius:999px;border:1px solid currentColor}
+  .ok{color:var(--ok)}.am{color:var(--warn)}.rd{color:var(--bad)}
+  .opt{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;border-top:1px solid var(--line);padding-top:8px}
+  .opt span:last-child{color:var(--dim);text-align:right}
+  .inc{font-size:.84rem;color:var(--warn)}
+  .inc.none{color:var(--ok)}
+  .wx{display:flex;gap:6px;overflow-x:auto}
+  .wx div{flex:0 0 auto;min-width:78px;background:#06121f;border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:.74rem;color:var(--dim)}
+  .wx b{display:block;color:var(--ink);font-size:1rem;font-weight:600}
+  .map{height:200px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .leaflet-tile{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}
+  .leaflet-container{background:#0a1620}
+  .news{font-size:.85rem;line-height:1.4}.news div{border-top:1px solid var(--line);padding:6px 0}
+  #dock{display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 0 4px}
+  .q{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .q button{color:var(--ink);border-color:#1b4a6e}
+  #hud{width:112px;height:112px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  #hud svg{width:100%;height:100%;overflow:visible}
+  #hud circle,#hud path{fill:none;stroke:var(--glow);transform-box:fill-box;transform-origin:center}
+  #hud .core{fill:#0b2a40;stroke-width:2;filter:drop-shadow(0 0 6px #4cc9f0aa)}
+  #hud .r1{stroke-width:1.2;stroke-dasharray:2 5;opacity:.7;animation:spin 24s linear infinite}
+  #hud .r2{stroke-width:2.4;stroke-dasharray:42 14 8 14;animation:spin 14s linear infinite reverse}
+  #hud .r3{stroke-width:1.6;opacity:.85}
+  #hud.listening .core{fill:#0e3d5c;animation:pulse 1s ease-in-out infinite}
+  #hud.thinking .r2{animation-duration:2.2s}
+  #hud.thinking .r1{animation-duration:4s}
+  #hud.speaking .core{fill:#12507a}
+  #hud.beat svg{transform:scale(1.07)}
+  #hud svg{transition:transform .11s ease-out}
   @keyframes spin{to{transform:rotate(360deg)}}
-  @media (prefers-reduced-motion:reduce){#orb{animation:none!important}}
-  #status{font-size:.8rem;color:var(--dim);min-height:1.2em}
-  form{display:flex;gap:8px;padding:8px 0 12px}
-  input{flex:1;background:#091a2a;border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:12px;font-size:1rem}
+  @keyframes pulse{50%{transform:scale(1.18)}}
+  @media (prefers-reduced-motion:reduce){#hud *{animation:none!important}}
+  #status{font-size:.78rem;color:var(--dim);min-height:1.1em}
+  form{display:flex;gap:8px;padding:6px 0 10px;width:100%}
+  input{flex:1;background:#06121f;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:11px;font-size:1rem}
   input:focus,button:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
-  form button{background:var(--glow);color:#02101c;border:0;border-radius:10px;padding:0 16px;font-weight:600}
+  form button{background:var(--glow);color:#02101c;border:0;border-radius:12px;padding:0 16px;font-weight:600}
 </style>
 </head>
 <body>
-<header><h1>JARVIS</h1><div class="hb"><button id="brief">Briefing</button><button id="cfg">Set up</button></div></header>
+<header>
+  <h1>JARVIS</h1>
+  <div class="hb"><button id="hf">Hands-free: off</button><button id="cfg">Set up</button></div>
+</header>
 <div id="log" aria-live="polite"></div>
-<div id="stage">
-  <div id="orb" role="button" tabindex="0" aria-label="Tap to talk"></div>
+<div id="dock">
+  <div class="q">
+    <button id="qb">Briefing</button><button id="qw">To work</button><button id="qh">To home</button><button id="qr">Replay</button>
+  </div>
+  <div id="hud" role="button" tabindex="0" aria-label="Tap to talk">
+    <svg viewBox="-60 -60 120 120">
+      <circle class="r1" r="56"/><circle class="r2" r="46"/><circle class="r3" r="34"/><circle class="core" r="22"/>
+    </svg>
+  </div>
   <div id="status">Tap the orb and speak</div>
+  <form id="f"><input id="t" placeholder="Or type here" autocomplete="off"><button>Send</button></form>
 </div>
-<form id="f"><input id="t" placeholder="Or type here" autocomplete="off"><button>Send</button></form>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-const log=$('log'),orb=$('orb'),status=$('status');
-
+const log=$('log'),hud=$('hud'),statusEl=$('status');
+const IDLE='Tap the orb and speak';
 const SYSTEM_BASE=`You are JARVIS, a dry-witted, composed British AI butler-assistant, speaking aloud to your user, G.
 Rules: replies are spoken, so keep them short (1-4 sentences), plain text only, no lists, no markdown, no emoji. Say "degrees" rather than "C", and "miles per hour" rather than "mph".
 Be warm, precise and lightly witty. Address the user as "sir" occasionally, not every time.
 You have LIVE DATA below: weather at home and at work, plus UK and local headlines. Use only what is in it and never invent figures. Traffic, routes and fuel efficiency are not connected yet, so say so plainly if asked.
 If asked for a briefing: a short greeting suited to the time of day, the weather at home, mention work only if it differs notably, then the three most important headlines in a sentence each. Under 90 words in total.`;
 
-let history=[];
-let live=null, liveAt=0;
+let history=[], live=null, liveAt=0, busy=false, lastReply='';
+let handsFree=localStorage.getItem('hf')==='1';
 
 const getWorker=()=>(localStorage.getItem('worker')||'').trim().replace(/\/+$/,'');
-$('cfg').onclick=()=>{
-  const v=prompt('Paste your Cloudflare Worker URL:',getWorker());
-  if(v!==null) localStorage.setItem('worker',v.trim());
-};
+$('cfg').onclick=()=>{const v=prompt('Paste your Cloudflare Worker URL:',getWorker());if(v!==null)localStorage.setItem('worker',v.trim())};
+function paintHF(){const b=$('hf');b.textContent='Hands-free: '+(handsFree?'on':'off');b.classList.toggle('on',handsFree)}
+$('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1':'0');paintHF()};
+paintHF();
 
-function add(cls,text){const d=document.createElement('div');d.className='m '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight}
-function setState(s,msg){orb.className=s;status.textContent=msg||''}
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function scroll(){log.scrollTop=log.scrollHeight}
+function add(cls,text){log.appendChild(el('div','m '+cls,text));scroll()}
+function setState(s,msg){hud.className=s;statusEl.textContent=msg||IDLE}
 
-// --- Live data (cached for 10 minutes) ---
-async function getLive(){
-  if(live && Date.now()-liveAt<600000) return live;
+// ---------- live data ----------
+async function getLive(force){
+  if(!force&&live&&Date.now()-liveAt<600000)return live;
   try{
     const r=await fetch(getWorker()+'/data',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
-    if(!r.ok) throw new Error(r.status);
-    const d=await r.json();
-    live=d.text; liveAt=Date.now();
-  }catch(e){ /* carry on without live data */ }
+    if(!r.ok)throw new Error(r.status);
+    live=await r.json();liveAt=Date.now();
+  }catch(e){}
   return live;
 }
 function buildSystem(){
-  const now=new Date().toLocaleString('en-GB',{timeZone:'Europe/London',weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
-  return SYSTEM_BASE+`\nNow: ${now}\nLIVE DATA:\n`+(live||'unavailable right now, say so if asked');
+  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',weekday:'long'}).formatToParts(new Date());
+  const g=t=>parts.find(p=>p.type===t).value;
+  const now=`${g('weekday')} ${g('year')}-${g('month')}-${g('day')} ${g('hour')}:${g('minute')} (Europe/London)`;
+  return SYSTEM_BASE+`\nNow: ${now}\nLIVE DATA:\n`+((live&&live.text)||'unavailable right now, say so if asked');
 }
 
-// --- Speech out ---
+// ---------- voice out ----------
 function pickVoice(){
-  const vs=speechSynthesis.getVoices();
-  return vs.find(v=>/en-GB/i.test(v.lang)&&/male|daniel|arthur|oliver/i.test(v.name))||vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang));
+  const vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
+  const score=v=>{let s=0;if(/en[-_]GB/i.test(v.lang))s+=10;if(/premium/i.test(v.name))s+=6;if(/enhanced/i.test(v.name))s+=4;if(/daniel|arthur|oliver|malcolm/i.test(v.name))s+=5;if(/compact/i.test(v.name))s-=2;return s};
+  return vs.sort((a,b)=>score(b)-score(a))[0];
 }
 function speak(text){
   return new Promise(res=>{
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
-    const v=pickVoice(); if(v) u.voice=v;
-    u.rate=1.0;u.pitch=.9;
+    const v=pickVoice();if(v)u.voice=v;
+    u.lang='en-GB';u.rate=1.02;u.pitch=.92;
     u.onstart=()=>setState('speaking','Speaking...');
-    u.onend=u.onerror=()=>{setState('', 'Tap the orb and speak');res()};
+    u.onboundary=()=>{hud.classList.add('beat');setTimeout(()=>hud.classList.remove('beat'),110)};
+    u.onend=u.onerror=()=>{setState('');res()};
     speechSynthesis.speak(u);
   });
 }
 
-// --- Brain ---
-async function ask(text){
+// ---------- cards ----------
+function delayClass(d){return d<=2?'ok':d<=9?'am':'rd'}
+function routeCard(r){
+  const c=el('div','card');
+  c.append(el('div','ct',`${r.from} \u2192 ${r.to}`));
+  const best=r.options[0];
+  const big=el('div','big');
+  big.append(el('span','n',best.min+' min'));
+  big.append(el('span','chip '+delayClass(best.delay),best.delay<=2?'clear roads':`+${best.delay} min delay`));
+  if(best.fuel!=null)big.append(el('span','chip',`${best.fuel} L \u00b7 \u00a3${best.cost.toFixed(2)}`));
+  c.append(big);
+  if(r.leave)c.append(el('div','chip ok',`Leave ${r.leave.depart} \u2192 arrive ${r.leave.arrive}`));
+  r.options.forEach((o,i)=>{
+    const row=el('div','opt');
+    row.append(el('span','',`${o.label.toLowerCase()} \u00b7 ${o.roads.join(', ')||'local roads'}`));
+    let right=`${o.min} min`;
+    if(i>0){const dt=o.min-best.min;right=`${dt>=0?'+':''}${dt} min`;if(o.fuel!=null&&best.fuel!=null){const df=+(o.fuel-best.fuel).toFixed(1);right+=` \u00b7 ${df>=0?'+':''}${df} L`}}
+    else if(o.fuel!=null){right+=` \u00b7 ${o.fuel} L`}
+    row.append(el('span','',right));
+    c.append(row);
+  });
+  if(r.incidents.length){r.incidents.slice(0,4).forEach(i=>c.append(el('div','inc','\u26a0 '+i.text)))}
+  else c.append(el('div','inc none','No incidents reported on the route'));
+  const wx=el('div','wx');
+  r.weather.forEach(w=>{
+    const d=el('div');
+    d.append(el('b','',w.wx?w.wx.t+'\u00b0':'--'));
+    d.append(document.createTextNode(`${w.name||w.label}`));d.append(el('br'));
+    d.append(document.createTextNode(w.wx?`${w.wx.desc}, ${w.wx.rain}% rain`:'unavailable'));
+    wx.append(d);
+  });
+  c.append(wx);
+  const map=el('div','map');c.append(map);
+  log.appendChild(c);scroll();
+  setTimeout(()=>drawMap(map,r),60);
+}
+function drawMap(div,r){
+  if(!window.L||!r.geom||!r.geom.length)return div.remove();
+  try{
+    const m=L.map(div,{zoomControl:false,attributionControl:true});
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'\u00a9 OpenStreetMap'}).addTo(m);
+    const line=L.polyline(r.geom,{color:'#4cc9f0',weight:5,opacity:.95}).addTo(m);
+    L.circleMarker(r.geom[0],{radius:6,color:'#5ee6a8',fillColor:'#5ee6a8',fillOpacity:1}).addTo(m);
+    L.circleMarker(r.geom[r.geom.length-1],{radius:6,color:'#fff',fillColor:'#4cc9f0',fillOpacity:1}).addTo(m);
+    r.incidents.forEach(i=>L.circleMarker([i.lat,i.lon],{radius:7,color:'#ff6b6b',fillColor:'#ff6b6b',fillOpacity:.85}).addTo(m).bindTooltip(i.text));
+    m.fitBounds(line.getBounds(),{padding:[16,16]});
+    setTimeout(()=>m.invalidateSize(),200);
+  }catch(e){div.remove()}
+}
+function briefingCard(d){
+  if(!d)return;
+  const c=el('div','card');
+  c.append(el('div','ct','Briefing'));
+  const wx=el('div','wx');
+  (d.weather||[]).forEach(w=>{const x=el('div');x.append(el('b','',w.t+'\u00b0'));x.append(document.createTextNode(w.name));x.append(el('br'));x.append(document.createTextNode(`${w.desc}, ${w.rain}% rain`));wx.append(x)});
+  c.append(wx);
+  const n=el('div','news');
+  const items=[...((d.news&&d.news.uk)||[]).slice(0,3),...((d.news&&d.news.local)||[]).slice(0,2)];
+  items.forEach(t=>n.append(el('div','',t)));
+  c.append(n);
+  log.appendChild(c);scroll();
+}
+
+// ---------- brain ----------
+async function ask(text,opts){
+  if(busy)return;
   const url=getWorker();
   if(!url){add('e','Tap "Set up" and add your Worker URL first.');return}
+  busy=true;
   add('u',text);
   history.push({role:'user',content:text});
   setState('thinking','Thinking...');
   try{
-    await getLive();
+    await getLive(opts&&opts.fresh);
+    if(opts&&opts.card)briefingCard(live);
     const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({system:buildSystem(),messages:history.slice(-12)})});
-    if(!r.ok) throw new Error('Worker returned '+r.status);
+    if(!r.ok)throw new Error('Worker returned '+r.status);
     const data=await r.json();
     const reply=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(' ').trim();
-    if(!reply) throw new Error(data.error||'Empty reply');
+    if(!reply)throw new Error(typeof data.error==='string'?data.error:'Empty reply');
     history.push({role:'assistant',content:reply});
+    lastReply=reply;
+    if(data.ui&&data.ui.route)routeCard(data.ui.route);
     add('j',reply);
+    busy=false;
     await speak(reply);
+    if(handsFree)setTimeout(listen,450);
   }catch(e){
     history.pop();
     add('e','Could not reach the brain: '+e.message);
-    setState('','Tap the orb and speak');
+    setState('');
   }
+  busy=false;
 }
+const WORKQ="How's the drive from home to work right now?";
+const HOMEQ="How's the drive from work to home right now?";
+const briefing=()=>ask('Give me my briefing.',{card:true,fresh:true});
 
-// --- Speech in ---
+// ---------- voice in ----------
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec=null,listening=false;
 function listen(){
-  if(!SR){add('e','Speech recognition is not supported here. Type instead, or open in Safari/Chrome.');return}
+  if(!SR){add('e','Speech recognition is not supported here. Use the keyboard mic instead.');return}
   if(listening){rec&&rec.stop();return}
+  if(busy)return;
   speechSynthesis.cancel();
   rec=new SR();rec.lang='en-GB';rec.interimResults=false;rec.maxAlternatives=1;
   rec.onstart=()=>{listening=true;setState('listening','Listening...')};
   rec.onresult=e=>ask(e.results[0][0].transcript);
-  rec.onerror=e=>{add('e','Mic error: '+e.error);setState('','Tap the orb and speak')};
-  rec.onend=()=>{listening=false;if(orb.className==='listening')setState('','Tap the orb and speak')};
+  rec.onerror=e=>{if(e.error!=='no-speech'&&e.error!=='aborted')add('e','Mic error: '+e.error);setState('')};
+  rec.onend=()=>{listening=false;if(hud.className==='listening')setState('')};
   rec.start();
 }
-orb.onclick=listen;
-orb.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();listen()}};
-$('brief').onclick=()=>ask('Give me my briefing.');
+hud.onclick=listen;
+hud.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();listen()}};
+$('qb').onclick=briefing;
+$('qw').onclick=()=>ask(WORKQ);
+$('qh').onclick=()=>ask(HOMEQ);
+$('qr').onclick=()=>{if(lastReply)speak(lastReply)};
 $('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';ask(v)}};
 speechSynthesis.onvoiceschanged=()=>{};
 
-if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+// ?cmd=briefing | work | home (for iPhone Shortcuts)
+const cmd=new URLSearchParams(location.search).get('cmd');
+if(cmd){const run={briefing,work:()=>ask(WORKQ),home:()=>ask(HOMEQ)}[cmd];if(run)setTimeout(run,500);history.replaceState(null,'',location.pathname)}
+
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>
