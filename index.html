@@ -14,7 +14,8 @@
   body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
   header{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
   h1{font-size:1rem;letter-spacing:.3em;font-weight:500;margin:0}
-  #cfg{background:none;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:6px 10px;font-size:.8rem}
+  .hb{display:flex;gap:8px}
+  .hb button{background:none;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:6px 10px;font-size:.8rem}
   #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:8px 0}
   .m{max-width:88%;line-height:1.45;font-size:.98rem}
   .u{align-self:flex-end;color:var(--dim)}
@@ -38,7 +39,7 @@
 </style>
 </head>
 <body>
-<header><h1>JARVIS</h1><button id="cfg">Set up</button></header>
+<header><h1>JARVIS</h1><div class="hb"><button id="brief">Briefing</button><button id="cfg">Set up</button></div></header>
 <div id="log" aria-live="polite"></div>
 <div id="stage">
   <div id="orb" role="button" tabindex="0" aria-label="Tap to talk"></div>
@@ -49,13 +50,17 @@
 <script>
 const $=id=>document.getElementById(id);
 const log=$('log'),orb=$('orb'),status=$('status');
-const SYSTEM=`You are JARVIS, a dry-witted, composed British AI butler-assistant, speaking aloud to your user, G.
-Rules: replies are spoken, so keep them short (1-4 sentences), plain text only, no lists, no markdown, no emoji.
-Be warm, precise and lightly witty. Address the user as "sir" occasionally, not every time.
-You do not yet have live data (traffic, weather, news). If asked, say plainly that the feed is not connected yet, rather than guessing.`;
-let history=[];
 
-const getWorker=()=>localStorage.getItem('worker')||'';
+const SYSTEM_BASE=`You are JARVIS, a dry-witted, composed British AI butler-assistant, speaking aloud to your user, G.
+Rules: replies are spoken, so keep them short (1-4 sentences), plain text only, no lists, no markdown, no emoji. Say "degrees" rather than "C", and "miles per hour" rather than "mph".
+Be warm, precise and lightly witty. Address the user as "sir" occasionally, not every time.
+You have LIVE DATA below: weather at home and at work, plus UK and local headlines. Use only what is in it and never invent figures. Traffic, routes and fuel efficiency are not connected yet, so say so plainly if asked.
+If asked for a briefing: a short greeting suited to the time of day, the weather at home, mention work only if it differs notably, then the three most important headlines in a sentence each. Under 90 words in total.`;
+
+let history=[];
+let live=null, liveAt=0;
+
+const getWorker=()=>(localStorage.getItem('worker')||'').trim().replace(/\/+$/,'');
 $('cfg').onclick=()=>{
   const v=prompt('Paste your Cloudflare Worker URL:',getWorker());
   if(v!==null) localStorage.setItem('worker',v.trim());
@@ -63,6 +68,22 @@ $('cfg').onclick=()=>{
 
 function add(cls,text){const d=document.createElement('div');d.className='m '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight}
 function setState(s,msg){orb.className=s;status.textContent=msg||''}
+
+// --- Live data (cached for 10 minutes) ---
+async function getLive(){
+  if(live && Date.now()-liveAt<600000) return live;
+  try{
+    const r=await fetch(getWorker()+'/data',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    if(!r.ok) throw new Error(r.status);
+    const d=await r.json();
+    live=d.text; liveAt=Date.now();
+  }catch(e){ /* carry on without live data */ }
+  return live;
+}
+function buildSystem(){
+  const now=new Date().toLocaleString('en-GB',{timeZone:'Europe/London',weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+  return SYSTEM_BASE+`\nNow: ${now}\nLIVE DATA:\n`+(live||'unavailable right now, say so if asked');
+}
 
 // --- Speech out ---
 function pickVoice(){
@@ -89,12 +110,13 @@ async function ask(text){
   history.push({role:'user',content:text});
   setState('thinking','Thinking...');
   try{
+    await getLive();
     const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({system:SYSTEM,messages:history.slice(-12)})});
+      body:JSON.stringify({system:buildSystem(),messages:history.slice(-12)})});
     if(!r.ok) throw new Error('Worker returned '+r.status);
     const data=await r.json();
     const reply=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(' ').trim();
-    if(!reply) throw new Error('Empty reply');
+    if(!reply) throw new Error(data.error||'Empty reply');
     history.push({role:'assistant',content:reply});
     add('j',reply);
     await speak(reply);
@@ -121,6 +143,7 @@ function listen(){
 }
 orb.onclick=listen;
 orb.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();listen()}};
+$('brief').onclick=()=>ask('Give me my briefing.');
 $('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';ask(v)}};
 speechSynthesis.onvoiceschanged=()=>{};
 
