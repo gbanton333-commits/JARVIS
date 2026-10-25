@@ -3,8 +3,8 @@
 import { writeFileSync, existsSync, readFileSync } from 'node:fs';
 
 const BASE = process.env.FUEL_BASE || 'https://www.fuel-finder.service.gov.uk/api/v1';
-const ID = process.env.FUEL_CLIENT_ID, SECRET = process.env.FUEL_CLIENT_SECRET;
-if (!ID || !SECRET) { console.log('No Fuel Finder credentials set; skipping.'); process.exit(0); }
+const ID = (process.env.FUEL_CLIENT_ID || '').trim(), SECRET = (process.env.FUEL_CLIENT_SECRET || '').trim();
+console.log('credential lengths:', ID.length, SECRET.length); }
 
 const PLACES = { home: { lat: 50.886, lon: -1.245 }, work: { lat: 51.357, lon: -1.148 } };
 const RADIUS_KM = 15;
@@ -22,15 +22,24 @@ const lonOf = s => num(s.longitude ?? s.lon ?? s.lng ?? find(s, 'longitude'));
 const nameOf = s => String(s.trading_name ?? s.tradingName ?? s.name ?? s.brand_name ?? 'station').trim();
 
 async function token() {
-  const r = await fetch(BASE + '/oauth/generate_access_token', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', accept: 'application/json' },
-    body: JSON.stringify({ client_id: ID, client_secret: SECRET }),
-  });
-  const j = await r.json().catch(() => ({}));
-  const t = find(j, 'access_token');
-  if (!r.ok || !t) { console.log('Auth failed. status', r.status, 'keys', Object.keys(j), 'message', find(j, 'message')); process.exit(1); }
-  return t;
+  const attempts = [
+    { type: 'application/json', body: JSON.stringify({ client_id: ID, client_secret: SECRET }) },
+    { type: 'application/x-www-form-urlencoded', body: new URLSearchParams({ grant_type: 'client_credentials', client_id: ID, client_secret: SECRET }).toString() },
+  ];
+  for (const a of attempts) {
+    const r = await fetch(BASE + '/oauth/generate_access_token', {
+      method: 'POST',
+      headers: { 'content-type': a.type, accept: 'application/json', 'user-agent': 'Mozilla/5.0 (compatible; JARVIS-personal/1.0)' },
+      body: a.body,
+    });
+    const raw = await r.text();
+    let j = {};
+    try { j = JSON.parse(raw); } catch {}
+    const t = find(j, 'access_token');
+    if (r.ok && t) return t;
+    console.log('Auth attempt failed:', a.type, 'status', r.status, 'server', r.headers.get('server'), 'content-type', r.headers.get('content-type'), 'body', raw.slice(0, 300).replace(/\s+/g, ' '));
+  }
+  process.exit(1);
 }
 
 async function batches(path, tok) {
