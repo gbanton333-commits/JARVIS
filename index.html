@@ -3,115 +3,179 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#030a14">
+<meta name="theme-color" content="#040b14">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <title>JARVIS</title>
 <style>
-  :root{--bg:#030a14;--panel:#08182a;--ink:#d8ecf7;--dim:#6f8ea3;--glow:#4cc9f0;--warn:#f4a259;--ok:#5ee6a8;--bad:#ff6b6b;--line:#12304a}
+  :root{--bg:#040b14;--panel:#0a1a2b;--panel2:#0d2238;--ink:#e3f1fa;--dim:#7491a6;--glow:#4cc9f0;--warn:#f4a259;--ok:#5ee6a8;--bad:#ff6b6b;--line:#15324c}
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
-  body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);
-       background:radial-gradient(120% 60% at 50% 100%,#0a2540 0%,var(--bg) 60%)}
-  header{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
-  h1{font-size:.95rem;letter-spacing:.35em;font-weight:500;margin:0}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+       background:radial-gradient(120% 50% at 50% 0%,#0b2a47 0%,var(--bg) 62%)}
+  button,a{font:inherit;color:inherit}
+  header{display:flex;justify-content:space-between;align-items:center;padding:10px 18px 4px}
+  h1{font-size:.78rem;letter-spacing:.42em;font-weight:600;margin:0;color:var(--dim)}
   .hb{display:flex;gap:6px}
-  button{font:inherit}
-  .hb button,.q button{background:#06121f;border:1px solid var(--line);color:var(--dim);border-radius:999px;padding:6px 12px;font-size:.78rem}
-  .hb button.on{color:var(--glow);border-color:var(--glow)}
-  #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:6px 0 10px}
-  .m{max-width:90%;line-height:1.45;font-size:.97rem}
-  .u{align-self:flex-end;color:var(--dim)}
+  .pill{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:999px;padding:5px 11px;font-size:.74rem}
+  .pill.on{color:var(--glow);border-color:var(--glow)}
+  #main{flex:1;overflow-y:auto;padding:6px 18px 12px;-webkit-overflow-scrolling:touch}
+  #hero{padding:10px 0 16px}
+  #hello{font-size:.95rem;color:var(--dim)}
+  #clock{font-size:3.2rem;font-weight:200;letter-spacing:.02em;line-height:1.05;margin-top:2px}
+  #date{font-size:.85rem;color:var(--dim);margin-top:2px}
+  #tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tile{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:14px;text-align:left;position:relative;min-height:84px}
+  .tile.wide{grid-column:1/-1}
+  .ct{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+  .n{font-size:2.1rem;font-weight:300;line-height:1.1}
+  .n2{font-size:1.9rem;font-weight:300;margin-top:4px}
+  .sub{font-size:.8rem;color:var(--dim);margin-top:2px}
+  .row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:4px}
+  .chip{font-size:.72rem;padding:2px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+  .ok{color:var(--ok)}.am{color:var(--warn)}.rd{color:var(--bad)}.gl{color:var(--glow)}
+  #swap{position:absolute;top:10px;right:10px;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:999px;width:30px;height:30px;font-size:.9rem}
+  #news div{font-size:.82rem;line-height:1.35;padding:6px 0;border-top:1px solid var(--line)}
+  #news div:first-child{border-top:0}
+  #log{display:flex;flex-direction:column;gap:12px;padding-top:16px}
+  .m{max-width:92%;line-height:1.5;font-size:.97rem}
+  .u{align-self:flex-end;color:var(--dim);font-size:.92rem}
   .j{align-self:flex-start;border-left:2px solid var(--glow);padding-left:12px}
   .e{align-self:flex-start;border-left:2px solid var(--warn);padding-left:12px;color:var(--warn)}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
-  .ct{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
-  .big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-  .big .n{font-size:2rem;font-weight:600}
-  .chip{font-size:.78rem;padding:3px 9px;border-radius:999px;border:1px solid currentColor}
-  .ok{color:var(--ok)}.am{color:var(--warn)}.rd{color:var(--bad)}
-  .opt{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;border-top:1px solid var(--line);padding-top:8px}
-  .opt span:last-child{color:var(--dim);text-align:right}
-  .inc{font-size:.84rem;color:var(--warn)}
+  .card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;justify-content:space-between;gap:10px;font-size:.82rem;border-top:1px solid var(--line);padding-top:8px;color:var(--dim)}
+  .opt b{color:var(--ink);font-weight:500}
+  .inc{font-size:.82rem;color:var(--warn)}
   .inc.none{color:var(--ok)}
-  .wx{display:flex;gap:6px;overflow-x:auto}
-  .wx div{flex:0 0 auto;min-width:78px;background:#06121f;border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:.74rem;color:var(--dim)}
-  .wx b{display:block;color:var(--ink);font-size:1rem;font-weight:600}
-  .map{height:200px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
-  .leaflet-tile{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}
-  .leaflet-container{background:#0a1620}
-  .news{font-size:.85rem;line-height:1.4}.news div{border-top:1px solid var(--line);padding:6px 0}
-  #dock{display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 0 4px}
-  .q{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-  .q button{color:var(--ink);border-color:#1b4a6e}
-  #hud{width:112px;height:112px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-  #hud svg{width:100%;height:100%;overflow:visible}
-  #hud circle,#hud path{fill:none;stroke:var(--glow);transform-box:fill-box;transform-origin:center}
+  .wx{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .wx div{flex:0 0 auto;min-width:74px;font-size:.7rem;color:var(--dim);border-left:1px solid var(--line);padding-left:8px}
+  .wx div:first-child{border-left:0;padding-left:0}
+  .wx b{display:block;color:var(--ink);font-size:1rem;font-weight:400}
+  .map{height:190px;border-radius:12px;overflow:hidden;background:#07111c}
+  .acts{display:flex;gap:8px}
+  .btn{flex:1;text-align:center;text-decoration:none;border:1px solid var(--line);border-radius:12px;padding:11px 8px;font-size:.85rem;color:var(--ink)}
+  .btn.pri{background:var(--glow);border-color:var(--glow);color:#02101c;font-weight:600;flex:2}
+  /* map */
+  .leaflet-container{background:#07111c;font:inherit}
+  .leaflet-control-attribution{background:transparent!important;color:#3d566a!important;font-size:8px!important}
+  .leaflet-control-attribution a{color:#4a6a82!important}
+  .mk-start{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 5px #5ee6a826}
+  .mk-end{width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 12px #4cc9f0}
+  .mk-inc{width:9px;height:9px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 0 #f4a259aa;animation:ping 1.8s infinite}
+  @keyframes ping{70%{box-shadow:0 0 0 9px #f4a25900}100%{box-shadow:0 0 0 0 #f4a25900}}
+  .leaflet-tooltip{background:#0a1a2b;border:1px solid var(--line);color:var(--ink);font-size:11px;border-radius:8px;box-shadow:none}
+  .leaflet-tooltip:before{display:none}
+  /* dock */
+  #dock{padding:6px 18px 10px;border-top:1px solid #0f2438;background:linear-gradient(180deg,#040b14aa,#040b14)}
+  #status{text-align:center;font-size:.72rem;color:var(--dim);min-height:1em;letter-spacing:.06em;margin-bottom:6px}
+  .q{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+  .q::-webkit-scrollbar,.wx::-webkit-scrollbar{display:none}
+  .q button{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:.82rem}
+  .q button:active{background:var(--panel2)}
+  #bar{display:flex;align-items:center;gap:12px}
+  form{flex:1;display:flex}
+  input{flex:1;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:999px;color:var(--ink);padding:13px 16px;font-size:1rem}
+  input::placeholder{color:#47637a}
+  input:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
+  #hud{width:72px;height:72px;flex:0 0 auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  #hud svg{width:100%;height:100%;overflow:visible;transition:transform .11s ease-out}
+  #hud circle{fill:none;stroke:var(--glow);transform-box:fill-box;transform-origin:center}
   #hud .core{fill:#0b2a40;stroke-width:2;filter:drop-shadow(0 0 6px #4cc9f0aa)}
   #hud .r1{stroke-width:1.2;stroke-dasharray:2 5;opacity:.7;animation:spin 24s linear infinite}
-  #hud .r2{stroke-width:2.4;stroke-dasharray:42 14 8 14;animation:spin 14s linear infinite reverse}
+  #hud .r2{stroke-width:2.6;stroke-dasharray:42 14 8 14;animation:spin 14s linear infinite reverse}
   #hud .r3{stroke-width:1.6;opacity:.85}
-  #hud.listening .core{fill:#0e3d5c;animation:pulse 1s ease-in-out infinite}
-  #hud.thinking .r2{animation-duration:2.2s}
+  #hud.listening .core{fill:#0e4466;animation:pulse 1s ease-in-out infinite}
+  #hud.thinking .r2{animation-duration:2s}
   #hud.thinking .r1{animation-duration:4s}
-  #hud.speaking .core{fill:#12507a}
-  #hud.beat svg{transform:scale(1.07)}
-  #hud svg{transition:transform .11s ease-out}
+  #hud.speaking .core{fill:#14587f}
+  #hud.beat svg{transform:scale(1.09)}
   @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes pulse{50%{transform:scale(1.18)}}
-  @media (prefers-reduced-motion:reduce){#hud *{animation:none!important}}
-  #status{font-size:.78rem;color:var(--dim);min-height:1.1em}
-  form{display:flex;gap:8px;padding:6px 0 10px;width:100%}
-  input{flex:1;background:#06121f;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:11px;font-size:1rem}
-  input:focus,button:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
-  form button{background:var(--glow);color:#02101c;border:0;border-radius:12px;padding:0 16px;font-weight:600}
+  @keyframes pulse{50%{transform:scale(1.2)}}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  #hero,.tile,.card,.m{animation:rise .45s ease both}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <header>
-  <h1>JARVIS</h1>
-  <div class="hb"><button id="hf">Hands-free: off</button><button id="cfg">Set up</button></div>
+  <h1>J.A.R.V.I.S.</h1>
+  <div class="hb"><button class="pill" id="hf">Hands-free</button><button class="pill" id="cfg">Set up</button></div>
 </header>
-<div id="log" aria-live="polite"></div>
-<div id="dock">
-  <div class="q">
-    <button id="qb">Briefing</button><button id="qw">To work</button><button id="qh">To home</button><button id="qr">Replay</button>
-  </div>
-  <div id="hud" role="button" tabindex="0" aria-label="Tap to talk">
-    <svg viewBox="-60 -60 120 120">
-      <circle class="r1" r="56"/><circle class="r2" r="46"/><circle class="r3" r="34"/><circle class="core" r="22"/>
-    </svg>
-  </div>
-  <div id="status">Tap the orb and speak</div>
-  <form id="f"><input id="t" placeholder="Or type here" autocomplete="off"><button>Send</button></form>
+
+<div id="main">
+  <section id="hero">
+    <div id="hello">&nbsp;</div>
+    <div id="clock">--:--</div>
+    <div id="date">&nbsp;</div>
+  </section>
+
+  <section id="tiles">
+    <div class="tile wide" id="tCommute" role="button" tabindex="0">
+      <div class="ct" id="cDir">Commute</div>
+      <div class="row"><span class="n" id="cMin">--</span><span class="chip" id="cChip"></span></div>
+      <div class="sub" id="cSub">Checking traffic...</div>
+      <button id="swap" aria-label="Swap direction">&#8646;</button>
+    </div>
+    <div class="tile" id="tHome"><div class="ct">Home</div><div class="n2" id="wH">--</div><div class="sub" id="wHd">&nbsp;</div></div>
+    <div class="tile" id="tWork"><div class="ct">Work</div><div class="n2" id="wW">--</div><div class="sub" id="wWd">&nbsp;</div></div>
+    <div class="tile wide" id="tNews" role="button" tabindex="0"><div class="ct">Headlines</div><div id="news"><div class="sub">Loading...</div></div></div>
+  </section>
+
+  <div id="log" aria-live="polite"></div>
 </div>
+
+<div id="dock">
+  <div id="status">Tap the orb and speak</div>
+  <div class="q">
+    <button id="qb">Briefing</button><button id="qw">To work</button><button id="qh">To home</button><button id="ql">Leave by&hellip;</button><button id="qr">Replay</button>
+  </div>
+  <div id="bar">
+    <form id="f"><input id="t" placeholder="Type to JARVIS" autocomplete="off" enterkeyhint="send"></form>
+    <div id="hud" role="button" tabindex="0" aria-label="Tap to talk">
+      <svg viewBox="-60 -60 120 120"><circle class="r1" r="56"/><circle class="r2" r="46"/><circle class="r3" r="34"/><circle class="core" r="22"/></svg>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-const log=$('log'),hud=$('hud'),statusEl=$('status');
+const main=$('main'),log=$('log'),hud=$('hud'),statusEl=$('status');
 const IDLE='Tap the orb and speak';
-const SYSTEM_BASE=`You are JARVIS, a dry-witted, composed British AI butler-assistant, speaking aloud to your user, G.
-Rules: replies are spoken, so keep them short (1-4 sentences), plain text only, no lists, no markdown, no emoji. Say "degrees" rather than "C", and "miles per hour" rather than "mph".
-Be warm, precise and lightly witty. Address the user as "sir" occasionally, not every time.
+
+const SYSTEM_BASE=`You are J.A.R.V.I.S., the user's personal AI, modelled on the assistant from the Iron Man films: formal, unflappable, dryly witty British manner; understated, never gushing. You address the user as "sir", though not in every sentence.
+Style: your replies are spoken aloud, so use 1 to 4 short sentences, plain text, no lists, no markdown, no emoji. Lead with the verdict or status, then the key facts, then a recommendation or a brief offer such as "Shall I check the alternative?". Anticipate needs: if rain is likely, mention it; if a delay is building, suggest leaving earlier. Wit is dry and rare: at most one light remark, never at the cost of clarity. Phrases like "I'd advise", "might I suggest", "as you wish" and "all systems nominal" are welcome, sparingly. Never over-apologise; if you lack data, say so plainly, as in "I don't have that feed connected, sir".
+Say "degrees" rather than "C", "miles per hour" rather than "mph", and spell out minutes, litres and pounds.
 You have LIVE DATA below: weather at home and at work, plus UK and local headlines. Use only what is in it and never invent figures. Traffic, routes and fuel efficiency are not connected yet, so say so plainly if asked.
 If asked for a briefing: a short greeting suited to the time of day, the weather at home, mention work only if it differs notably, then the three most important headlines in a sentence each. Under 90 words in total.`;
 
-let history=[], live=null, liveAt=0, busy=false, lastReply='';
+let history=[],live=null,liveAt=0,busy=false,lastReply='';
 let handsFree=localStorage.getItem('hf')==='1';
+let dir=(+londonPart('hour')<13)?'work':'home';
+let commuteUI=null,commuteAt=0;
 
+function londonPart(t){return new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hourCycle:'h23',hour:'2-digit',minute:'2-digit',weekday:'long',day:'numeric',month:'long',year:'numeric'}).formatToParts(new Date()).find(p=>p.type===t).value}
 const getWorker=()=>(localStorage.getItem('worker')||'').trim().replace(/\/+$/,'');
-$('cfg').onclick=()=>{const v=prompt('Paste your Cloudflare Worker URL:',getWorker());if(v!==null)localStorage.setItem('worker',v.trim())};
-function paintHF(){const b=$('hf');b.textContent='Hands-free: '+(handsFree?'on':'off');b.classList.toggle('on',handsFree)}
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function toEnd(){setTimeout(()=>main.scrollTo({top:main.scrollHeight,behavior:'smooth'}),60)}
+function add(cls,text){log.appendChild(el('div','m '+cls,text));toEnd()}
+function setState(s,msg){hud.className=s;statusEl.textContent=msg||IDLE}
+function paintHF(){$('hf').classList.toggle('on',handsFree);$('hf').textContent='Hands-free '+(handsFree?'on':'off')}
 $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1':'0');paintHF()};
+$('cfg').onclick=()=>{const v=prompt('Paste your Cloudflare Worker URL:',getWorker());if(v!==null){localStorage.setItem('worker',v.trim());loadDash(true)}};
 paintHF();
 
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
-function scroll(){log.scrollTop=log.scrollHeight}
-function add(cls,text){log.appendChild(el('div','m '+cls,text));scroll()}
-function setState(s,msg){hud.className=s;statusEl.textContent=msg||IDLE}
+// ---------- dashboard ----------
+function tick(){
+  const h=+londonPart('hour');
+  $('hello').textContent=(h<5?'Working late, sir.':h<12?'Good morning, sir.':h<18?'Good afternoon, sir.':'Good evening, sir.');
+  $('clock').textContent=londonPart('hour')+':'+londonPart('minute');
+  $('date').textContent=londonPart('weekday')+' '+londonPart('day')+' '+londonPart('month');
+}
+tick();setInterval(tick,20000);
 
-// ---------- live data ----------
 async function getLive(force){
   if(!force&&live&&Date.now()-liveAt<600000)return live;
   try{
@@ -121,12 +185,47 @@ async function getLive(force){
   }catch(e){}
   return live;
 }
-function buildSystem(){
-  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',weekday:'long'}).formatToParts(new Date());
-  const g=t=>parts.find(p=>p.type===t).value;
-  const now=`${g('weekday')} ${g('year')}-${g('month')}-${g('day')} ${g('hour')}:${g('minute')} (Europe/London)`;
-  return SYSTEM_BASE+`\nNow: ${now}\nLIVE DATA:\n`+((live&&live.text)||'unavailable right now, say so if asked');
+function paintWeather(){
+  const w=(live&&live.weather)||[];
+  const h=w.find(x=>/home/i.test(x.name)),k=w.find(x=>/work/i.test(x.name));
+  $('wH').textContent=h?h.t+'\u00b0':'--';$('wHd').textContent=h?`${h.desc}, ${h.rain}% rain`:'unavailable';
+  $('wW').textContent=k?k.t+'\u00b0':'--';$('wWd').textContent=k?`${k.desc}, ${k.rain}% rain`:'unavailable';
+  const n=$('news');n.textContent='';
+  const items=live&&live.news?[...(live.news.uk||[]).slice(0,3),...(live.news.local||[]).slice(0,1)]:[];
+  if(!items.length)n.append(el('div','sub','Headlines unavailable'));
+  items.forEach(t=>n.append(el('div','',t)));
 }
+function delayClass(d){return d<=2?'ok':d<=9?'am':'rd'}
+function paintCommute(){
+  $('cDir').textContent=dir==='work'?'To work':'To home';
+  const r=commuteUI;
+  if(!r){$('cMin').textContent='--';$('cChip').textContent='';return}
+  const b=r.options[0];
+  $('cMin').textContent=b.min+' min';
+  const c=$('cChip');c.className='chip '+delayClass(b.delay);c.textContent=b.delay<=2?'clear roads':'+'+b.delay+' min';
+  const n=r.incidents.length;
+  $('cSub').textContent=`via ${b.roads.join(', ')||'local roads'} \u00b7 ${n} incident${n===1?'':'s'} \u00b7 tap for route`;
+}
+async function loadCommute(){
+  if(!getWorker())return;
+  $('cSub').textContent='Checking traffic...';
+  try{
+    const r=await fetch(getWorker()+'/commute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir})});
+    if(!r.ok)throw new Error(r.status);
+    const d=await r.json();
+    commuteUI=d.route||null;commuteAt=Date.now();
+    if(!commuteUI)$('cSub').textContent='Traffic unavailable';
+  }catch(e){commuteUI=null;$('cSub').textContent='Traffic unavailable'}
+  paintCommute();
+}
+async function loadDash(force){
+  if(!getWorker()){$('cSub').textContent='Tap Set up and add your Worker URL';return}
+  await Promise.all([getLive(force).then(paintWeather),loadCommute()]);
+}
+$('swap').onclick=e=>{e.stopPropagation();dir=dir==='work'?'home':'work';commuteUI=null;paintCommute();loadCommute()};
+$('tCommute').onclick=()=>{if(commuteUI){routeCard(commuteUI);}};
+$('tNews').onclick=()=>briefing();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-commuteAt>300000)loadDash(true)});
 
 // ---------- voice out ----------
 function pickVoice(){
@@ -139,7 +238,7 @@ function speak(text){
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
     const v=pickVoice();if(v)u.voice=v;
-    u.lang='en-GB';u.rate=1.02;u.pitch=.92;
+    u.lang='en-GB';u.rate=1.0;u.pitch=.9;
     u.onstart=()=>setState('speaking','Speaking...');
     u.onboundary=()=>{hud.classList.add('beat');setTimeout(()=>hud.classList.remove('beat'),110)};
     u.onend=u.onerror=()=>{setState('');res()};
@@ -148,139 +247,100 @@ function speak(text){
 }
 
 // ---------- cards ----------
-function delayClass(d){return d<=2?'ok':d<=9?'am':'rd'}
+const gmaps=r=>`https://www.google.com/maps/dir/?api=1&origin=${r.a.lat},${r.a.lon}&destination=${r.b.lat},${r.b.lon}&travelmode=driving`;
+const amaps=r=>`https://maps.apple.com/?saddr=${r.a.lat},${r.a.lon}&daddr=${r.b.lat},${r.b.lon}&dirflg=d`;
+
 function routeCard(r){
   const c=el('div','card');
   c.append(el('div','ct',`${r.from} \u2192 ${r.to}`));
   const best=r.options[0];
-  const big=el('div','big');
+  const big=el('div','row');
   big.append(el('span','n',best.min+' min'));
   big.append(el('span','chip '+delayClass(best.delay),best.delay<=2?'clear roads':`+${best.delay} min delay`));
-  if(best.fuel!=null)big.append(el('span','chip',`${best.fuel} L \u00b7 \u00a3${best.cost.toFixed(2)}`));
+  if(best.fuel!=null)big.append(el('span','chip gl',`${best.fuel} L \u00b7 \u00a3${best.cost.toFixed(2)}`));
   c.append(big);
   if(r.leave)c.append(el('div','chip ok',`Leave ${r.leave.depart} \u2192 arrive ${r.leave.arrive}`));
-  r.options.forEach((o,i)=>{
+  r.options.slice(1).forEach(o=>{
     const row=el('div','opt');
-    row.append(el('span','',`${o.label.toLowerCase()} \u00b7 ${o.roads.join(', ')||'local roads'}`));
-    let right=`${o.min} min`;
-    if(i>0){const dt=o.min-best.min;right=`${dt>=0?'+':''}${dt} min`;if(o.fuel!=null&&best.fuel!=null){const df=+(o.fuel-best.fuel).toFixed(1);right+=` \u00b7 ${df>=0?'+':''}${df} L`}}
-    else if(o.fuel!=null){right+=` \u00b7 ${o.fuel} L`}
-    row.append(el('span','',right));
-    c.append(row);
+    const l=el('span');l.append(el('b','',o.label.charAt(0)+o.label.slice(1).toLowerCase()));l.append(document.createTextNode(` \u00b7 ${o.roads.join(', ')||'local roads'}`));
+    const dt=o.min-best.min;let right=`${dt>=0?'+':''}${dt} min`;
+    if(o.fuel!=null&&best.fuel!=null){const df=+(o.fuel-best.fuel).toFixed(1);right+=` \u00b7 ${df>=0?'+':''}${df} L`}
+    row.append(l,el('span','',right));c.append(row);
   });
-  if(r.incidents.length){r.incidents.slice(0,4).forEach(i=>c.append(el('div','inc','\u26a0 '+i.text)))}
-  else c.append(el('div','inc none','No incidents reported on the route'));
+  if(r.incidents.length)r.incidents.slice(0,3).forEach(i=>c.append(el('div','inc','\u25cf '+i.text)));
+  else c.append(el('div','inc none','No incidents on your route'));
   const wx=el('div','wx');
   r.weather.forEach(w=>{
-    const d=el('div');
-    d.append(el('b','',w.wx?w.wx.t+'\u00b0':'--'));
-    d.append(document.createTextNode(`${w.name||w.label}`));d.append(el('br'));
-    d.append(document.createTextNode(w.wx?`${w.wx.desc}, ${w.wx.rain}% rain`:'unavailable'));
-    wx.append(d);
+    const d=el('div');d.append(el('b','',w.wx?w.wx.t+'\u00b0':'--'));
+    d.append(document.createTextNode(w.name||w.label));d.append(el('br'));
+    d.append(document.createTextNode(w.wx?`${w.wx.desc}, ${w.wx.rain}%`:'n/a'));wx.append(d);
   });
   c.append(wx);
   const map=el('div','map');c.append(map);
-  log.appendChild(c);scroll();
-  setTimeout(()=>drawMap(map,r),60);
+  if(r.a&&r.b){
+    const acts=el('div','acts');
+    const g=el('a','btn pri','Open in Google Maps');g.href=gmaps(r);g.target='_blank';g.rel='noopener';
+    const ap=el('a','btn','Apple Maps');ap.href=amaps(r);ap.target='_blank';ap.rel='noopener';
+    acts.append(g,ap);c.append(acts);
+  }
+  log.appendChild(c);toEnd();
+  setTimeout(()=>drawMap(map,r),80);
 }
 function drawMap(div,r){
   if(!window.L||!r.geom||!r.geom.length)return div.remove();
   try{
-    const m=L.map(div,{zoomControl:false,attributionControl:true});
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'\u00a9 OpenStreetMap'}).addTo(m);
-    const line=L.polyline(r.geom,{color:'#4cc9f0',weight:5,opacity:.95}).addTo(m);
-    L.circleMarker(r.geom[0],{radius:6,color:'#5ee6a8',fillColor:'#5ee6a8',fillOpacity:1}).addTo(m);
-    L.circleMarker(r.geom[r.geom.length-1],{radius:6,color:'#fff',fillColor:'#4cc9f0',fillOpacity:1}).addTo(m);
-    r.incidents.forEach(i=>L.circleMarker([i.lat,i.lon],{radius:7,color:'#ff6b6b',fillColor:'#ff6b6b',fillOpacity:.85}).addTo(m).bindTooltip(i.text));
-    m.fitBounds(line.getBounds(),{padding:[16,16]});
+    const m=L.map(div,{zoomControl:false,dragging:false,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,tap:false,attributionControl:true});
+    m.attributionControl.setPrefix('');
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'\u00a9 OpenStreetMap \u00a9 CARTO'}).addTo(m);
+    const opts={lineCap:'round',lineJoin:'round'};
+    L.polyline(r.geom,{...opts,color:'#4cc9f0',weight:10,opacity:.16}).addTo(m);
+    const line=L.polyline(r.geom,{...opts,color:'#4cc9f0',weight:2.5,opacity:1}).addTo(m);
+    const ic=(cls,s)=>L.divIcon({className:'',html:`<div class="${cls}"></div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
+    L.marker(r.geom[0],{icon:ic('mk-start',10),interactive:false}).addTo(m);
+    L.marker(r.geom[r.geom.length-1],{icon:ic('mk-end',14),interactive:false}).addTo(m);
+    r.incidents.forEach(i=>L.marker([i.lat,i.lon],{icon:ic('mk-inc',9)}).addTo(m).bindTooltip(i.text,{direction:'top',offset:[0,-6]}));
+    m.fitBounds(line.getBounds(),{padding:[22,22]});
     setTimeout(()=>m.invalidateSize(),200);
   }catch(e){div.remove()}
 }
 function briefingCard(d){
   if(!d)return;
-  const c=el('div','card');
-  c.append(el('div','ct','Briefing'));
+  const c=el('div','card');c.append(el('div','ct','Briefing'));
   const wx=el('div','wx');
-  (d.weather||[]).forEach(w=>{const x=el('div');x.append(el('b','',w.t+'\u00b0'));x.append(document.createTextNode(w.name));x.append(el('br'));x.append(document.createTextNode(`${w.desc}, ${w.rain}% rain`));wx.append(x)});
+  (d.weather||[]).forEach(w=>{const x=el('div');x.append(el('b','',w.t+'\u00b0'));x.append(document.createTextNode(w.name));x.append(el('br'));x.append(document.createTextNode(`${w.desc}, ${w.rain}%`));wx.append(x)});
   c.append(wx);
-  const n=el('div','news');
-  const items=[...((d.news&&d.news.uk)||[]).slice(0,3),...((d.news&&d.news.local)||[]).slice(0,2)];
-  items.forEach(t=>n.append(el('div','',t)));
-  c.append(n);
-  log.appendChild(c);scroll();
+  log.appendChild(c);toEnd();
 }
 
 // ---------- brain ----------
-// ---------- JARVIS response ----------
+function buildSystem(){
+  const now=`${londonPart('weekday')} ${londonPart('day')} ${londonPart('month')} ${londonPart('year')}, ${londonPart('hour')}:${londonPart('minute')} (Europe/London)`;
+  const iso=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London'}).format(new Date());
+  return SYSTEM_BASE+`\nNow: ${now}. Today's date as YYYY-MM-DD: ${iso}.\nLIVE DATA:\n`+((live&&live.text)||'unavailable right now, say so if asked');
+}
 async function ask(text,opts){
   if(busy)return;
   const url=getWorker();
-
-  if(!url){
-    add('e','Apologies, sir. Please configure my connection first.');
-    return;
-  }
-
-  busy=true;
-  add('u',text);
-  history.push({role:'user',content:text});
-  setState('thinking','Processing request...');
-
+  if(!url){add('e','Tap "Set up" and add your Worker URL first.');return}
+  busy=true;add('u',text);history.push({role:'user',content:text});
+  setState('thinking','Thinking...');
   try{
     await getLive(opts&&opts.fresh);
-
     if(opts&&opts.card)briefingCard(live);
-
-    const r=await fetch(url,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        system:buildSystem(),
-        messages:history.slice(-12)
-      })
-    });
-
-    if(!r.ok)throw new Error('Request failed ('+r.status+')');
-
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:buildSystem(),messages:history.slice(-12)})});
+    if(!r.ok)throw new Error('Worker returned '+r.status);
     const data=await r.json();
-    const reply=(data.content||[])
-      .filter(b=>b.type==='text')
-      .map(b=>b.text)
-      .join(' ')
-      .trim();
-
-    if(!reply){
-      throw new Error(
-        typeof data.error==='string'?data.error:'No response received'
-      );
-    }
-
-    history.push({role:'assistant',content:reply});
-    lastReply=reply;
-
+    const reply=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(' ').trim();
+    if(!reply)throw new Error(typeof data.error==='string'?data.error:'Empty reply');
+    history.push({role:'assistant',content:reply});lastReply=reply;
     if(data.ui&&data.ui.route)routeCard(data.ui.route);
-
     add('j',reply);
-
-    // Release the request lock before starting speech.
-    busy=false;
-
-    // Allow the iPhone to finish rendering before speaking.
-    await new Promise(resolve=>setTimeout(resolve,250));
-    await speak(reply);
-
+    busy=false;await speak(reply);
     if(handsFree)setTimeout(listen,450);
-
-  }catch(e){
-    console.error('JARVIS request error:',e);
-    add('e','Apologies, sir. I encountered a communications error: '+e.message);
-    setState('');
-  }finally{
-    busy=false;
-  }
+  }catch(e){history.pop();add('e','Could not reach the brain: '+e.message);setState('')}
+  busy=false;
 }
-const WORKQ="How's the drive from home to work right now?";
-const HOMEQ="How's the drive from work to home right now?";
+const toOther=()=>dir==='work'?['home','work']:['work','home'];
 const briefing=()=>ask('Give me my briefing.',{card:true,fresh:true});
 
 // ---------- voice in ----------
@@ -301,16 +361,18 @@ function listen(){
 hud.onclick=listen;
 hud.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();listen()}};
 $('qb').onclick=briefing;
-$('qw').onclick=()=>ask(WORKQ);
-$('qh').onclick=()=>ask(HOMEQ);
+$('qw').onclick=()=>ask("How's the drive from home to work right now?");
+$('qh').onclick=()=>ask("How's the drive from work to home right now?");
+$('ql').onclick=()=>{const [f,t]=toOther();const v=prompt(`Arrive at ${t} by what time? (e.g. 08:00)`);if(v)ask(`What time should I leave ${f} to arrive at ${t} by ${v}? Use tomorrow if that time has already passed today.`)};
 $('qr').onclick=()=>{if(lastReply)speak(lastReply)};
-$('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';ask(v)}};
+$('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';$('t').blur();ask(v)}};
 speechSynthesis.onvoiceschanged=()=>{};
 
-// ?cmd=briefing | work | home (for iPhone Shortcuts)
+// ?cmd=briefing | work | home  (iPhone Shortcuts)
 const cmd=new URLSearchParams(location.search).get('cmd');
-if(cmd){const run={briefing,work:()=>ask(WORKQ),home:()=>ask(HOMEQ)}[cmd];if(run)setTimeout(run,500);history.replaceState(null,'',location.pathname)}
+if(cmd){const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?")}[cmd];if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname)}
 
+loadDash(false);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script>
 </body>
