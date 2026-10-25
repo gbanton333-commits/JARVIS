@@ -114,10 +114,6 @@
   .split{display:flex;justify-content:space-between;align-items:center;gap:12px}
   .sub.am{color:var(--warn)}
   #fSp{flex:0 0 auto}
-  .stn{display:flex;justify-content:space-between;align-items:center;gap:10px;text-decoration:none;color:var(--ink);border-top:1px solid var(--line);padding:11px 0;font-size:.92rem}
-  .stn:first-of-type{border-top:0}
-  .stn .nm{min-width:0}.stn .nm b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .stn .nm span{font-size:.74rem;color:var(--dim)}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -234,13 +230,9 @@ paintSnd();
 // ---------- petrol tracker ----------
 let fstore={};try{fstore=JSON.parse(localStorage.getItem('fuel')||'{}')}catch(e){}
 fstore.hist=fstore.hist||[];
-let fuelAuto=null;
 const saveF=()=>localStorage.setItem('fuel',JSON.stringify(fstore));
 function effPrice(){
-  const now=Date.now();
-  if(fstore.manual&&now-fstore.manual.ts<7*864e5)return{ppl:fstore.manual.ppl,src:'set by you',ts:fstore.manual.ts};
-  if(fuelAuto&&fuelAuto.ts&&now-fuelAuto.ts<3*864e5)return{ppl:fuelAuto.ppl,src:'local average',ts:fuelAuto.ts,extra:fuelAuto.cheapest};
-  if(fstore.manual)return{ppl:fstore.manual.ppl,src:'set by you',ts:fstore.manual.ts,stale:true};
+  if(fstore.manual)return{ppl:fstore.manual.ppl,src:'set by you',ts:fstore.manual.ts};
   return{ppl:140,src:'default estimate',ts:0,stale:true};
 }
 function ago(ts){const h=(Date.now()-ts)/36e5;return h<1?'just now':h<24?Math.round(h)+'h ago':Math.round(h/24)+'d ago'}
@@ -256,7 +248,7 @@ function paintFuel(){
   const stale=p.stale||(p.ts&&Date.now()-p.ts>14*864e5);
   $('fS').textContent=p.src+(p.ts?' \u00b7 '+ago(p.ts):'');
   $('fS').className='sub'+(stale?' am':'');
-  $('fC').textContent=p.extra?'cheapest nearby '+p.extra:(stale?'tap to update the price':'tap to set your own');
+  $('fC').textContent=stale?'tap to set your local price':'tap to update';
   const h=fstore.hist,t=$('fT');
   if(h.length>=2){const d=h[h.length-1].ppl-h[h.length-2].ppl;t.textContent=(d>0.05?'\u25b2 ':d<-0.05?'\u25bc ':'')+Math.abs(d).toFixed(1)+'p';t.className='chip '+(d>0.05?'rd':d<-0.05?'ok':'')}
   else{t.textContent='';t.className='chip'}
@@ -267,79 +259,17 @@ function paintFuel(){
     s.innerHTML='<polyline points="'+pts+'" fill="none" stroke="#4cc9f0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
   }
 }
-async function loadFuelAuto(){
-  const urls=[];
-  const parts=location.pathname.split('/').filter(Boolean);
-  if(location.hostname.endsWith('.github.io')&&parts[0])urls.push('https://raw.githubusercontent.com/'+location.hostname.split('.')[0]+'/'+parts[0]+'/main/fuel.json');
-  urls.push('fuel.json');
-  for(const u of urls){
-    try{
-      const r=await fetch(u+'?t='+Date.now());if(!r.ok)continue;
-      const j=await r.json(),h=j&&j.home;
-      if(j&&Array.isArray(j.stations)){fuelStations=j.stations.filter(s=>s&&s.lat&&s.lon&&s.p);fuelUpdated=Date.parse(j.updated)||0}
-      if(h&&h.avg){
-        fuelAuto={ppl:+h.avg,ts:Date.parse(j.updated)||0,cheapest:h.min?(h.min+'p '+(h.minName||'')).trim():null};
-        recordHist(fuelAuto.ts,fuelAuto.ppl);break;
-      }
-    }catch(e){}
-  }
-  paintFuel();
-}
 $('tFuel').onclick=()=>{
   const p=effPrice();
-  const v=prompt('Petrol price in pence per litre (e.g. 139.9). Leave blank to go back to the automatic price.',p.ppl.toFixed(1));
+  const v=prompt('Petrol price in pence per litre (e.g. 139.9). Leave blank to reset to the default.',p.ppl.toFixed(1));
   if(v===null)return;
   if(v.trim()===''){delete fstore.manual;saveF();paintFuel();return}
   const n=parseFloat(v);
   if(!(n>80&&n<300)){alert('That does not look right. Enter pence per litre, e.g. 139.9');return}
   fstore.manual={ppl:n,ts:Date.now()};recordHist(Date.now(),n);saveF();paintFuel();
 };
-paintFuel();loadFuelAuto();
+paintFuel();
 
-
-// ---------- petrol near me ----------
-let fuelStations=[],fuelUpdated=0,here=null;
-const HOME_LL={lat:50.886,lon:-1.245};
-function miles(a,b){const R=3958.8,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lon-a.lon)*r;const x=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
-function getHere(ask){
-  return new Promise(res=>{
-    if(here&&Date.now()-here.ts<600000)return res(here);
-    const fallback=()=>res(here||(here={...HOME_LL,src:'home',ts:Date.now()}));
-    if(!ask||!navigator.geolocation)return fallback();
-    navigator.geolocation.getCurrentPosition(
-      p=>{here={lat:p.coords.latitude,lon:p.coords.longitude,src:'your location',ts:Date.now()};res(here)},
-      ()=>{here={...HOME_LL,src:'home',ts:Date.now()};res(here)},
-      {enableHighAccuracy:false,timeout:7000,maximumAge:300000});
-  });
-}
-function nearest(n){
-  const o=here||{...HOME_LL,src:'home'};
-  return fuelStations.map(s=>({...s,d:miles(o,s)})).sort((a,b)=>a.d-b.d).slice(0,n);
-}
-function nearestLine(){
-  if(!fuelStations.length)return '';
-  const o=here||{...HOME_LL,src:'home'};
-  return `\nNEAREST PETROL STATIONS (E10, straight-line distance from ${o.src}, prices updated ${ago(fuelUpdated)}):\n`+nearest(5).map((s,i)=>`${i+1}. ${s.n}: ${s.p}p per litre, ${s.d.toFixed(1)} miles`).join('\n');
-}
-function fuelCard(list){
-  const c=el('div','card');
-  c.append(el('div','ct',`Petrol near ${(here&&here.src)||'home'}`));
-  if(!list.length){
-    c.append(el('div','sub','No live station prices set up yet. Google Maps now shows UK petrol prices, so use the button below.'));
-  }else{
-    const cheapest=Math.min(...list.map(s=>s.p));
-    list.forEach(s=>{
-      const a=el('a','stn');a.href=`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';
-      const nm=el('div','nm');nm.append(el('b','',s.n.replace(/\b\w+/g,w=>w.charAt(0)+w.slice(1).toLowerCase())));nm.append(el('span','',`${s.d.toFixed(1)} miles away`));
-      a.append(nm,el('span','chip '+(s.p===cheapest?'ok':''),s.p.toFixed(1)+'p'));
-      c.append(a);
-    });
-    c.append(el('div','sub',`Straight-line distances. Prices updated ${ago(fuelUpdated)}. Tap a station for directions.`));
-  }
-  const g=el('a','btn','Search petrol in Google Maps');g.href='https://www.google.com/maps/search/?api=1&query=petrol+station';g.target='_blank';g.rel='noopener';
-  c.append(g);
-  log.appendChild(c);toEnd();
-}
 
 // ---------- dashboard ----------
 function tick(){
@@ -487,11 +417,11 @@ function briefingCard(d){
 }
 
 // ---------- brain ----------
-function petrolLine(){const p=effPrice();return `\nPETROL: ${p.ppl.toFixed(1)}p per litre (${p.src})${p.extra?'; cheapest nearby '+p.extra:''}.`}
+function petrolLine(){const p=effPrice();return `\nPETROL: ${p.ppl.toFixed(1)}p per litre (${p.src}).`}
 function buildSystem(){
   const now=`${londonPart('weekday')} ${londonPart('day')} ${londonPart('month')} ${londonPart('year')}, ${londonPart('hour')}:${londonPart('minute')} (Europe/London)`;
   const iso=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London'}).format(new Date());
-  return SYSTEM_BASE+`\nNow: ${now}. Today's date as YYYY-MM-DD: ${iso}.\nLIVE DATA:\n`+((live&&live.text)||'unavailable right now, say so if asked')+petrolLine()+nearestLine();
+  return SYSTEM_BASE+`\nNow: ${now}. Today's date as YYYY-MM-DD: ${iso}.\nLIVE DATA:\n`+((live&&live.text)||'unavailable right now, say so if asked')+petrolLine();
 }
 async function ask(text,opts){
   if(busy)return;
@@ -502,7 +432,6 @@ async function ask(text,opts){
   try{
     await getLive(opts&&opts.fresh);
     if(opts&&opts.card)briefingCard(live);
-    if(opts&&opts.fuel){await getHere(true);fuelCard(nearest(5))}
     const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:buildSystem(),messages:history.slice(-12),ppl:effPrice().ppl})});
     if(!r.ok)throw new Error('Worker returned '+r.status);
     const data=await r.json();
@@ -540,10 +469,7 @@ $('qb').onclick=briefing;
 $('qw').onclick=()=>ask("How's the drive from home to work right now?");
 $('qh').onclick=()=>ask("How's the drive from work to home right now?");
 $('ql').onclick=()=>{const [f,t]=toOther();const v=prompt(`Arrive at ${t} by what time? (e.g. 08:00)`);if(v)ask(`What time should I leave ${f} to arrive at ${t} by ${v}? Use tomorrow if that time has already passed today.`)};
-$('qp').onclick=async()=>{
-  if(!fuelStations.length){await getHere(false);fuelCard([]);return}
-  ask("Where's the nearest petrol, and which of the closest is cheapest?",{fuel:true});
-};
+$('qp').onclick=()=>window.open('https://www.google.com/maps/search/?api=1&query=petrol+station','_blank','noopener');
 $('qr').onclick=()=>{if(lastReply)speak(lastReply)};
 $('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';$('t').blur();ask(v)}};
 speechSynthesis.onvoiceschanged=()=>{};
