@@ -4,7 +4,8 @@ import { writeFileSync, existsSync, readFileSync } from 'node:fs';
 
 const BASE = process.env.FUEL_BASE || 'https://www.fuel-finder.service.gov.uk/api/v1';
 const ID = (process.env.FUEL_CLIENT_ID || '').trim(), SECRET = (process.env.FUEL_CLIENT_SECRET || '').trim();
-console.log('credential lengths:', ID.length, SECRET.length); }
+console.log('credential lengths:', ID.length, SECRET.length);
+if (!ID || !SECRET) { console.log('No Fuel Finder credentials set; skipping.'); process.exit(0); }
 
 const PLACES = { home: { lat: 50.886, lon: -1.245 }, work: { lat: 51.357, lon: -1.148 } };
 const RADIUS_KM = 15;
