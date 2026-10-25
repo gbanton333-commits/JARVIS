@@ -16,10 +16,10 @@
   body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
        background:radial-gradient(120% 50% at 50% 0%,#0b2a47 0%,var(--bg) 62%)}
   button,a{font:inherit;color:inherit}
-  header{display:flex;justify-content:space-between;align-items:center;padding:10px 18px 4px}
-  h1{font-size:.78rem;letter-spacing:.42em;font-weight:600;margin:0;color:var(--dim)}
-  .hb{display:flex;gap:6px}
-  .pill{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:999px;padding:5px 11px;font-size:.74rem}
+  header{display:flex;justify-content:space-between;align-items:center;padding:8px 18px 2px}
+  h1{font-size:.7rem;letter-spacing:.3em;font-weight:600;margin:0;color:var(--dim);white-space:nowrap}
+  .hb{display:flex;gap:5px}
+  .pill{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:999px;padding:4px 10px;font-size:.7rem;white-space:nowrap}
   .pill.on{color:var(--glow);border-color:var(--glow)}
   #main{flex:1;overflow-y:auto;padding:6px 18px 12px;-webkit-overflow-scrolling:touch}
   #hero{padding:10px 0 16px}
@@ -44,16 +44,7 @@
   .u{align-self:flex-end;color:var(--dim);font-size:.92rem}
   .j{align-self:flex-start;border-left:2px solid var(--glow);padding-left:12px}
   .e{align-self:flex-start;border-left:2px solid var(--warn);padding-left:12px;color:var(--warn)}
-  .card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
-  .opt{display:flex;justify-content:space-between;gap:10px;font-size:.82rem;border-top:1px solid var(--line);padding-top:8px;color:var(--dim)}
-  .opt b{color:var(--ink);font-weight:500}
-  .inc{font-size:.82rem;color:var(--warn)}
-  .inc.none{color:var(--ok)}
-  .wx{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
-  .wx div{flex:0 0 auto;min-width:74px;font-size:.7rem;color:var(--dim);border-left:1px solid var(--line);padding-left:8px}
-  .wx div:first-child{border-left:0;padding-left:0}
-  .wx b{display:block;color:var(--ink);font-size:1rem;font-weight:400}
-  .map{height:190px;border-radius:12px;overflow:hidden;background:#07111c}
+  .card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 30px #0007}
   .acts{display:flex;gap:8px}
   .btn{flex:1;text-align:center;text-decoration:none;border:1px solid var(--line);border-radius:12px;padding:11px 8px;font-size:.85rem;color:var(--ink)}
   .btn.pri{background:var(--glow);border-color:var(--glow);color:#02101c;font-weight:600;flex:2}
@@ -68,18 +59,18 @@
   .leaflet-tooltip{background:#0a1a2b;border:1px solid var(--line);color:var(--ink);font-size:11px;border-radius:8px;box-shadow:none}
   .leaflet-tooltip:before{display:none}
   /* dock */
-  #dock{padding:6px 18px 10px;border-top:1px solid #0f2438;background:linear-gradient(180deg,#040b14aa,#040b14)}
-  #status{text-align:center;font-size:.72rem;color:var(--dim);min-height:1em;letter-spacing:.06em;margin-bottom:6px}
-  .q{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+  #dock{padding:4px 18px 8px;border-top:1px solid #0f2438;background:linear-gradient(180deg,#040b14aa,#040b14)}
+  #status{text-align:center;font-size:.68rem;color:var(--dim);min-height:1em;letter-spacing:.08em;margin-bottom:4px}
+  .q{display:flex;gap:7px;overflow-x:auto;padding-bottom:7px;scrollbar-width:none}
   .q::-webkit-scrollbar,.wx::-webkit-scrollbar{display:none}
-  .q button{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:.82rem}
+  .q button{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:.78rem;white-space:nowrap}
   .q button:active{background:var(--panel2)}
   #bar{display:flex;align-items:center;gap:12px}
   form{flex:1;display:flex}
-  input{flex:1;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:999px;color:var(--ink);padding:13px 16px;font-size:1rem}
+  input{flex:1;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:999px;color:var(--ink);padding:11px 16px;font-size:1rem}
   input::placeholder{color:#47637a}
   input:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
-  #hud{width:72px;height:72px;flex:0 0 auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  #hud{width:64px;height:64px;flex:0 0 auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
   #hud svg{width:100%;height:100%;overflow:visible;transition:transform .11s ease-out}
   #hud circle{fill:none;stroke:var(--glow);transform-box:fill-box;transform-origin:center}
   #hud .core{fill:#0b2a40;stroke-width:2;filter:drop-shadow(0 0 6px #4cc9f0aa)}
@@ -114,6 +105,41 @@
   .split{display:flex;justify-content:space-between;align-items:center;gap:12px}
   .sub.am{color:var(--warn)}
   #fSp{flex:0 0 auto}
+  .rc .hero{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .rc .hero .n{font-size:2.7rem;font-weight:200;line-height:1}
+  .leave{align-self:flex-start}
+  .map{height:220px;border-radius:14px;overflow:hidden;background:#0a1620;border:1px solid var(--line)}
+  .opt{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:9px 0 0;border-top:1px solid var(--line)}
+  .opt .l b{display:block;font-weight:500;font-size:.88rem}
+  .opt .l span{display:block;font-size:.74rem;color:var(--dim);margin-top:1px}
+  .opt .r{text-align:right;font-size:.82rem;white-space:nowrap;color:var(--dim)}
+  .opt .r span{display:block}
+  .inc{display:flex;gap:8px;font-size:.82rem;line-height:1.35;color:var(--warn)}
+  .inc i{flex:0 0 7px;height:7px;border-radius:50%;background:var(--warn);margin-top:6px}
+  .inc span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .inc.none{color:var(--ok)}.inc.none i{background:var(--ok)}
+  .wx{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:10px;padding-top:2px}
+  .wx div{min-width:0}
+  .wx b{display:block;font-size:1.25rem;font-weight:300;color:var(--ink)}
+  .wn{display:block;font-size:.74rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wd{display:block;font-size:.7rem;color:var(--dim)}
+  .leaflet-tile{filter:invert(1) hue-rotate(185deg) brightness(.78) contrast(1.05) saturate(.45)}
+  .icon{width:36px;height:36px;flex:0 0 auto;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--dim);display:flex;align-items:center;justify-content:center;padding:0;font-size:.9rem}
+  .spacer{width:36px;flex:0 0 auto}
+  #sheet{position:fixed;inset:0;z-index:40;background:#000b;display:none}
+  #sheet.open{display:flex}
+  .panel{width:min(92vw,400px);height:100%;overflow-y:auto;background:linear-gradient(170deg,#0d2238,#071524);border-right:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 14px) 20px calc(env(safe-area-inset-bottom) + 24px);animation:slidein .25s ease both}
+  @keyframes slidein{from{transform:translateX(-28px);opacity:0}}
+  .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .ph h2{margin:0;font-size:1.05rem;font-weight:500;letter-spacing:.04em}
+  .sec{font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin:20px 0 8px}
+  .panel label{display:block;font-size:.8rem;color:var(--dim);margin-top:12px}
+  .panel input{display:block;width:100%;margin-top:6px;background:#06121f;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:12px 14px;font-size:1rem}
+  .toggles{display:flex;gap:8px}
+  .toggles .pill{padding:9px 16px;font-size:.82rem}
+  .toggles .pill.on{background:#0e3a55}
+  .note{font-size:.74rem;color:var(--dim);line-height:1.45;margin:16px 0}
+  .panel .btn{display:block;width:100%;border:0;font:inherit;cursor:pointer}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -124,8 +150,9 @@
   <div class="bt2" id="bootLine">Initialising core</div>
 </div>
 <header>
+  <button class="icon" id="gear" aria-label="Settings"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   <h1>J.A.R.V.I.S.</h1>
-  <div class="hb"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="cfg">Set up</button></div>
+  <span class="spacer"></span>
 </header>
 
 <div id="main">
@@ -172,14 +199,32 @@
   </div>
 </div>
 
+<div id="sheet" role="dialog" aria-label="Settings">
+  <div class="panel">
+    <div class="ph"><h2>Settings</h2><button class="icon" id="sClose" aria-label="Close">&#10005;</button></div>
+    <div class="sec">Your places</div>
+    <label>Home address<input id="sHome" placeholder="Street, town or postcode" autocomplete="off"></label>
+    <label>Work address<input id="sWork" placeholder="Street, town or postcode" autocomplete="off"></label>
+    <div class="sec">About you</div>
+    <label>Address me as<input id="sName" placeholder="sir" autocomplete="off"></label>
+    <label>Petrol price, pence per litre<input id="sPpl" inputmode="decimal" placeholder="e.g. 139.9" autocomplete="off"></label>
+    <label>Car economy, combined mpg (optional)<input id="sMpg" inputmode="decimal" placeholder="e.g. 45" autocomplete="off"></label>
+    <div class="sec">Behaviour</div>
+    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button></div>
+    <div class="sec">Connection</div>
+    <label>Worker URL<input id="sWorker" placeholder="https://jarvis.yourname.workers.dev" autocomplete="off" autocapitalize="off"></label>
+    <div class="note">Your addresses stay on this device and are only sent to your own Worker, to look up routes, traffic and weather.</div>
+    <button class="btn pri" id="sSave">Save</button>
+  </div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const main=$('main'),log=$('log'),hud=$('hud'),statusEl=$('status');
 const IDLE='Tap the orb and speak';
 
-const SYSTEM_BASE=`You are J.A.R.V.I.S., the user's personal AI, modelled on the assistant from the Iron Man films: formal, unflappable, dryly witty British manner; understated, never gushing. You address the user as "sir", though not in every sentence.
-Style: your replies are spoken aloud, so use 1 to 4 short sentences, plain text, no lists, no markdown, no emoji. Lead with the verdict or status, then the key facts, then a recommendation or a brief offer such as "Shall I check the alternative?". Anticipate needs: if rain is likely, mention it; if a delay is building, suggest leaving earlier. Wit is dry and rare: at most one light remark, never at the cost of clarity. Phrases like "I'd advise", "might I suggest", "as you wish" and "all systems nominal" are welcome, sparingly. Never over-apologise; if you lack data, say so plainly, as in "I don't have that feed connected, sir".
+const SYSTEM_BASE=()=>`You are J.A.R.V.I.S., the user's personal AI, modelled on the assistant from the Iron Man films: formal, unflappable, dryly witty British manner; understated, never gushing. You address the user as "${title()}", though not in every sentence.
+Style: your replies are spoken aloud, so use 1 to 4 short sentences, plain text, no lists, no markdown, no emoji. Lead with the verdict or status, then the key facts, then a recommendation or a brief offer such as "Shall I check the alternative?". Anticipate needs: if rain is likely, mention it; if a delay is building, suggest leaving earlier. Wit is dry and rare: at most one light remark, never at the cost of clarity. Phrases like "I'd advise", "might I suggest", "as you wish" and "all systems nominal" are welcome, sparingly. Never over-apologise; if you lack data, say so plainly, as in "I don't have that feed connected, ${title()}".
 Say "degrees" rather than "C", "miles per hour" rather than "mph", and spell out minutes, litres and pounds.
 You have LIVE DATA below: weather at home and at work, plus UK and local headlines. Use only what is in it and never invent figures. Traffic, routes and fuel efficiency are not connected yet, so say so plainly if asked.
 If asked for a briefing: a short greeting suited to the time of day, the weather at home, mention work only if it differs notably, then the three most important headlines in a sentence each. Under 90 words in total.`;
@@ -190,14 +235,36 @@ let dir=(+londonPart('hour')<13)?'work':'home';
 let commuteUI=null,commuteAt=0;
 
 function londonPart(t){return new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hourCycle:'h23',hour:'2-digit',minute:'2-digit',weekday:'long',day:'numeric',month:'long',year:'numeric'}).formatToParts(new Date()).find(p=>p.type===t).value}
-const getWorker=()=>(localStorage.getItem('worker')||'').trim().replace(/\/+$/,'');
+let cfg={};try{cfg=JSON.parse(localStorage.getItem('jarvisCfg')||'{}')}catch(e){}
+if(!cfg.worker&&localStorage.getItem('worker'))cfg.worker=localStorage.getItem('worker');
+const saveCfg=()=>localStorage.setItem('jarvisCfg',JSON.stringify(cfg));
+const getWorker=()=>(cfg.worker||'').trim().replace(/\/+$/,'');
+const title=()=>((cfg.name||'').trim()||'sir');
+const ctx=()=>({home:(cfg.home||'').trim(),work:(cfg.work||'').trim(),mpg:+cfg.mpg||0,ppl:effPrice().ppl});
+const needsSetup=()=>!getWorker()||!(cfg.home||'').trim()||!(cfg.work||'').trim();
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 function toEnd(){setTimeout(()=>main.scrollTo({top:main.scrollHeight,behavior:'smooth'}),60)}
 function add(cls,text){log.appendChild(el('div','m '+cls,text));toEnd()}
 function setState(s,msg){hud.className=s;statusEl.textContent=msg||IDLE}
-function paintHF(){$('hf').classList.toggle('on',handsFree);$('hf').textContent='Hands-free '+(handsFree?'on':'off')}
+function paintHF(){$('hf').classList.toggle('on',handsFree);}
 $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1':'0');paintHF()};
-$('cfg').onclick=()=>{const v=prompt('Paste your Cloudflare Worker URL:',getWorker());if(v!==null){localStorage.setItem('worker',v.trim());loadDash(true)}};
+const sheet=$('sheet');
+function openSettings(){
+  $('sWorker').value=cfg.worker||'';$('sHome').value=cfg.home||'';$('sWork').value=cfg.work||'';
+  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';
+  sheet.classList.add('open');
+}
+function closeSettings(){sheet.classList.remove('open')}
+$('gear').onclick=openSettings;$('sClose').onclick=closeSettings;
+sheet.addEventListener('click',e=>{if(e.target===sheet)closeSettings()});
+$('sSave').onclick=()=>{
+  cfg.worker=$('sWorker').value.trim();cfg.home=$('sHome').value.trim();cfg.work=$('sWork').value.trim();
+  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();
+  saveCfg();
+  const n=parseFloat($('sPpl').value);
+  if(n>80&&n<300&&(!fstore.manual||fstore.manual.ppl!==n)){fstore.manual={ppl:n,ts:Date.now()};recordHist(Date.now(),n);saveF();paintFuel()}
+  closeSettings();live=null;commuteUI=null;tick();paintCommute();loadDash(true);
+};
 paintHF();
 
 
@@ -274,7 +341,7 @@ paintFuel();
 // ---------- dashboard ----------
 function tick(){
   const h=+londonPart('hour');
-  $('hello').textContent=(h<5?'Working late, sir.':h<12?'Good morning, sir.':h<18?'Good afternoon, sir.':'Good evening, sir.');
+  $('hello').textContent=(h<5?'Working late, '+title()+'.':h<12?'Good morning, '+title()+'.':h<18?'Good afternoon, '+title()+'.':'Good evening, '+title()+'.');
   $('clock').textContent=londonPart('hour')+':'+londonPart('minute');
   $('date').textContent=londonPart('weekday')+' '+londonPart('day')+' '+londonPart('month');
 }
@@ -283,7 +350,7 @@ tick();setInterval(tick,20000);
 async function getLive(force){
   if(!force&&live&&Date.now()-liveAt<600000)return live;
   try{
-    const r=await fetch(getWorker()+'/data',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    const r=await fetch(getWorker()+'/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ctx())});
     if(!r.ok)throw new Error(r.status);
     live=await r.json();liveAt=Date.now();
   }catch(e){}
@@ -314,16 +381,17 @@ async function loadCommute(){
   if(!getWorker())return;
   $('cSub').textContent='Checking traffic...';
   try{
-    const r=await fetch(getWorker()+'/commute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir,ppl:effPrice().ppl})});
+    const r=await fetch(getWorker()+'/commute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir,...ctx()})});
     if(!r.ok)throw new Error(r.status);
     const d=await r.json();
+    if(d.error){commuteUI=null;paintCommute();$('cSub').textContent=d.error;return}
     commuteUI=d.route||null;commuteAt=Date.now();
     if(!commuteUI)$('cSub').textContent='Traffic unavailable';
   }catch(e){commuteUI=null;$('cSub').textContent='Traffic unavailable'}
   paintCommute();
 }
 async function loadDash(force){
-  if(!getWorker()){$('cSub').textContent='Tap Set up and add your Worker URL';return}
+  if(needsSetup()){$('cSub').textContent='Open Settings (top left) to add your home and work';return}
   await Promise.all([getLive(force).then(paintWeather),loadCommute()]);
 }
 $('swap').onclick=e=>{e.stopPropagation();dir=dir==='work'?'home':'work';commuteUI=null;paintCommute();loadCommute()};
@@ -354,33 +422,36 @@ function speak(text){
 const gmaps=r=>`https://www.google.com/maps/dir/?api=1&origin=${r.a.lat},${r.a.lon}&destination=${r.b.lat},${r.b.lon}&travelmode=driving`;
 const amaps=r=>`https://maps.apple.com/?saddr=${r.a.lat},${r.a.lon}&daddr=${r.b.lat},${r.b.lon}&dirflg=d`;
 
+function wxCell(temp,name,desc){const d=el('div');d.append(el('b','',temp),el('span','wn',name),el('span','wd',desc));return d}
 function routeCard(r){
-  const c=el('div','card');
-  c.append(el('div','ct',`${r.from} \u2192 ${r.to}`));
+  const c=el('div','card rc');
   const best=r.options[0];
-  const big=el('div','row');
-  big.append(el('span','n',best.min+' min'));
-  big.append(el('span','chip '+delayClass(best.delay),best.delay<=2?'clear roads':`+${best.delay} min delay`));
-  if(best.fuel!=null)big.append(el('span','chip gl',`${best.fuel} L \u00b7 \u00a3${best.cost.toFixed(2)}`));
-  c.append(big);
-  if(r.leave)c.append(el('div','chip ok',`Leave ${r.leave.depart} \u2192 arrive ${r.leave.arrive}`));
-  r.options.slice(1).forEach(o=>{
-    const row=el('div','opt');
-    const l=el('span');l.append(el('b','',o.label.charAt(0)+o.label.slice(1).toLowerCase()));l.append(document.createTextNode(` \u00b7 ${o.roads.join(', ')||'local roads'}`));
-    const dt=o.min-best.min;let right=`${dt>=0?'+':''}${dt} min`;
-    if(o.fuel!=null&&best.fuel!=null){const df=+(o.fuel-best.fuel).toFixed(1);right+=` \u00b7 ${df>=0?'+':''}${df} L`}
-    row.append(l,el('span','',right));c.append(row);
-  });
-  if(r.incidents.length)r.incidents.slice(0,3).forEach(i=>c.append(el('div','inc','\u25cf '+i.text)));
-  else c.append(el('div','inc none','No incidents on your route'));
-  const wx=el('div','wx');
-  r.weather.forEach(w=>{
-    const d=el('div');d.append(el('b','',w.wx?w.wx.t+'\u00b0':'--'));
-    d.append(document.createTextNode(w.name||w.label));d.append(el('br'));
-    d.append(document.createTextNode(w.wx?`${w.wx.desc}, ${w.wx.rain}%`:'n/a'));wx.append(d);
-  });
-  c.append(wx);
+  c.append(el('div','ct',`${r.from} \u2192 ${r.to}`));
+  const hero=el('div','hero');
+  hero.append(el('span','n',best.min+' min'));
+  hero.append(el('span','chip '+delayClass(best.delay),best.delay<=2?'clear roads':`+${best.delay} min delay`));
+  c.append(hero);
+  const bits=[`via ${best.roads.join(', ')||'local roads'}`,`${best.miles} mi`];
+  if(best.fuel!=null)bits.push(`${best.fuel} L \u00b7 \u00a3${best.cost.toFixed(2)}`);
+  c.append(el('div','sub',bits.join(' \u00b7 ')));
+  if(r.leave)c.append(el('div','chip ok leave',`Leave ${r.leave.depart} \u2192 arrive ${r.leave.arrive}`));
   const map=el('div','map');c.append(map);
+  r.options.slice(1).forEach(o=>{
+    const row=el('div','opt'),l=el('div','l'),rt=el('div','r');
+    l.append(el('b','',o.label.charAt(0)+o.label.slice(1).toLowerCase()),el('span','',o.roads.join(', ')||'local roads'));
+    const dt=o.min-best.min;
+    rt.append(el('span','',`${dt>=0?'+':'\u2212'}${Math.abs(dt)} min`));
+    if(o.fuel!=null&&best.fuel!=null){const df=+(o.fuel-best.fuel).toFixed(1);rt.append(el('span',df<0?'ok':df>0?'am':'',`${df>=0?'+':'\u2212'}${Math.abs(df)} L`))}
+    row.append(l,rt);c.append(row);
+  });
+  if(r.incidents.length){
+    r.incidents.slice(0,2).forEach(i=>{const d=el('div','inc');d.append(el('i'),el('span','',i.text));c.append(d)});
+    if(r.incidents.length>2)c.append(el('div','sub',`+${r.incidents.length-2} more, shown on the map`));
+  }else{const d=el('div','inc none');d.append(el('i'),el('span','','No incidents on your route'));c.append(d)}
+  const ws=r.weather.length>=3?[r.weather[0],r.weather[Math.floor(r.weather.length/2)],r.weather[r.weather.length-1]]:r.weather;
+  const wx=el('div','wx');
+  ws.forEach(w=>wx.append(wxCell(w.wx?w.wx.t+'\u00b0':'--',w.name||w.label,w.wx?`${w.wx.desc}, ${w.wx.rain}%`:'n/a')));
+  c.append(wx);
   if(r.a&&r.b){
     const acts=el('div','acts');
     const g=el('a','btn pri','Open in Google Maps');g.href=gmaps(r);g.target='_blank';g.rel='noopener';
@@ -388,30 +459,31 @@ function routeCard(r){
     acts.append(g,ap);c.append(acts);
   }
   log.appendChild(c);toEnd();
-  setTimeout(()=>drawMap(map,r),80);
+  setTimeout(()=>drawMap(map,r),120);
 }
 function drawMap(div,r){
   if(!window.L||!r.geom||!r.geom.length)return div.remove();
   try{
     const m=L.map(div,{zoomControl:false,dragging:false,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,tap:false,attributionControl:true});
     m.attributionControl.setPrefix('');
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'\u00a9 OpenStreetMap \u00a9 CARTO'}).addTo(m);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'\u00a9 OpenStreetMap'}).addTo(m);
     const opts={lineCap:'round',lineJoin:'round'};
-    L.polyline(r.geom,{...opts,color:'#4cc9f0',weight:10,opacity:.16}).addTo(m);
-    const line=L.polyline(r.geom,{...opts,color:'#4cc9f0',weight:2.5,opacity:1}).addTo(m);
+    L.polyline(r.geom,{...opts,color:'#4cc9f0',weight:11,opacity:.18}).addTo(m);
+    const line=L.polyline(r.geom,{...opts,color:'#7be0ff',weight:3,opacity:1}).addTo(m);
     const ic=(cls,s)=>L.divIcon({className:'',html:`<div class="${cls}"></div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
     L.marker(r.geom[0],{icon:ic('mk-start',10),interactive:false}).addTo(m);
     L.marker(r.geom[r.geom.length-1],{icon:ic('mk-end',14),interactive:false}).addTo(m);
     r.incidents.forEach(i=>L.marker([i.lat,i.lon],{icon:ic('mk-inc',9)}).addTo(m).bindTooltip(i.text,{direction:'top',offset:[0,-6]}));
-    m.fitBounds(line.getBounds(),{padding:[22,22]});
-    setTimeout(()=>m.invalidateSize(),200);
+    const fit=()=>{m.invalidateSize();m.fitBounds(line.getBounds(),{padding:[26,26]})};
+    fit();
+    requestAnimationFrame(fit);setTimeout(fit,400);setTimeout(fit,1000);
   }catch(e){div.remove()}
 }
 function briefingCard(d){
   if(!d)return;
   const c=el('div','card');c.append(el('div','ct','Briefing'));
   const wx=el('div','wx');
-  (d.weather||[]).forEach(w=>{const x=el('div');x.append(el('b','',w.t+'\u00b0'));x.append(document.createTextNode(w.name));x.append(el('br'));x.append(document.createTextNode(`${w.desc}, ${w.rain}%`));wx.append(x)});
+  (d.weather||[]).forEach(w=>wx.append(wxCell(w.t+'\u00b0',w.name,`${w.desc}, ${w.rain}%`)));
   c.append(wx);
   log.appendChild(c);toEnd();
 }
@@ -421,18 +493,18 @@ function petrolLine(){const p=effPrice();return `\nPETROL: ${p.ppl.toFixed(1)}p 
 function buildSystem(){
   const now=`${londonPart('weekday')} ${londonPart('day')} ${londonPart('month')} ${londonPart('year')}, ${londonPart('hour')}:${londonPart('minute')} (Europe/London)`;
   const iso=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London'}).format(new Date());
-  return SYSTEM_BASE+`\nNow: ${now}. Today's date as YYYY-MM-DD: ${iso}.\nLIVE DATA:\n`+((live&&live.text)||'unavailable right now, say so if asked')+petrolLine();
+  return SYSTEM_BASE()+`\nNow: ${now}. Today's date as YYYY-MM-DD: ${iso}.\nLIVE DATA:\n`+((live&&live.text)||'unavailable right now, say so if asked')+petrolLine();
 }
 async function ask(text,opts){
   if(busy)return;
   const url=getWorker();
-  if(!url){add('e','Tap "Set up" and add your Worker URL first.');return}
+  if(!url){add('e','Open Settings (top left) and add your Worker URL first.');openSettings();return}
   busy=true;add('u',text);history.push({role:'user',content:text});
   setState('thinking','Thinking...');
   try{
     await getLive(opts&&opts.fresh);
     if(opts&&opts.card)briefingCard(live);
-    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:buildSystem(),messages:history.slice(-12),ppl:effPrice().ppl})});
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:buildSystem(),messages:history.slice(-12),...ctx()})});
     if(!r.ok)throw new Error('Worker returned '+r.status);
     const data=await r.json();
     const reply=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(' ').trim();
@@ -481,9 +553,10 @@ function endBoot(sound){
   if(booted)return;booted=true;
   if(sound){ac();sfx.boot()}
   boot.classList.add('out');setTimeout(()=>boot.remove(),800);
+  if(needsSetup())setTimeout(openSettings,600);
 }
 if(cmd){
-  booted=true;boot.remove();
+  booted=true;boot.remove();if(needsSetup())openSettings();
   const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?")}[cmd];
   if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname);
 }else{
