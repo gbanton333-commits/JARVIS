@@ -95,13 +95,41 @@
   @keyframes pulse{50%{transform:scale(1.2)}}
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   #hero,.tile,.card,.m{animation:rise .45s ease both}
+
+  /* boot screen */
+  #boot{position:fixed;inset:0;z-index:50;background:radial-gradient(circle at 50% 45%,#0b2a47,#030812 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .7s ease;cursor:pointer}
+  #boot.out{opacity:0;pointer-events:none}
+  #boot svg{width:150px;height:150px;overflow:visible}
+  #boot circle{fill:none;stroke:var(--glow);transform-box:fill-box;transform-origin:center}
+  .b1{stroke-width:1.5;stroke-dasharray:352;stroke-dashoffset:352;animation:draw 1.6s ease forwards}
+  .b2{stroke-width:2.6;stroke-dasharray:60 20;animation:spin 6s linear infinite,fadein 1s .4s both}
+  .b3{stroke-width:1;stroke-dasharray:2 6;animation:spin 18s linear infinite reverse}
+  #boot .bcore{fill:#0e3f60;stroke-width:2;animation:glow 1.8s ease-in-out infinite;filter:drop-shadow(0 0 8px #4cc9f0aa)}
+  .bt1{letter-spacing:.5em;font-size:1.05rem;font-weight:300;margin-right:-.5em}
+  .bt2{font-size:.76rem;color:var(--dim);letter-spacing:.14em;min-height:1.2em}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes fadein{from{opacity:0}}
+  @keyframes glow{50%{opacity:.55}}
+  /* petrol tile */
+  .split{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .sub.am{color:var(--warn)}
+  #fSp{flex:0 0 auto}
+  .stn{display:flex;justify-content:space-between;align-items:center;gap:10px;text-decoration:none;color:var(--ink);border-top:1px solid var(--line);padding:11px 0;font-size:.92rem}
+  .stn:first-of-type{border-top:0}
+  .stn .nm{min-width:0}.stn .nm b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stn .nm span{font-size:.74rem;color:var(--dim)}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<div id="boot" role="button" aria-label="Tap to begin">
+  <svg viewBox="-60 -60 120 120"><circle class="b1" r="56"/><circle class="b2" r="46"/><circle class="b3" r="34"/><circle class="bcore" r="20"/></svg>
+  <div class="bt1">J.A.R.V.I.S.</div>
+  <div class="bt2" id="bootLine">Initialising core</div>
+</div>
 <header>
   <h1>J.A.R.V.I.S.</h1>
-  <div class="hb"><button class="pill" id="hf">Hands-free</button><button class="pill" id="cfg">Set up</button></div>
+  <div class="hb"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="cfg">Set up</button></div>
 </header>
 
 <div id="main">
@@ -120,6 +148,15 @@
     </div>
     <div class="tile" id="tHome"><div class="ct">Home</div><div class="n2" id="wH">--</div><div class="sub" id="wHd">&nbsp;</div></div>
     <div class="tile" id="tWork"><div class="ct">Work</div><div class="n2" id="wW">--</div><div class="sub" id="wWd">&nbsp;</div></div>
+    <div class="tile wide split" id="tFuel" role="button" tabindex="0">
+      <div>
+        <div class="ct">Petrol (E10)</div>
+        <div class="row"><span class="n" id="fP">--</span><span class="chip" id="fT"></span></div>
+        <div class="sub" id="fS">&nbsp;</div>
+        <div class="sub" id="fC">&nbsp;</div>
+      </div>
+      <svg id="fSp" width="96" height="30" viewBox="0 0 96 30"></svg>
+    </div>
     <div class="tile wide" id="tNews" role="button" tabindex="0"><div class="ct">Headlines</div><div id="news"><div class="sub">Loading...</div></div></div>
   </section>
 
@@ -129,7 +166,7 @@
 <div id="dock">
   <div id="status">Tap the orb and speak</div>
   <div class="q">
-    <button id="qb">Briefing</button><button id="qw">To work</button><button id="qh">To home</button><button id="ql">Leave by&hellip;</button><button id="qr">Replay</button>
+    <button id="qb">Briefing</button><button id="qw">To work</button><button id="qh">To home</button><button id="ql">Leave by&hellip;</button><button id="qp">Petrol near me</button><button id="qr">Replay</button>
   </div>
   <div id="bar">
     <form id="f"><input id="t" placeholder="Type to JARVIS" autocomplete="off" enterkeyhint="send"></form>
@@ -166,6 +203,143 @@ function paintHF(){$('hf').classList.toggle('on',handsFree);$('hf').textContent=
 $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1':'0');paintHF()};
 $('cfg').onclick=()=>{const v=prompt('Paste your Cloudflare Worker URL:',getWorker());if(v!==null){localStorage.setItem('worker',v.trim());loadDash(true)}};
 paintHF();
+
+
+// ---------- sound ----------
+let soundOn=localStorage.getItem('snd')!=='0';
+let AC=null;
+function ac(){
+  if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C()}
+  if(AC&&AC.state==='suspended')AC.resume();
+  return AC;
+}
+function tone(freq,t0,dur,type,vol,glideTo){
+  if(!soundOn)return;const a=ac();if(!a)return;
+  const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+t0;
+  o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+  if(glideTo)o.frequency.exponentialRampToValueAtTime(glideTo,t+dur);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||.06,t+.02);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+dur+.05);
+}
+const sfx={
+  wake(){tone(587,0,.14,'sine',.07);tone(880,.09,.22,'sine',.07)},
+  done(){tone(988,0,.14,'sine',.05)},
+  err(){tone(220,0,.22,'triangle',.07,150)},
+  boot(){tone(160,0,1,'sawtooth',.025,640);tone(440,.55,.25,'sine',.06);tone(660,.75,.25,'sine',.06);tone(990,.95,.55,'sine',.07)}
+};
+function paintSnd(){$('snd').classList.toggle('on',soundOn)}
+$('snd').onclick=()=>{soundOn=!soundOn;localStorage.setItem('snd',soundOn?'1':'0');paintSnd();if(soundOn){ac();sfx.wake()}};
+paintSnd();
+
+// ---------- petrol tracker ----------
+let fstore={};try{fstore=JSON.parse(localStorage.getItem('fuel')||'{}')}catch(e){}
+fstore.hist=fstore.hist||[];
+let fuelAuto=null;
+const saveF=()=>localStorage.setItem('fuel',JSON.stringify(fstore));
+function effPrice(){
+  const now=Date.now();
+  if(fstore.manual&&now-fstore.manual.ts<7*864e5)return{ppl:fstore.manual.ppl,src:'set by you',ts:fstore.manual.ts};
+  if(fuelAuto&&fuelAuto.ts&&now-fuelAuto.ts<3*864e5)return{ppl:fuelAuto.ppl,src:'local average',ts:fuelAuto.ts,extra:fuelAuto.cheapest};
+  if(fstore.manual)return{ppl:fstore.manual.ppl,src:'set by you',ts:fstore.manual.ts,stale:true};
+  return{ppl:140,src:'default estimate',ts:0,stale:true};
+}
+function ago(ts){const h=(Date.now()-ts)/36e5;return h<1?'just now':h<24?Math.round(h)+'h ago':Math.round(h/24)+'d ago'}
+function recordHist(ts,ppl){
+  const last=fstore.hist[fstore.hist.length-1];
+  if(last&&ts<=last.ts)return;
+  if(last&&Math.abs(last.ppl-ppl)<0.05&&ts-last.ts<12*36e5)return;
+  fstore.hist.push({ts,ppl});fstore.hist=fstore.hist.slice(-40);saveF();
+}
+function paintFuel(){
+  const p=effPrice();
+  $('fP').textContent=p.ppl.toFixed(1)+'p';
+  const stale=p.stale||(p.ts&&Date.now()-p.ts>14*864e5);
+  $('fS').textContent=p.src+(p.ts?' \u00b7 '+ago(p.ts):'');
+  $('fS').className='sub'+(stale?' am':'');
+  $('fC').textContent=p.extra?'cheapest nearby '+p.extra:(stale?'tap to update the price':'tap to set your own');
+  const h=fstore.hist,t=$('fT');
+  if(h.length>=2){const d=h[h.length-1].ppl-h[h.length-2].ppl;t.textContent=(d>0.05?'\u25b2 ':d<-0.05?'\u25bc ':'')+Math.abs(d).toFixed(1)+'p';t.className='chip '+(d>0.05?'rd':d<-0.05?'ok':'')}
+  else{t.textContent='';t.className='chip'}
+  const s=$('fSp');s.textContent='';
+  if(h.length>=2){
+    const w=96,ht=30,mn=Math.min(...h.map(x=>x.ppl)),mx=Math.max(...h.map(x=>x.ppl)),rg=(mx-mn)||1;
+    const pts=h.map((x,i)=>(i/(h.length-1)*w).toFixed(1)+','+(ht-4-((x.ppl-mn)/rg)*(ht-8)).toFixed(1)).join(' ');
+    s.innerHTML='<polyline points="'+pts+'" fill="none" stroke="#4cc9f0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+}
+async function loadFuelAuto(){
+  const urls=[];
+  const parts=location.pathname.split('/').filter(Boolean);
+  if(location.hostname.endsWith('.github.io')&&parts[0])urls.push('https://raw.githubusercontent.com/'+location.hostname.split('.')[0]+'/'+parts[0]+'/main/fuel.json');
+  urls.push('fuel.json');
+  for(const u of urls){
+    try{
+      const r=await fetch(u+'?t='+Date.now());if(!r.ok)continue;
+      const j=await r.json(),h=j&&j.home;
+      if(j&&Array.isArray(j.stations)){fuelStations=j.stations.filter(s=>s&&s.lat&&s.lon&&s.p);fuelUpdated=Date.parse(j.updated)||0}
+      if(h&&h.avg){
+        fuelAuto={ppl:+h.avg,ts:Date.parse(j.updated)||0,cheapest:h.min?(h.min+'p '+(h.minName||'')).trim():null};
+        recordHist(fuelAuto.ts,fuelAuto.ppl);break;
+      }
+    }catch(e){}
+  }
+  paintFuel();
+}
+$('tFuel').onclick=()=>{
+  const p=effPrice();
+  const v=prompt('Petrol price in pence per litre (e.g. 139.9). Leave blank to go back to the automatic price.',p.ppl.toFixed(1));
+  if(v===null)return;
+  if(v.trim()===''){delete fstore.manual;saveF();paintFuel();return}
+  const n=parseFloat(v);
+  if(!(n>80&&n<300)){alert('That does not look right. Enter pence per litre, e.g. 139.9');return}
+  fstore.manual={ppl:n,ts:Date.now()};recordHist(Date.now(),n);saveF();paintFuel();
+};
+paintFuel();loadFuelAuto();
+
+
+// ---------- petrol near me ----------
+let fuelStations=[],fuelUpdated=0,here=null;
+const HOME_LL={lat:50.886,lon:-1.245};
+function miles(a,b){const R=3958.8,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lon-a.lon)*r;const x=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function getHere(ask){
+  return new Promise(res=>{
+    if(here&&Date.now()-here.ts<600000)return res(here);
+    const fallback=()=>res(here||(here={...HOME_LL,src:'home',ts:Date.now()}));
+    if(!ask||!navigator.geolocation)return fallback();
+    navigator.geolocation.getCurrentPosition(
+      p=>{here={lat:p.coords.latitude,lon:p.coords.longitude,src:'your location',ts:Date.now()};res(here)},
+      ()=>{here={...HOME_LL,src:'home',ts:Date.now()};res(here)},
+      {enableHighAccuracy:false,timeout:7000,maximumAge:300000});
+  });
+}
+function nearest(n){
+  const o=here||{...HOME_LL,src:'home'};
+  return fuelStations.map(s=>({...s,d:miles(o,s)})).sort((a,b)=>a.d-b.d).slice(0,n);
+}
+function nearestLine(){
+  if(!fuelStations.length)return '';
+  const o=here||{...HOME_LL,src:'home'};
+  return `\nNEAREST PETROL STATIONS (E10, straight-line distance from ${o.src}, prices updated ${ago(fuelUpdated)}):\n`+nearest(5).map((s,i)=>`${i+1}. ${s.n}: ${s.p}p per litre, ${s.d.toFixed(1)} miles`).join('\n');
+}
+function fuelCard(list){
+  const c=el('div','card');
+  c.append(el('div','ct',`Petrol near ${(here&&here.src)||'home'}`));
+  if(!list.length){
+    c.append(el('div','sub','No live station prices set up yet. Google Maps now shows UK petrol prices, so use the button below.'));
+  }else{
+    const cheapest=Math.min(...list.map(s=>s.p));
+    list.forEach(s=>{
+      const a=el('a','stn');a.href=`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';
+      const nm=el('div','nm');nm.append(el('b','',s.n.replace(/\b\w+/g,w=>w.charAt(0)+w.slice(1).toLowerCase())));nm.append(el('span','',`${s.d.toFixed(1)} miles away`));
+      a.append(nm,el('span','chip '+(s.p===cheapest?'ok':''),s.p.toFixed(1)+'p'));
+      c.append(a);
+    });
+    c.append(el('div','sub',`Straight-line distances. Prices updated ${ago(fuelUpdated)}. Tap a station for directions.`));
+  }
+  const g=el('a','btn','Search petrol in Google Maps');g.href='https://www.google.com/maps/search/?api=1&query=petrol+station';g.target='_blank';g.rel='noopener';
+  c.append(g);
+  log.appendChild(c);toEnd();
+}
 
 // ---------- dashboard ----------
 function tick(){
@@ -210,7 +384,7 @@ async function loadCommute(){
   if(!getWorker())return;
   $('cSub').textContent='Checking traffic...';
   try{
-    const r=await fetch(getWorker()+'/commute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir})});
+    const r=await fetch(getWorker()+'/commute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir,ppl:effPrice().ppl})});
     if(!r.ok)throw new Error(r.status);
     const d=await r.json();
     commuteUI=d.route||null;commuteAt=Date.now();
@@ -313,10 +487,11 @@ function briefingCard(d){
 }
 
 // ---------- brain ----------
+function petrolLine(){const p=effPrice();return `\nPETROL: ${p.ppl.toFixed(1)}p per litre (${p.src})${p.extra?'; cheapest nearby '+p.extra:''}.`}
 function buildSystem(){
   const now=`${londonPart('weekday')} ${londonPart('day')} ${londonPart('month')} ${londonPart('year')}, ${londonPart('hour')}:${londonPart('minute')} (Europe/London)`;
   const iso=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London'}).format(new Date());
-  return SYSTEM_BASE+`\nNow: ${now}. Today's date as YYYY-MM-DD: ${iso}.\nLIVE DATA:\n`+((live&&live.text)||'unavailable right now, say so if asked');
+  return SYSTEM_BASE+`\nNow: ${now}. Today's date as YYYY-MM-DD: ${iso}.\nLIVE DATA:\n`+((live&&live.text)||'unavailable right now, say so if asked')+petrolLine()+nearestLine();
 }
 async function ask(text,opts){
   if(busy)return;
@@ -327,17 +502,18 @@ async function ask(text,opts){
   try{
     await getLive(opts&&opts.fresh);
     if(opts&&opts.card)briefingCard(live);
-    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:buildSystem(),messages:history.slice(-12)})});
+    if(opts&&opts.fuel){await getHere(true);fuelCard(nearest(5))}
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:buildSystem(),messages:history.slice(-12),ppl:effPrice().ppl})});
     if(!r.ok)throw new Error('Worker returned '+r.status);
     const data=await r.json();
     const reply=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(' ').trim();
     if(!reply)throw new Error(typeof data.error==='string'?data.error:'Empty reply');
     history.push({role:'assistant',content:reply});lastReply=reply;
     if(data.ui&&data.ui.route)routeCard(data.ui.route);
-    add('j',reply);
+    add('j',reply);sfx.done();
     busy=false;await speak(reply);
     if(handsFree)setTimeout(listen,450);
-  }catch(e){history.pop();add('e','Could not reach the brain: '+e.message);setState('')}
+  }catch(e){history.pop();add('e','Could not reach the brain: '+e.message);sfx.err();setState('')}
   busy=false;
 }
 const toOther=()=>dir==='work'?['home','work']:['work','home'];
@@ -352,7 +528,7 @@ function listen(){
   if(busy)return;
   speechSynthesis.cancel();
   rec=new SR();rec.lang='en-GB';rec.interimResults=false;rec.maxAlternatives=1;
-  rec.onstart=()=>{listening=true;setState('listening','Listening...')};
+  rec.onstart=()=>{listening=true;sfx.wake();setState('listening','Listening...')};
   rec.onresult=e=>ask(e.results[0][0].transcript);
   rec.onerror=e=>{if(e.error!=='no-speech'&&e.error!=='aborted')add('e','Mic error: '+e.error);setState('')};
   rec.onend=()=>{listening=false;if(hud.className==='listening')setState('')};
@@ -364,13 +540,32 @@ $('qb').onclick=briefing;
 $('qw').onclick=()=>ask("How's the drive from home to work right now?");
 $('qh').onclick=()=>ask("How's the drive from work to home right now?");
 $('ql').onclick=()=>{const [f,t]=toOther();const v=prompt(`Arrive at ${t} by what time? (e.g. 08:00)`);if(v)ask(`What time should I leave ${f} to arrive at ${t} by ${v}? Use tomorrow if that time has already passed today.`)};
+$('qp').onclick=async()=>{
+  if(!fuelStations.length){await getHere(false);fuelCard([]);return}
+  ask("Where's the nearest petrol, and which of the closest is cheapest?",{fuel:true});
+};
 $('qr').onclick=()=>{if(lastReply)speak(lastReply)};
 $('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';$('t').blur();ask(v)}};
 speechSynthesis.onvoiceschanged=()=>{};
 
-// ?cmd=briefing | work | home  (iPhone Shortcuts)
+// ?cmd=briefing | work | home  (iPhone Shortcuts): skips the boot screen
 const cmd=new URLSearchParams(location.search).get('cmd');
-if(cmd){const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?")}[cmd];if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname)}
+const boot=$('boot');let booted=false;
+function endBoot(sound){
+  if(booted)return;booted=true;
+  if(sound){ac();sfx.boot()}
+  boot.classList.add('out');setTimeout(()=>boot.remove(),800);
+}
+if(cmd){
+  booted=true;boot.remove();
+  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?")}[cmd];
+  if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname);
+}else{
+  const lines=['Initialising core','Linking traffic feeds','Weather online','Tap to begin'];
+  lines.forEach((t,i)=>setTimeout(()=>{if(!booted)$('bootLine').textContent=t},i*700));
+  boot.addEventListener('click',()=>endBoot(true));
+  setTimeout(()=>endBoot(false),7000);
+}
 
 loadDash(false);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
