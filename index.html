@@ -140,6 +140,26 @@
   .toggles .pill.on{background:#0e3a55}
   .note{font-size:.74rem;color:var(--dim);line-height:1.45;margin:16px 0}
   .panel .btn{display:block;width:100%;border:0;font:inherit;cursor:pointer}
+  .place{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+  .place b{display:block;font-weight:500;font-size:.92rem}
+  .place span{display:block;font-size:.76rem;color:var(--dim);margin-top:2px;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .place .pill{padding:8px 16px;font-size:.8rem}
+  #picker{position:fixed;inset:0;z-index:45;background:var(--bg);display:none;flex-direction:column;padding-top:env(safe-area-inset-top)}
+  #picker.open{display:flex}
+  .phd{display:flex;justify-content:space-between;align-items:center;padding:10px 16px}
+  .phd h2{margin:0;font-size:1rem;font-weight:500}
+  .psearch{padding:0 16px 8px}
+  .psearch input{display:block;width:100%;background:#06121f;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:12px 14px;font-size:1rem}
+  #pRes{max-height:34vh;overflow-y:auto}
+  .rs{padding:11px 4px;border-top:1px solid var(--line);font-size:.88rem;line-height:1.35;cursor:pointer}
+  .rs.dim{color:var(--dim);cursor:default}
+  #pMap{flex:1;min-height:180px;background:#0a1620}
+  .pfoot{padding:12px 16px calc(env(safe-area-inset-bottom) + 14px);border-top:1px solid #0f2438;background:#040b14}
+  #pLabel{font-size:.84rem;color:var(--dim);margin-bottom:10px;line-height:1.35;min-height:2.3em}
+  .pbtns{display:flex;gap:8px}
+  .pbtns .btn{border:1px solid var(--line);background:transparent;font:inherit;cursor:pointer}
+  .pbtns .btn.pri{background:var(--glow);border-color:var(--glow)}
+  .mk-pin{width:20px;height:20px;border-radius:50%;background:var(--glow);border:3px solid #fff;box-shadow:0 0 0 7px #4cc9f044,0 0 18px #4cc9f0}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -203,8 +223,8 @@
   <div class="panel">
     <div class="ph"><h2>Settings</h2><button class="icon" id="sClose" aria-label="Close">&#10005;</button></div>
     <div class="sec">Your places</div>
-    <label>Home address<input id="sHome" placeholder="Street, town or postcode" autocomplete="off"></label>
-    <label>Work address<input id="sWork" placeholder="Street, town or postcode" autocomplete="off"></label>
+    <div class="place"><div><b>Home</b><span id="pHomeT">Not set</span></div><button class="pill" data-p="home">Set</button></div>
+    <div class="place"><div><b>Work</b><span id="pWorkT">Not set</span></div><button class="pill" data-p="work">Set</button></div>
     <div class="sec">About you</div>
     <label>Address me as<input id="sName" placeholder="sir" autocomplete="off"></label>
     <label>Petrol price, pence per litre<input id="sPpl" inputmode="decimal" placeholder="e.g. 139.9" autocomplete="off"></label>
@@ -215,6 +235,15 @@
     <label>Worker URL<input id="sWorker" placeholder="https://jarvis.yourname.workers.dev" autocomplete="off" autocapitalize="off"></label>
     <div class="note">Your addresses stay on this device and are only sent to your own Worker, to look up routes, traffic and weather.</div>
     <button class="btn pri" id="sSave">Save</button>
+  </div>
+</div>
+<div id="picker" role="dialog" aria-label="Choose location">
+  <div class="phd"><button class="icon" id="pBack" aria-label="Back">&#8592;</button><h2 id="pTitle">Set home</h2><span class="spacer"></span></div>
+  <div class="psearch"><input id="pQ" placeholder="Search address, postcode or place" autocomplete="off" autocapitalize="off"><div id="pRes"></div></div>
+  <div id="pMap"></div>
+  <div class="pfoot">
+    <div id="pLabel">Search above, use your location, or tap the map to drop a pin</div>
+    <div class="pbtns"><button class="btn" id="pLoc">Use my location</button><button class="btn pri" id="pOk">Confirm</button></div>
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -240,8 +269,12 @@ if(!cfg.worker&&localStorage.getItem('worker'))cfg.worker=localStorage.getItem('
 const saveCfg=()=>localStorage.setItem('jarvisCfg',JSON.stringify(cfg));
 const getWorker=()=>(cfg.worker||'').trim().replace(/\/+$/,'');
 const title=()=>((cfg.name||'').trim()||'sir');
-const ctx=()=>({home:(cfg.home||'').trim(),work:(cfg.work||'').trim(),mpg:+cfg.mpg||0,ppl:effPrice().ppl});
-const needsSetup=()=>!getWorker()||!(cfg.home||'').trim()||!(cfg.work||'').trim();
+const placeText=w=>{const l=cfg[w+'Loc'];return l?l.label:((cfg[w]||'').trim())};
+const ctx=()=>{const o={home:placeText('home'),work:placeText('work'),mpg:+cfg.mpg||0,ppl:effPrice().ppl};
+  if(cfg.homeLoc)o.homeLL={lat:cfg.homeLoc.lat,lon:cfg.homeLoc.lon};
+  if(cfg.workLoc)o.workLL={lat:cfg.workLoc.lat,lon:cfg.workLoc.lon};
+  return o};
+const needsSetup=()=>!getWorker()||!placeText('home')||!placeText('work');
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 function toEnd(){setTimeout(()=>main.scrollTo({top:main.scrollHeight,behavior:'smooth'}),60)}
 function add(cls,text){log.appendChild(el('div','m '+cls,text));toEnd()}
@@ -250,7 +283,7 @@ function paintHF(){$('hf').classList.toggle('on',handsFree);}
 $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1':'0');paintHF()};
 const sheet=$('sheet');
 function openSettings(){
-  $('sWorker').value=cfg.worker||'';$('sHome').value=cfg.home||'';$('sWork').value=cfg.work||'';
+  $('sWorker').value=cfg.worker||'';paintPlaces();
   $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';
   sheet.classList.add('open');
 }
@@ -258,7 +291,7 @@ function closeSettings(){sheet.classList.remove('open')}
 $('gear').onclick=openSettings;$('sClose').onclick=closeSettings;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSettings()});
 $('sSave').onclick=()=>{
-  cfg.worker=$('sWorker').value.trim();cfg.home=$('sHome').value.trim();cfg.work=$('sWork').value.trim();
+  cfg.worker=$('sWorker').value.trim();
   cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();
   saveCfg();
   const n=parseFloat($('sPpl').value);
@@ -337,6 +370,93 @@ $('tFuel').onclick=()=>{
 };
 paintFuel();
 
+
+
+// ---------- location picker (search, use my location, or drop a pin) ----------
+function paintPlaces(){
+  $('pHomeT').textContent=placeText('home')||'Not set';
+  $('pWorkT').textContent=placeText('work')||'Not set';
+}
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>openPicker(b.dataset.p));
+const picker=$('picker');
+let pm=null,pk=null,pWhich='home',pPos=null,pTimer=null,pRev=0;
+const post=(path,body)=>fetch(getWorker()+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+function openPicker(which){
+  if(!getWorker()){alert('Add your Worker URL first (under Connection), then save.');return}
+  pWhich=which;$('pTitle').textContent='Set '+which;$('pQ').value='';$('pRes').textContent='';
+  picker.classList.add('open');
+  if(!window.L){$('pLabel').textContent='The map could not load. Check your connection.';return}
+  if(!pm){
+    pm=L.map('pMap',{zoomControl:false,attributionControl:true});pm.attributionControl.setPrefix('');
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'\u00a9 OpenStreetMap'}).addTo(pm);
+    pm.on('click',e=>setPin(e.latlng.lat,e.latlng.lng,true));
+  }
+  const cur=cfg[which+'Loc'],other=cfg[(which==='home'?'work':'home')+'Loc'];
+  setTimeout(()=>{
+    pm.invalidateSize();
+    if(cur){pm.setView([cur.lat,cur.lon],16);setPin(cur.lat,cur.lon,false,cur.label)}
+    else{
+      if(pk){pk.remove();pk=null}pPos=null;
+      pm.setView(other?[other.lat,other.lon]:[54.5,-3.2],other?12:5);
+      $('pLabel').textContent='Search above, use your location, or tap the map to drop a pin';
+    }
+  },60);
+}
+function setPin(lat,lon,reverse,label){
+  pPos={lat,lon,label:label||''};
+  if(!pk){
+    pk=L.marker([lat,lon],{draggable:true,icon:L.divIcon({className:'',html:'<div class="mk-pin"></div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(pm);
+    pk.on('dragend',()=>{const p=pk.getLatLng();setPin(p.lat,p.lng,true)});
+  }else pk.setLatLng([lat,lon]);
+  $('pLabel').textContent=label||'Finding address...';
+  if(reverse||!label)reverseLabel(lat,lon);
+}
+async function reverseLabel(lat,lon){
+  const id=++pRev;
+  try{
+    const d=await post('/search',{mode:'reverse',lat,lon});
+    if(id!==pRev||!pPos)return;
+    pPos.label=d.label||'Dropped pin';$('pLabel').textContent=pPos.label;
+  }catch(e){if(id===pRev&&pPos){pPos.label='Dropped pin';$('pLabel').textContent='Dropped pin'}}
+}
+async function doSearch(q){
+  const box=$('pRes');
+  try{
+    const c=pm?pm.getCenter():null;
+    const d=await post('/search',{q,lat:c?c.lat:null,lon:c?c.lng:null});
+    if($('pQ').value.trim()!==q)return;
+    box.textContent='';
+    if(d.error){box.append(el('div','rs dim',d.error));return}
+    (d.results||[]).forEach(x=>{
+      const row=el('div','rs',x.label);
+      row.onclick=()=>{box.textContent='';$('pQ').value='';$('pQ').blur();pm.setView([x.lat,x.lon],17);setPin(x.lat,x.lon,false,x.label)};
+      box.append(row);
+    });
+    if(!(d.results||[]).length)box.append(el('div','rs dim','No matches. Try a postcode, or tap the map.'));
+  }catch(e){box.textContent='';box.append(el('div','rs dim','Search failed. Check your Worker URL.'))}
+}
+$('pQ').addEventListener('input',()=>{
+  clearTimeout(pTimer);const q=$('pQ').value.trim();
+  if(q.length<3){$('pRes').textContent='';return}
+  pTimer=setTimeout(()=>doSearch(q),350);
+});
+$('pQ').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(pTimer);const q=$('pQ').value.trim();if(q.length>=3)doSearch(q)}});
+$('pLoc').onclick=()=>{
+  if(!navigator.geolocation||!pm){$('pLabel').textContent='Location is not available here. Search or tap the map instead.';return}
+  $('pLabel').textContent='Finding your location...';
+  navigator.geolocation.getCurrentPosition(
+    p=>{pm.setView([p.coords.latitude,p.coords.longitude],17);setPin(p.coords.latitude,p.coords.longitude,true)},
+    ()=>{$('pLabel').textContent='Could not get your location. Search or tap the map instead.'},
+    {timeout:8000,maximumAge:60000});
+};
+$('pBack').onclick=()=>picker.classList.remove('open');
+$('pOk').onclick=()=>{
+  if(!pPos){$('pLabel').textContent='Choose a spot first: search, use your location, or tap the map.';return}
+  cfg[pWhich+'Loc']={label:pPos.label||'Dropped pin',lat:+pPos.lat.toFixed(6),lon:+pPos.lon.toFixed(6)};
+  delete cfg[pWhich];saveCfg();paintPlaces();
+  picker.classList.remove('open');
+  live=null;commuteUI=null;paintCommute();loadDash(true);
+};
 
 // ---------- dashboard ----------
 function tick(){
