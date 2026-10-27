@@ -160,6 +160,30 @@
   .pbtns .btn{border:1px solid var(--line);background:transparent;font:inherit;cursor:pointer}
   .pbtns .btn.pri{background:var(--glow);border-color:var(--glow)}
   .mk-pin{width:20px;height:20px;border-radius:50%;background:var(--glow);border:3px solid #fff;box-shadow:0 0 0 7px #4cc9f044,0 0 18px #4cc9f0}
+  .mapwrap{position:relative}
+  .mapwrap .map{height:230px}
+  .expand{position:absolute;top:10px;right:10px;z-index:6;width:34px;height:34px;border-radius:50%;border:1px solid #ffffff22;background:#06121fcc;color:var(--ink);font-size:1rem;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);cursor:pointer;padding:0}
+  .map .ph2{display:flex;align-items:center;justify-content:center;height:100%;color:var(--dim);font-size:.8rem;cursor:pointer}
+  .rchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+  .rchips::-webkit-scrollbar{display:none}
+  .rchip{flex:0 0 auto;border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:999px;padding:7px 13px;font-size:.78rem;white-space:nowrap}
+  .rchip.on{color:var(--ink);border-color:var(--glow);background:#0e2f46}
+  .band{font-size:.74rem;color:var(--dim);line-height:1.4}
+  .band b{color:var(--ink);font-weight:500}
+  .etab{background:#06121ff2;border:1px solid var(--glow);color:var(--ink);padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:600;box-shadow:0 4px 14px #0009;white-space:nowrap}
+  #mapview{position:fixed;inset:0;z-index:48;background:var(--bg);display:none;flex-direction:column;padding-top:env(safe-area-inset-top)}
+  #mapview.open{display:flex}
+  .mvh{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;font-size:.9rem}
+  #mvMap{flex:1;background:#0a1620}
+  .mvf{padding:12px 16px calc(env(safe-area-inset-bottom) + 14px);background:#040b14;border-top:1px solid #0f2438}
+  .maplibregl-popup-content{background:#0a1a2b;color:var(--ink);border:1px solid var(--line);font:inherit;font-size:12px;line-height:1.35;border-radius:10px;padding:8px 10px;max-width:220px}
+  .maplibregl-popup-anchor-top .maplibregl-popup-tip,.maplibregl-popup-anchor-top-left .maplibregl-popup-tip,.maplibregl-popup-anchor-top-right .maplibregl-popup-tip{border-bottom-color:#0a1a2b}
+  .maplibregl-popup-anchor-bottom .maplibregl-popup-tip,.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip{border-top-color:#0a1a2b}
+  .maplibregl-ctrl-attrib{background:transparent!important;color:#4a6a82!important;font-size:9px!important}
+  .maplibregl-ctrl-attrib a{color:#58798f!important}
+  .maplibregl-ctrl-group{background:#06121fcc!important;border:1px solid #ffffff22;border-radius:12px!important;box-shadow:none!important;backdrop-filter:blur(6px)}
+  .maplibregl-ctrl-group button{border-color:#ffffff1a!important}
+  .maplibregl-ctrl-icon{filter:invert(1) opacity(.8)}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -245,6 +269,11 @@
     <div id="pLabel">Search above, use your location, or tap the map to drop a pin</div>
     <div class="pbtns"><button class="btn" id="pLoc">Use my location</button><button class="btn pri" id="pOk">Confirm</button></div>
   </div>
+</div>
+<div id="mapview" role="dialog" aria-label="Route map">
+  <div class="mvh"><div id="mvTitle">Route</div><button class="icon" id="mvClose" aria-label="Close map">&#10005;</button></div>
+  <div id="mvMap"></div>
+  <div class="mvf"><div class="rchips" id="mvChips"></div></div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
@@ -491,9 +520,9 @@ function paintCommute(){
   $('cDir').textContent=dir==='work'?'To work':'To home';
   const r=commuteUI;
   if(!r){$('cMin').textContent='--';$('cChip').textContent='';return}
-  const b=r.options[0];
-  $('cMin').textContent=b.min+' min';
-  const c=$('cChip');c.className='chip '+delayClass(b.delay);c.textContent=b.delay<=2?'clear roads':'+'+b.delay+' min';
+  const b=r.options[0],mn=r.eta?r.eta.min:b.min,dl=r.eta?r.eta.delay:b.delay;
+  $('cMin').textContent=mn+' min';
+  const c=$('cChip');c.className='chip '+delayClass(dl);c.textContent=dl<=2?'clear roads':'+'+dl+' min';
   const n=r.incidents.length;
   $('cSub').textContent=`via ${b.roads.join(', ')||'local roads'} \u00b7 ${n} incident${n===1?'':'s'} \u00b7 tap for route`;
 }
@@ -543,31 +572,174 @@ const gmaps=r=>`https://www.google.com/maps/dir/?api=1&origin=${r.a.lat},${r.a.l
 const amaps=r=>`https://maps.apple.com/?saddr=${r.a.lat},${r.a.lon}&daddr=${r.b.lat},${r.b.lon}&dirflg=d`;
 
 function wxCell(temp,name,desc){const d=el('div');d.append(el('b','',temp),el('span','wn',name),el('span','wd',desc));return d}
+
+// ---------- map engine (MapLibre vector map, falls back to the simple Leaflet map) ----------
+const STYLE_URL='https://tiles.versatiles.org/assets/styles/eclipse/style.json';
+const JAM_COL=['#5ee6a8','#f4d35e','#f4a259','#ff6b6b','#ff6b6b'];
+let mlPromise=null;
+function loadMapLib(){
+  if(window.maplibregl)return Promise.resolve(true);
+  if(mlPromise)return mlPromise;
+  mlPromise=new Promise(res=>{
+    const css=href=>{const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.append(l)};
+    const js=(src,next)=>{const s=document.createElement('script');s.src=src;s.onload=()=>res(!!window.maplibregl);s.onerror=()=>next?next():res(false);document.head.append(s)};
+    css('https://tiles.versatiles.org/assets/lib/maplibre-gl/maplibre-gl.css');
+    js('https://tiles.versatiles.org/assets/lib/maplibre-gl/maplibre-gl.js',()=>{css('https://unpkg.com/maplibre-gl@5.10/dist/maplibre-gl.css');js('https://unpkg.com/maplibre-gl@5.10/dist/maplibre-gl.js',null)});
+  });
+  return mlPromise;
+}
+function webgl(){try{const c=document.createElement('canvas');return !!(c.getContext('webgl2')||c.getContext('webgl'))}catch(e){return false}}
+const geomOf=(r,i)=>(i===0?r.geom:(r.options[i]&&r.options[i].geom))||r.geom;
+const lnglat=g=>g.map(p=>[p[1],p[0]]);
+const feat=(coords,props)=>({type:'Feature',properties:props||{},geometry:{type:'LineString',coordinates:coords}});
+const FC=f=>({type:'FeatureCollection',features:f});
+const optName=o=>o.label==='FASTEST'?'Fastest':o.label==='ECONOMY ROUTE'?'Economy':'Alternative';
+const timeOf=(r,i)=>(i===0&&r.eta)?r.eta.min:r.options[i].min;
+
+async function mountMap(div,r,o){
+  const ok=await loadMapLib();
+  if(!ok||!webgl()){drawMapLeaflet(div,r);return null}
+  div.textContent='';
+  let map,loaded=false,dead=false;
+  try{map=new maplibregl.Map({container:div,style:STYLE_URL,interactive:!!o.interactive,attributionControl:false,fadeDuration:0,pixelRatio:Math.min(window.devicePixelRatio||1,2)})}
+  catch(e){drawMapLeaflet(div,r);return null}
+  map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
+  if(o.interactive)map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+  const ctl={want:o.sel||0,markers:[],destroy(){dead=true;try{map.remove()}catch(e){}}};
+  const fallback=()=>{if(dead)return;ctl.destroy();div.textContent='';drawMapLeaflet(div,r)};
+  const timer=setTimeout(()=>{if(!loaded)fallback()},9000);
+  let etaMk=null;
+  function apply(i,animate){
+    const g=geomOf(r,i);
+    map.getSource('main').setData(feat(lnglat(g)));
+    map.getSource('alts').setData(FC(r.options.map((op,j)=>j===i?null:feat(lnglat(geomOf(r,j)),{i:j})).filter(Boolean)));
+    map.getSource('jams').setData(FC(i===0?(r.jams||[]).map(j=>feat(lnglat(r.geom.slice(j[0],j[1]+1)),{m:j[2]})):[]));
+    const mid=g[Math.floor(g.length/2)];
+    if(!etaMk){etaMk=new maplibregl.Marker({element:el('div','etab','')}).setLngLat([mid[1],mid[0]]).addTo(map)}
+    etaMk.setLngLat([mid[1],mid[0]]);etaMk.getElement().textContent=timeOf(r,i)+' min';
+    const bd=new maplibregl.LngLatBounds();g.forEach(p=>bd.extend([p[1],p[0]]));
+    map.fitBounds(bd,{padding:o.interactive?{top:70,bottom:50,left:40,right:40}:{top:40,bottom:40,left:34,right:34},maxZoom:15,duration:animate?700:0});
+  }
+  map.on('load',()=>{
+    loaded=true;clearTimeout(timer);if(dead)return;
+    try{
+      const cap={'line-cap':'round','line-join':'round'};
+      map.addSource('alts',{type:'geojson',data:FC([])});
+      map.addSource('main',{type:'geojson',data:FC([])});
+      map.addSource('jams',{type:'geojson',data:FC([])});
+      map.addLayer({id:'alts-hit',type:'line',source:'alts',layout:cap,paint:{'line-width':18,'line-opacity':0}});
+      map.addLayer({id:'alts-line',type:'line',source:'alts',layout:cap,paint:{'line-color':'#8aa6ba','line-width':3,'line-opacity':.5}});
+      map.addLayer({id:'main-glow',type:'line',source:'main',layout:cap,paint:{'line-color':'#4cc9f0','line-width':14,'line-opacity':.22,'line-blur':6}});
+      map.addLayer({id:'main-line',type:'line',source:'main',layout:cap,paint:{'line-color':'#7be0ff','line-width':4.5}});
+      map.addLayer({id:'jams-line',type:'line',source:'jams',layout:cap,paint:{'line-color':['match',['get','m'],1,JAM_COL[1],2,JAM_COL[2],JAM_COL[3]],'line-width':5}});
+      const g0=r.geom[0],g1=r.geom[r.geom.length-1];
+      ctl.markers.push(new maplibregl.Marker({element:el('div','mk-start')}).setLngLat([g0[1],g0[0]]).addTo(map));
+      ctl.markers.push(new maplibregl.Marker({element:el('div','mk-end')}).setLngLat([g1[1],g1[0]]).addTo(map));
+      (r.incidents||[]).forEach(i=>{
+        const m=new maplibregl.Marker({element:el('div','mk-inc')}).setLngLat([i.lon,i.lat]);
+        if(o.interactive)m.setPopup(new maplibregl.Popup({offset:10,closeButton:false}).setText(i.text));
+        ctl.markers.push(m.addTo(map));
+      });
+      if(o.interactive){
+        map.on('click','alts-hit',e=>{if(o.onSelect&&e.features&&e.features[0])o.onSelect(+e.features[0].properties.i)});
+        map.on('mouseenter','alts-hit',()=>map.getCanvas().style.cursor='pointer');
+        map.on('mouseleave','alts-hit',()=>map.getCanvas().style.cursor='');
+      }
+      ctl.ready=true;apply(ctl.want,false);
+    }catch(e){fallback()}
+  });
+  ctl.setActive=i=>{ctl.want=i;if(ctl.ready&&!dead)apply(i,true)};
+  return ctl;
+}
+
+// older cards keep at most 3 live WebGL maps, the rest show a tap-to-load placeholder
+const liveMaps=[];
+function keepMaps(ctl,div,reload){
+  liveMaps.push({ctl,div,reload});
+  while(liveMaps.length>3){
+    const old=liveMaps.shift();old.ctl&&old.ctl.destroy();
+    old.div.textContent='';const p=el('div','ph2','Tap to show map');p.onclick=old.reload;old.div.append(p);
+  }
+}
+
+let fullCtl=null;
+function openFull(r,sel,onSelect,syncList){
+  const view=$('mapview');
+  $('mvTitle').textContent=`${r.from} \u2192 ${r.to}`;
+  view.classList.add('open');
+  const chips=$('mvChips');
+  const paint=i=>{chips.textContent='';r.options.forEach((op,j)=>{const b=el('button','rchip'+(j===i?' on':''),`${optName(op)} \u00b7 ${timeOf(r,j)} min`);b.onclick=()=>onSelect(j);chips.append(b)})};
+  paint(sel);
+  const div=$('mvMap');div.textContent='';
+  mountMap(div,r,{interactive:true,sel,onSelect}).then(c=>{
+    fullCtl=c;
+    if(c){const entry={setActive:i=>{c.setActive(i);paint(i)}};syncList.push(entry);c.entry=entry}
+    else syncList.push({setActive:paint});
+  });
+}
+function closeFull(syncList){
+  $('mapview').classList.remove('open');
+  if(fullCtl){fullCtl.destroy();fullCtl=null}
+  $('mvMap').textContent='';
+  while(syncList.length>1)syncList.pop(); // keep only the card's own controller
+}
+$('mvClose').onclick=()=>{if(window.__closeFull)window.__closeFull()};
+
+// simple Leaflet map, used if the vector map can't load
+function drawMapLeaflet(div,r){
+  if(!window.L||!r.geom||!r.geom.length){div.remove();return}
+  try{
+    const m=L.map(div,{zoomControl:false,dragging:false,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,tap:false,attributionControl:true});
+    m.attributionControl.setPrefix('');
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'\u00a9 OpenStreetMap'}).addTo(m);
+    const opts={lineCap:'round',lineJoin:'round'};
+    L.polyline(r.geom,{...opts,color:'#4cc9f0',weight:11,opacity:.18}).addTo(m);
+    const line=L.polyline(r.geom,{...opts,color:'#7be0ff',weight:3,opacity:1}).addTo(m);
+    const ic=(cls,s)=>L.divIcon({className:'',html:`<div class="${cls}"></div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
+    L.marker(r.geom[0],{icon:ic('mk-start',10),interactive:false}).addTo(m);
+    L.marker(r.geom[r.geom.length-1],{icon:ic('mk-end',14),interactive:false}).addTo(m);
+    (r.incidents||[]).forEach(i=>L.marker([i.lat,i.lon],{icon:ic('mk-inc',9)}).addTo(m).bindTooltip(i.text,{direction:'top',offset:[0,-6]}));
+    const fit=()=>{m.invalidateSize();m.fitBounds(line.getBounds(),{padding:[26,26]})};
+    fit();requestAnimationFrame(fit);setTimeout(fit,400);setTimeout(fit,1000);
+  }catch(e){div.remove()}
+}
+
+// ---------- route card ----------
 function routeCard(r){
   const c=el('div','card rc');
-  const best=r.options[0];
+  let sel=0;const syncList=[];
   c.append(el('div','ct',`${r.from} \u2192 ${r.to}`));
-  const hero=el('div','hero');
-  hero.append(el('span','n',best.min+' min'));
-  hero.append(el('span','chip '+delayClass(best.delay),best.delay<=2?'clear roads':`+${best.delay} min delay`));
-  c.append(hero);
-  const bits=[`via ${best.roads.join(', ')||'local roads'}`,`${best.miles} mi`];
-  if(best.fuel!=null)bits.push(`${best.fuel} L \u00b7 \u00a3${best.cost.toFixed(2)}`);
-  c.append(el('div','sub',bits.join(' \u00b7 ')));
+  const hero=el('div','hero'),tEl=el('span','n'),dEl=el('span','chip'),fEl=el('span','chip gl');
+  hero.append(tEl,dEl,fEl);c.append(hero);
+  const info=el('div','sub'),band=el('div','band');c.append(info,band);
   if(r.leave)c.append(el('div','chip ok leave',`Leave ${r.leave.depart} \u2192 arrive ${r.leave.arrive}`));
-  const map=el('div','map');c.append(map);
-  r.options.slice(1).forEach(o=>{
-    const row=el('div','opt'),l=el('div','l'),rt=el('div','r');
-    l.append(el('b','',o.label.charAt(0)+o.label.slice(1).toLowerCase()),el('span','',o.roads.join(', ')||'local roads'));
-    const dt=o.min-best.min;
-    rt.append(el('span','',`${dt>=0?'+':'\u2212'}${Math.abs(dt)} min`));
-    if(o.fuel!=null&&best.fuel!=null){const df=+(o.fuel-best.fuel).toFixed(1);rt.append(el('span',df<0?'ok':df>0?'am':'',`${df>=0?'+':'\u2212'}${Math.abs(df)} L`))}
-    row.append(l,rt);c.append(row);
-  });
+
+  const wrap=el('div','mapwrap'),map=el('div','map'),ex=el('button','expand','\u2922');
+  ex.setAttribute('aria-label','Expand map');wrap.append(map,ex);c.append(wrap);
+  const chips=el('div','rchips');c.append(chips);
+
+  function paint(i){
+    const o=r.options[i],best=i===0;
+    tEl.textContent=timeOf(r,i)+' min';
+    const dl=(best&&r.eta)?r.eta.delay:o.delay;
+    dEl.className='chip '+delayClass(dl);dEl.textContent=dl<=2?'clear roads':`+${dl} min delay`;
+    if(o.fuel!=null){fEl.style.display='';fEl.textContent=`${o.fuel} L \u00b7 \u00a3${o.cost.toFixed(2)}`}else fEl.style.display='none';
+    info.textContent=`via ${o.roads.join(', ')||'local roads'} \u00b7 ${o.miles} mi`;
+    if(best&&r.eta&&r.eta.sources.length>1){
+      band.textContent='';band.append(el('b','','Consensus '),document.createTextNode(r.eta.sources.map(s=>`${s.name} ${s.min}`).join(' \u00b7 ')+`  (range ${r.eta.low}\u2013${r.eta.high} min)`));
+    }else band.textContent=best?'':`Estimate from ${r.eta?r.eta.sources[0].name:'TomTom'}`;
+    chips.textContent='';
+    r.options.forEach((op,j)=>{const b=el('button','rchip'+(j===i?' on':''),`${optName(op)} \u00b7 ${timeOf(r,j)} min`);b.onclick=()=>select(j);chips.append(b)});
+  }
+  function select(i){sel=i;r.sel=i;paint(i);syncList.forEach(x=>x.setActive(i))}
+  paint(0);
+
+  // incidents
   if(r.incidents.length){
     r.incidents.slice(0,2).forEach(i=>{const d=el('div','inc');d.append(el('i'),el('span','',i.text));c.append(d)});
     if(r.incidents.length>2)c.append(el('div','sub',`+${r.incidents.length-2} more, shown on the map`));
   }else{const d=el('div','inc none');d.append(el('i'),el('span','','No incidents on your route'));c.append(d)}
+  // weather
   const ws=r.weather.length>=3?[r.weather[0],r.weather[Math.floor(r.weather.length/2)],r.weather[r.weather.length-1]]:r.weather;
   const wx=el('div','wx');
   ws.forEach(w=>wx.append(wxCell(w.wx?w.wx.t+'\u00b0':'--',w.name||w.label,w.wx?`${w.wx.desc}, ${w.wx.rain}%`:'n/a')));
@@ -579,25 +751,18 @@ function routeCard(r){
     acts.append(g,ap);c.append(acts);
   }
   log.appendChild(c);toEnd();
-  setTimeout(()=>drawMap(map,r),120);
-}
-function drawMap(div,r){
-  if(!window.L||!r.geom||!r.geom.length)return div.remove();
-  try{
-    const m=L.map(div,{zoomControl:false,dragging:false,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,tap:false,attributionControl:true});
-    m.attributionControl.setPrefix('');
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'\u00a9 OpenStreetMap'}).addTo(m);
-    const opts={lineCap:'round',lineJoin:'round'};
-    L.polyline(r.geom,{...opts,color:'#4cc9f0',weight:11,opacity:.18}).addTo(m);
-    const line=L.polyline(r.geom,{...opts,color:'#7be0ff',weight:3,opacity:1}).addTo(m);
-    const ic=(cls,s)=>L.divIcon({className:'',html:`<div class="${cls}"></div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
-    L.marker(r.geom[0],{icon:ic('mk-start',10),interactive:false}).addTo(m);
-    L.marker(r.geom[r.geom.length-1],{icon:ic('mk-end',14),interactive:false}).addTo(m);
-    r.incidents.forEach(i=>L.marker([i.lat,i.lon],{icon:ic('mk-inc',9)}).addTo(m).bindTooltip(i.text,{direction:'top',offset:[0,-6]}));
-    const fit=()=>{m.invalidateSize();m.fitBounds(line.getBounds(),{padding:[26,26]})};
-    fit();
-    requestAnimationFrame(fit);setTimeout(fit,400);setTimeout(fit,1000);
-  }catch(e){div.remove()}
+
+  // map
+  function mountCompact(){
+    map.textContent='';
+    mountMap(map,r,{interactive:false,sel}).then(ctl=>{
+      if(ctl){syncList.unshift(ctl);keepMaps(ctl,map,mountCompact)}
+    });
+  }
+  setTimeout(mountCompact,150);
+  const open=()=>{window.__closeFull=()=>closeFull(syncList);openFull(r,sel,select,syncList)};
+  ex.onclick=e=>{e.stopPropagation();open()};
+  map.addEventListener('click',()=>{if(map.querySelector('.ph2'))return;open()});
 }
 function briefingCard(d){
   if(!d)return;
