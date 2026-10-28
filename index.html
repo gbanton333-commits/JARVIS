@@ -184,6 +184,54 @@
   .maplibregl-ctrl-group{background:#06121fcc!important;border:1px solid #ffffff22;border-radius:12px!important;box-shadow:none!important;backdrop-filter:blur(6px)}
   .maplibregl-ctrl-group button{border-color:#ffffff1a!important}
   .maplibregl-ctrl-icon{filter:invert(1) opacity(.8)}
+  #hero{position:relative}
+  #refresh{position:absolute;top:6px;right:0}
+  #refresh.spin{animation:spin 1s linear infinite}
+  #brief{margin-top:12px}
+  .bp{display:inline-block;border:1px solid var(--line);background:#0a1a2b99;border-radius:999px;padding:5px 11px;margin:0 6px 6px 0;font-size:.78rem;line-height:1.3}
+  #upd{font-size:.66rem;color:#4a6a82;margin-top:2px}
+  .sk{background:linear-gradient(90deg,#0d2238,#16405f,#0d2238);background-size:200% 100%;animation:shim 1.3s linear infinite;border-radius:8px;color:transparent!important;min-width:70px;display:inline-block}
+  @keyframes shim{to{background-position:-200% 0}}
+  .tbar{height:6px;border-radius:99px;background:#5ee6a840;position:relative;overflow:hidden;margin-top:12px}
+  .tbar i{position:absolute;top:0;bottom:0;border-radius:2px}
+  .wrow{display:flex;align-items:center;gap:8px;margin-top:6px}
+  .wrow .n2{margin-top:0}
+  .wi{width:30px;height:30px;color:var(--glow);flex:0 0 auto}
+  .wi svg{width:100%;height:100%}
+  .rbar{height:4px;border-radius:99px;background:#ffffff14;margin-top:10px;overflow:hidden}
+  .rbar i{display:block;height:100%;background:var(--glow);border-radius:99px;transition:width .6s ease}
+  .fhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .seg button{background:transparent;border:0;color:var(--dim);padding:5px 10px;font-size:.72rem;cursor:pointer;white-space:nowrap}
+  .seg button.on{background:#0e3a55;color:var(--ink)}
+  .frow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px;gap:10px}
+  .gauge{position:relative;height:44px;margin:12px 4px 2px}
+  .gauge .tr{position:absolute;left:0;right:0;top:12px;height:6px;border-radius:99px;background:linear-gradient(90deg,#5ee6a8,#f4d35e,#ff6b6b);opacity:.85}
+  .gauge .dot{position:absolute;top:9px;width:12px;height:12px;border-radius:50%;border:2px solid #040b14;transform:translateX(-50%)}
+  .gauge .tick{position:absolute;top:5px;width:2px;height:20px;background:#fff;transform:translateX(-50%);border-radius:2px}
+  .gauge .lb{position:absolute;top:28px;font-size:.66rem;color:var(--dim);white-space:nowrap}
+  .gauge .lb.min{left:0}.gauge .lb.max{right:0}.gauge .lb.mid{transform:translateX(-50%);color:var(--ink)}
+  .flist{margin-top:4px}
+  .frw{display:flex;justify-content:space-between;align-items:center;gap:10px;text-decoration:none;color:var(--ink);border-top:1px solid var(--line);padding:10px 0;font-size:.9rem}
+  .frw:first-child{border-top:0}
+  .fl{display:flex;align-items:center;min-width:0}
+  .cdot{width:9px;height:9px;border-radius:50%;margin-right:10px;flex:0 0 auto}
+  .frw .nm{min-width:0}.frw .nm b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .frw .nm span{font-size:.72rem;color:var(--dim)}
+  .pc{text-align:right;flex:0 0 auto}.pc b{display:block;font-size:1rem;font-weight:500}.pc span{font-size:.7rem}
+  .fctl{display:flex;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .fbtns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .fbtns .pill{padding:7px 14px;font-size:.78rem}
+  .note2{font-size:.68rem;color:#4a6a82;margin-top:10px;line-height:1.45}
+  .fsum{font-size:.82rem;line-height:1.45;border-top:1px solid var(--line);padding-top:10px;cursor:pointer}
+  .fsum b{font-weight:500}.fsum .dim{color:var(--dim)}
+  .fp{background:#06121ff0;border:1.5px solid var(--ok);color:var(--ink);font-size:.7rem;font-weight:600;padding:2px 6px;border-radius:8px;white-space:nowrap;box-shadow:0 3px 10px #000a;cursor:pointer}
+  .fp.mid{border-color:#f4d35e}.fp.hi{border-color:#ff6b6b}
+  .fp.best{background:var(--ok);color:#02101c;border-color:var(--ok)}
+  .mk-you{width:14px;height:14px;border-radius:50%;background:#4c8ff0;border:3px solid #fff;box-shadow:0 0 0 8px #4c8ff033}
+  .fpop b{display:block;font-weight:600;margin-bottom:2px}
+  .fpop a{color:var(--glow);text-decoration:none;display:inline-block;margin-top:6px}
+  .toggles{flex-wrap:wrap}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -201,28 +249,39 @@
 
 <div id="main">
   <section id="hero">
+    <button class="icon" id="refresh" aria-label="Refresh data">&#8635;</button>
     <div id="hello">&nbsp;</div>
     <div id="clock">--:--</div>
     <div id="date">&nbsp;</div>
+    <div id="brief"></div>
+    <div id="upd"></div>
   </section>
 
   <section id="tiles">
     <div class="tile wide" id="tCommute" role="button" tabindex="0">
       <div class="ct" id="cDir">Commute</div>
-      <div class="row"><span class="n" id="cMin">--</span><span class="chip" id="cChip"></span></div>
+      <div class="row"><span class="n sk" id="cMin">--</span><span class="chip" id="cChip"></span></div>
       <div class="sub" id="cSub">Checking traffic...</div>
+      <div class="tbar" id="cBar"></div>
       <button id="swap" aria-label="Swap direction">&#8646;</button>
     </div>
-    <div class="tile" id="tHome"><div class="ct">Home</div><div class="n2" id="wH">--</div><div class="sub" id="wHd">&nbsp;</div></div>
-    <div class="tile" id="tWork"><div class="ct">Work</div><div class="n2" id="wW">--</div><div class="sub" id="wWd">&nbsp;</div></div>
-    <div class="tile wide split" id="tFuel" role="button" tabindex="0">
-      <div>
-        <div class="ct">Petrol (E10)</div>
-        <div class="row"><span class="n" id="fP">--</span><span class="chip" id="fT"></span></div>
-        <div class="sub" id="fS">&nbsp;</div>
-        <div class="sub" id="fC">&nbsp;</div>
+    <div class="tile" id="tHome"><div class="ct">Home</div><div class="wrow"><span class="wi" id="wHi"></span><span class="n2 sk" id="wH">--</span></div><div class="sub" id="wHd">&nbsp;</div><div class="rbar"><i id="wHr" style="width:0"></i></div></div>
+    <div class="tile" id="tWork"><div class="ct">Work</div><div class="wrow"><span class="wi" id="wWi"></span><span class="n2 sk" id="wW">--</span></div><div class="sub" id="wWd">&nbsp;</div><div class="rbar"><i id="wWr" style="width:0"></i></div></div>
+    <div class="tile wide" id="tFuel">
+      <div class="fhead"><div class="ct" id="fTitle">Petrol near you</div>
+        <div class="seg" id="fSeg"><button data-f="e10" class="on">E10</button><button data-f="e5">E5</button><button data-f="b7">Diesel</button></div></div>
+      <div class="frow">
+        <div><div class="row"><span class="n sk" id="fP">--</span><span class="chip" id="fT"></span></div><div class="sub" id="fS">&nbsp;</div></div>
+        <svg id="fSp" width="96" height="34" viewBox="0 0 96 34"></svg>
       </div>
-      <svg id="fSp" width="96" height="30" viewBox="0 0 96 30"></svg>
+      <div class="gauge" id="fGauge"></div>
+      <div class="flist" id="fList"></div>
+      <div class="fctl">
+        <div class="seg" id="fSort"><button data-s="price" class="on">Cheapest</button><button data-s="dist">Nearest</button></div>
+        <div class="seg" id="fRad"><button data-r="3">3 mi</button><button data-r="5" class="on">5 mi</button><button data-r="10">10 mi</button></div>
+      </div>
+      <div class="fbtns"><button class="pill" id="fLoc">Use my location</button><button class="pill" id="fMap">Map</button><button class="pill" id="fSet">Set price</button></div>
+      <div class="note2" id="fNote"></div>
     </div>
     <div class="tile wide" id="tNews" role="button" tabindex="0"><div class="ct">Headlines</div><div id="news"><div class="sub">Loading...</div></div></div>
   </section>
@@ -251,10 +310,11 @@
     <div class="place"><div><b>Work</b><span id="pWorkT">Not set</span></div><button class="pill" data-p="work">Set</button></div>
     <div class="sec">About you</div>
     <label>Address me as<input id="sName" placeholder="sir" autocomplete="off"></label>
-    <label>Petrol price, pence per litre<input id="sPpl" inputmode="decimal" placeholder="e.g. 139.9" autocomplete="off"></label>
+    <label>Petrol price override, pence per litre (blank uses the local typical price)<input id="sPpl" inputmode="decimal" placeholder="e.g. 139.9" autocomplete="off"></label>
     <label>Car economy, combined mpg (optional)<input id="sMpg" inputmode="decimal" placeholder="e.g. 45" autocomplete="off"></label>
+    <label>Tank size, litres (used for savings estimates)<input id="sTank" inputmode="decimal" placeholder="40" autocomplete="off"></label>
     <div class="sec">Behaviour</div>
-    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button></div>
+    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button></div>
     <div class="sec">Connection</div>
     <label>Worker URL<input id="sWorker" placeholder="https://jarvis.yourname.workers.dev" autocomplete="off" autocapitalize="off"></label>
     <div class="note">Your addresses stay on this device and are only sent to your own Worker, to look up routes, traffic and weather.</div>
@@ -313,7 +373,7 @@ $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1
 const sheet=$('sheet');
 function openSettings(){
   $('sWorker').value=cfg.worker||'';paintPlaces();
-  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';
+  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sTank').value=cfg.tank||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';paintALoc();
   sheet.classList.add('open');
 }
 function closeSettings(){sheet.classList.remove('open')}
@@ -321,13 +381,18 @@ $('gear').onclick=openSettings;$('sClose').onclick=closeSettings;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSettings()});
 $('sSave').onclick=()=>{
   cfg.worker=$('sWorker').value.trim();
-  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();
+  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();cfg.tank=$('sTank').value.trim();
   saveCfg();
-  const n=parseFloat($('sPpl').value);
-  if(n>80&&n<300&&(!fstore.manual||fstore.manual.ppl!==n)){fstore.manual={ppl:n,ts:Date.now()};recordHist(Date.now(),n);saveF();paintFuel()}
+  const pv=$('sPpl').value.trim(),n=parseFloat(pv);
+  if(pv===''){if(fstore.manual){delete fstore.manual;saveF()}}
+  else if(n>80&&n<300&&(!fstore.manual||fstore.manual.ppl!==n)){fstore.manual={ppl:n,ts:Date.now()};saveF()}
+  paintFuel();
   closeSettings();live=null;commuteUI=null;tick();paintCommute();loadDash(true);
 };
 paintHF();
+function paintALoc(){$('aloc').classList.toggle('on',cfg.autoLoc!==false)}
+$('aloc').onclick=()=>{cfg.autoLoc=cfg.autoLoc===false;saveCfg();paintALoc();if(cfg.autoLoc!==false)autoLocate()};
+paintALoc();
 
 
 // ---------- sound ----------
@@ -356,47 +421,232 @@ function paintSnd(){$('snd').classList.toggle('on',soundOn)}
 $('snd').onclick=()=>{soundOn=!soundOn;localStorage.setItem('snd',soundOn?'1':'0');paintSnd();if(soundOn){ac();sfx.wake()}};
 paintSnd();
 
-// ---------- petrol tracker ----------
+// ---------- fuel prices (stations from the retailers' open feeds, filtered on your phone) ----------
 let fstore={};try{fstore=JSON.parse(localStorage.getItem('fuel')||'{}')}catch(e){}
-fstore.hist=fstore.hist||[];
+fstore.mh=fstore.mh||[];
 const saveF=()=>localStorage.setItem('fuel',JSON.stringify(fstore));
-function effPrice(){
-  if(fstore.manual)return{ppl:fstore.manual.ppl,src:'set by you',ts:fstore.manual.ts};
-  return{ppl:140,src:'default estimate',ts:0,stale:true};
+const FUELS={e10:{name:'E10',i:0},e5:{name:'E5',i:1},b7:{name:'Diesel',i:2}};
+let fuelType=FUELS[cfg.fuelType]?cfg.fuelType:'e10',fuelSort=cfg.fuelSort==='dist'?'dist':'price',fuelRad=[3,5,10].includes(+cfg.fuelRad)?+cfg.fuelRad:5;
+let stations=[],fuelUpdated=0,fuelErr='',here=null,fuelLoadedAt=0;
+const persistFuelPrefs=()=>{cfg.fuelType=fuelType;cfg.fuelSort=fuelSort;cfg.fuelRad=fuelRad;saveCfg()};
+const tank=()=>(+cfg.tank>10&&+cfg.tank<200)?+cfg.tank:40;
+const med=a=>{const s=[...a].sort((x,y)=>x-y),n=s.length;return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2};
+const miles=(a,b)=>{const R=3958.8,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lon-a.lon)*r;const x=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))};
+const tcase=s=>String(s).replace(/\w\S*/g,w=>w.length<=3?w.toUpperCase():w[0].toUpperCase()+w.slice(1).toLowerCase());
+const tierOf=(p,lo,hi)=>{const t=hi>lo?(p-lo)/(hi-lo):0;return t<.34?0:t<.67?1:2};
+const TIER_COL=['#5ee6a8','#f4d35e','#ff6b6b'],TIER_CLS=['','mid','hi'];
+const dirLink=s=>`https://www.google.com/maps/dir/?api=1&destination=${s.la},${s.lo}&travelmode=driving`;
+function ago(ts){if(!ts)return 'unknown age';const h=(Date.now()-ts)/36e5;return h<1?'under an hour ago':h<24?Math.round(h)+'h ago':Math.round(h/24)+'d ago'}
+
+const homePt=()=>cfg.homeLoc?{lat:cfg.homeLoc.lat,lon:cfg.homeLoc.lon}:null;
+function origin(){if(here&&Date.now()-here.ts<20*60000)return here;const h=homePt();return h?{...h,src:'home'}:null}
+function locate(){return new Promise(res=>{
+  if(!navigator.geolocation)return res(null);
+  navigator.geolocation.getCurrentPosition(p=>{here={lat:p.coords.latitude,lon:p.coords.longitude,src:'you',ts:Date.now()};res(here)},()=>res(null),{timeout:8000,maximumAge:300000});
+})}
+async function autoLocate(){if(cfg.autoLoc===false)return;await locate();paintFuel();paintBrief()}
+
+function nearby(){
+  const o=origin();if(!o||!stations.length)return{o,list:[]};
+  const fi=FUELS[fuelType].i,list=[];
+  for(const s of stations){
+    const pr=s.p[fi];if(pr==null||Math.abs(s.la-o.lat)>fuelRad/60)continue;
+    const d=miles(o,{lat:s.la,lon:s.lo});if(d<=fuelRad)list.push({...s,price:pr,d});
+  }
+  return{o,list};
 }
-function ago(ts){const h=(Date.now()-ts)/36e5;return h<1?'just now':h<24?Math.round(h)+'h ago':Math.round(h/24)+'d ago'}
-function recordHist(ts,ppl){
-  const last=fstore.hist[fstore.hist.length-1];
-  if(last&&ts<=last.ts)return;
-  if(last&&Math.abs(last.ppl-ppl)<0.05&&ts-last.ts<12*36e5)return;
-  fstore.hist.push({ts,ppl});fstore.hist=fstore.hist.slice(-40);saveF();
+function homeMedian(){
+  const h=homePt();if(!h||!stations.length)return null;const a=[];
+  for(const s of stations){const pr=s.p[0];if(pr==null||Math.abs(s.la-h.lat)>8/60)continue;if(miles(h,{lat:s.la,lon:s.lo})<=8)a.push(pr)}
+  return a.length>=3?med(a):null;
+}
+function effPrice(){
+  const now=Date.now();
+  if(fstore.manual&&now-fstore.manual.ts<14*864e5)return{ppl:fstore.manual.ppl,src:'set by you',ts:fstore.manual.ts};
+  const m=homeMedian();if(m)return{ppl:+m.toFixed(1),src:'local typical price',ts:fuelUpdated};
+  if(fstore.manual)return{ppl:fstore.manual.ppl,src:'set by you (old)',ts:fstore.manual.ts,stale:true};
+  return{ppl:170,src:'default estimate',ts:0,stale:true};
+}
+function recordAvg(){
+  const m=homeMedian();if(!m)return;
+  const last=fstore.mh[fstore.mh.length-1];
+  if(!last||Date.now()-last.ts>20*36e5){fstore.mh.push({ts:fuelUpdated||Date.now(),ppl:+m.toFixed(1)});fstore.mh=fstore.mh.slice(-40);saveF()}
+}
+async function loadFuel(){
+  const urls=[],parts=location.pathname.split('/').filter(Boolean);
+  if(location.hostname.endsWith('.github.io')&&parts[0])urls.push(`https://raw.githubusercontent.com/${location.hostname.split('.')[0]}/${parts[0]}/data/fuel.json`);
+  urls.push('fuel.json');
+  for(const u of urls){
+    try{
+      const r=await fetch(u+'?t='+Math.floor(Date.now()/300000));if(!r.ok)continue;
+      const j=await r.json();
+      if(Array.isArray(j.stations)&&j.stations.length){
+        stations=j.stations.map(s=>({b:s[0],pc:s[1],la:s[2],lo:s[3],p:[s[4],s[5],s[6]]}));
+        fuelUpdated=Date.parse(j.updated)||0;fuelErr='';break;
+      }
+    }catch(e){}
+  }
+  if(!stations.length)fuelErr='No station data yet. Run the "Update fuel prices" workflow on GitHub.';
+  fuelLoadedAt=Date.now();recordAvg();paintFuel();paintBrief();
+}
+
+function drawSpark(){
+  const s=$('fSp');s.textContent='';const h=fstore.mh;
+  if(h.length<2)return;
+  const w=96,ht=34,mn=Math.min(...h.map(x=>x.ppl)),mx=Math.max(...h.map(x=>x.ppl)),rg=(mx-mn)||1;
+  const pts=h.map((x,i)=>(i/(h.length-1)*w).toFixed(1)+','+(ht-5-((x.ppl-mn)/rg)*(ht-10)).toFixed(1)).join(' ');
+  s.innerHTML='<polyline points="'+pts+'" fill="none" stroke="#4cc9f0" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>';
+}
+function drawGauge(g,shown,md,lo,hi){
+  const rg=(hi-lo)||1,pos=p=>(2+96*(p-lo)/rg)+'%';
+  g.append(el('div','tr'));
+  const tk=el('div','tick');tk.style.left=pos(md);g.append(tk);
+  shown.forEach(p=>{const d=el('div','dot');d.style.left=pos(p);d.style.background=TIER_COL[tierOf(p,lo,hi)];g.append(d)});
+  g.append(el('div','lb min',lo.toFixed(1)+'p cheapest'),el('div','lb max',hi.toFixed(1)+'p dearest'));
+  const mp=(md-lo)/rg;
+  if(mp>.22&&mp<.78){const m=el('div','lb mid','typical '+md.toFixed(1));m.style.left=pos(md);g.append(m)}
 }
 function paintFuel(){
-  const p=effPrice();
-  $('fP').textContent=p.ppl.toFixed(1)+'p';
-  const stale=p.stale||(p.ts&&Date.now()-p.ts>14*864e5);
-  $('fS').textContent=p.src+(p.ts?' \u00b7 '+ago(p.ts):'');
-  $('fS').className='sub'+(stale?' am':'');
-  $('fC').textContent=stale?'tap to set your local price':'tap to update';
-  const h=fstore.hist,t=$('fT');
-  if(h.length>=2){const d=h[h.length-1].ppl-h[h.length-2].ppl;t.textContent=(d>0.05?'\u25b2 ':d<-0.05?'\u25bc ':'')+Math.abs(d).toFixed(1)+'p';t.className='chip '+(d>0.05?'rd':d<-0.05?'ok':'')}
-  else{t.textContent='';t.className='chip'}
-  const s=$('fSp');s.textContent='';
-  if(h.length>=2){
-    const w=96,ht=30,mn=Math.min(...h.map(x=>x.ppl)),mx=Math.max(...h.map(x=>x.ppl)),rg=(mx-mn)||1;
-    const pts=h.map((x,i)=>(i/(h.length-1)*w).toFixed(1)+','+(ht-4-((x.ppl-mn)/rg)*(ht-8)).toFixed(1)).join(' ');
-    s.innerHTML='<polyline points="'+pts+'" fill="none" stroke="#4cc9f0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
+  const f=FUELS[fuelType],o=origin();
+  $('fTitle').textContent=(fuelType==='b7'?'Diesel':'Petrol')+' near '+(o&&o.src==='you'?'you':'home');
+  document.querySelectorAll('#fSeg button').forEach(b=>b.classList.toggle('on',b.dataset.f===fuelType));
+  document.querySelectorAll('#fSort button').forEach(b=>b.classList.toggle('on',b.dataset.s===fuelSort));
+  document.querySelectorAll('#fRad button').forEach(b=>b.classList.toggle('on',+b.dataset.r===fuelRad));
+  $('fLoc').textContent=(here&&here.src==='you')?'Update my location':'Use my location';
+  const list=$('fList'),g=$('fGauge'),note=$('fNote'),S=$('fS'),T=$('fT');
+  list.textContent='';g.textContent='';T.textContent='';T.className='chip';
+  $('fP').classList.remove('sk');drawSpark();
+  if(!o){$('fP').textContent='--';S.className='sub am';S.textContent='Add your home in Settings, or tap Use my location';note.textContent='';return}
+  if(!stations.length){
+    const p=effPrice();$('fP').textContent=p.ppl.toFixed(1)+'p';
+    S.className='sub'+(fuelErr?' am':'');S.textContent=fuelErr||'Loading prices...';
+    note.textContent='Until station data loads, route costs use '+p.src+'.';return;
   }
+  const near=nearby();
+  if(!near.list.length){$('fP').textContent='--';S.className='sub am';S.textContent=`No ${f.name} prices within ${fuelRad} miles in the retailer feeds. Try a wider radius.`;note.textContent='';return}
+  const ps=near.list.map(s=>s.price),md=med(ps),lo=Math.min(...ps),hi=Math.max(...ps);
+  $('fP').textContent=md.toFixed(1)+'p';
+  S.className='sub';S.textContent=`typical within ${fuelRad} mi \u00b7 ${near.list.length} stations \u00b7 ${ago(fuelUpdated)}`;
+  const h=fstore.mh;
+  if(fuelType==='e10'&&h.length>=2){const d=h[h.length-1].ppl-h[h.length-2].ppl;if(Math.abs(d)>=.1){T.textContent=(d>0?'\u25b2 ':'\u25bc ')+Math.abs(d).toFixed(1)+'p';T.className='chip '+(d>0?'rd':'ok')}}
+  const sorted=near.list.slice().sort(fuelSort==='dist'?(a,b)=>a.d-b.d:(a,b)=>a.price-b.price||a.d-b.d).slice(0,5);
+  drawGauge(g,sorted.map(s=>s.price),md,lo,hi);
+  sorted.forEach(s=>{
+    const a=el('a','frw');a.href=dirLink(s);a.target='_blank';a.rel='noopener';
+    const left=el('div','fl'),dot=el('span','cdot');dot.style.background=TIER_COL[tierOf(s.price,lo,hi)];
+    const nm=el('div','nm');nm.append(el('b','',tcase(s.b)),el('span','',`${s.d.toFixed(1)} mi${s.pc?' \u00b7 '+s.pc:''}`));
+    left.append(dot,nm);
+    const dl=s.price-md,pc=el('div','pc');
+    pc.append(el('b','',s.price.toFixed(1)+'p'),el('span',dl<-0.05?'ok':dl>0.05?'rd':'',(dl>=0?'+':'\u2212')+Math.abs(dl).toFixed(1)+'p'));
+    a.append(left,pc);list.append(a);
+  });
+  const save=(md-lo)*tank()/100;
+  note.textContent=(md-lo>=0.5?`Cheapest is ${(md-lo).toFixed(1)}p under typical: about \u00a3${save.toFixed(2)} saved on a ${tank()} L fill. `:'')+'Prices come from retailers that publish open data, so some stations are missing. Check the pump.';
 }
-$('tFuel').onclick=()=>{
-  const p=effPrice();
-  const v=prompt('Petrol price in pence per litre (e.g. 139.9). Leave blank to reset to the default.',p.ppl.toFixed(1));
+document.querySelectorAll('#fSeg button').forEach(b=>b.onclick=()=>{fuelType=b.dataset.f;persistFuelPrefs();paintFuel();paintBrief()});
+document.querySelectorAll('#fSort button').forEach(b=>b.onclick=()=>{fuelSort=b.dataset.s;persistFuelPrefs();paintFuel()});
+document.querySelectorAll('#fRad button').forEach(b=>b.onclick=()=>{fuelRad=+b.dataset.r;persistFuelPrefs();paintFuel();paintBrief()});
+$('fLoc').onclick=async()=>{
+  $('fLoc').textContent='Locating...';
+  const r=await locate();
+  if(!r)alert('Could not get your location. Check that Safari may use location for this site.');
+  paintFuel();paintBrief();
+};
+$('fMap').onclick=()=>openStationsMap();
+$('fSet').onclick=()=>{
+  const v=prompt('Your usual local price in pence per litre, used for route costs (e.g. 168.9). Leave blank to use the local typical price.',effPrice().ppl.toFixed(1));
   if(v===null)return;
   if(v.trim()===''){delete fstore.manual;saveF();paintFuel();return}
   const n=parseFloat(v);
-  if(!(n>80&&n<300)){alert('That does not look right. Enter pence per litre, e.g. 139.9');return}
-  fstore.manual={ppl:n,ts:Date.now()};recordHist(Date.now(),n);saveF();paintFuel();
+  if(!(n>80&&n<300)){alert('That does not look right. Enter pence per litre, e.g. 168.9');return}
+  fstore.manual={ppl:n,ts:Date.now()};saveF();paintFuel();
 };
+
+// ---------- stations map (full screen) ----------
+let stCtl=null;
+function openStationsMap(){
+  const near=nearby(),o=near.o;
+  if(!o){alert('Add your home in Settings first.');return}
+  if(!stations.length||!near.list.length){window.open('https://www.google.com/maps/search/?api=1&query=petrol+station','_blank','noopener');return}
+  const view=$('mapview');$('mvTitle').textContent='Fuel prices near '+(o.src==='you'?'you':'home');view.classList.add('open');
+  const chips=$('mvChips');
+  const paint=()=>{chips.textContent='';Object.keys(FUELS).forEach(k=>{const b=el('button','rchip'+(k===fuelType?' on':''),FUELS[k].name);b.onclick=()=>{fuelType=k;persistFuelPrefs();paint();paintFuel();paintBrief();if(stCtl)stCtl.refresh()};chips.append(b)})};
+  paint();
+  const div=$('mvMap');div.textContent='';
+  window.__closeFull=()=>{$('mapview').classList.remove('open');if(stCtl){stCtl.destroy();stCtl=null}$('mvMap').textContent=''};
+  mountStationsMap(div).then(c=>{stCtl=c});
+}
+function stationPills(){
+  const {o,list}=nearby();const show=list.slice().sort((a,b)=>a.d-b.d).slice(0,45);
+  const ps=show.map(s=>s.price),lo=Math.min(...ps),hi=Math.max(...ps),best=show.length?show.reduce((m,s)=>s.price<m.price?s:m,show[0]):null;
+  return{o,show,lo,hi,best};
+}
+async function mountStationsMap(div){
+  const ok=await loadMapLib();
+  if(!ok||!webgl())return stationsLeaflet(div);
+  let map,loaded=false,dead=false;const mk=[];
+  try{map=new maplibregl.Map({container:div,style:STYLE_URL,attributionControl:false,fadeDuration:0,pixelRatio:Math.min(window.devicePixelRatio||1,2)})}catch(e){return stationsLeaflet(div)}
+  map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+  const ctl={destroy(){dead=true;try{map.remove()}catch(e){}}};
+  const fallback=()=>{if(dead)return;ctl.destroy();div.textContent='';stCtl=stationsLeaflet(div)};
+  const timer=setTimeout(()=>{if(!loaded)fallback()},9000);
+  ctl.refresh=()=>{
+    mk.splice(0).forEach(m=>m.remove());
+    const {o,show,lo,hi,best}=stationPills();if(!o||dead)return;
+    mk.push(new maplibregl.Marker({element:el('div','mk-you')}).setLngLat([o.lon,o.lat]).addTo(map));
+    const bd=new maplibregl.LngLatBounds();bd.extend([o.lon,o.lat]);
+    show.forEach(s=>{
+      const m=new maplibregl.Marker({element:fuelPill(s,TIER_CLS[tierOf(s.price,lo,hi)],s===best)}).setLngLat([s.lo,s.la]);
+      m.setPopup(new maplibregl.Popup({offset:14,closeButton:false}).setDOMContent(fuelPopup(s)));
+      m.addTo(map);mk.push(m);bd.extend([s.lo,s.la]);
+    });
+    map.fitBounds(bd,{padding:{top:70,bottom:50,left:40,right:40},maxZoom:14,duration:600});
+  };
+  map.on('load',()=>{loaded=true;clearTimeout(timer);if(!dead)ctl.refresh()});
+  return ctl;
+}
+function stationsLeaflet(div){
+  if(!window.L){div.textContent='The map could not load.';return null}
+  const m=L.map(div,{zoomControl:true,attributionControl:true});m.attributionControl.setPrefix('');
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'\u00a9 OpenStreetMap'}).addTo(m);
+  const layer=L.layerGroup().addTo(m);
+  const ctl={destroy(){try{m.remove()}catch(e){}},refresh(){
+    layer.clearLayers();const {o,show,lo,hi,best}=stationPills();if(!o)return;
+    const pts=[[o.lat,o.lon]];L.marker([o.lat,o.lon],{icon:L.divIcon({className:'',html:'<div class="mk-you"></div>',iconSize:[14,14],iconAnchor:[7,7]})}).addTo(layer);
+    show.forEach(s=>{
+      const cls='fp '+TIER_CLS[tierOf(s.price,lo,hi)]+(s===best?' best':'');
+      L.marker([s.la,s.lo],{icon:L.divIcon({className:'',html:`<div class="${cls}">${s.price.toFixed(1)}</div>`,iconSize:[48,20],iconAnchor:[24,10]})}).addTo(layer).bindPopup(fuelPopup(s));
+      pts.push([s.la,s.lo]);
+    });
+    m.fitBounds(pts,{padding:[30,30],maxZoom:14});
+  }};
+  setTimeout(()=>{m.invalidateSize();ctl.refresh()},120);
+  return ctl;
+}
+function fuelPill(s,cls,best){const e=el('div','fp '+cls+(best?' best':''),s.price.toFixed(1));return e}
+function fuelPopup(s){
+  const d=el('div','fpop');d.append(el('b','',tcase(s.b)),document.createTextNode((s.pc||'')+(s.pc?' \u00b7 ':'')+`E10 ${s.p[0]!=null?s.p[0].toFixed(1):'--'} \u00b7 E5 ${s.p[1]!=null?s.p[1].toFixed(1):'--'} \u00b7 Diesel ${s.p[2]!=null?s.p[2].toFixed(1):'--'}`),el('br'));
+  const a=el('a','','Directions');a.href=dirLink(s);a.target='_blank';a.rel='noopener';d.append(a);return d;
+}
+function stationsOnRoute(g,maxKm){
+  maxKm=maxKm||1.6;if(!stations.length||!g||g.length<2)return[];
+  const fi=FUELS[fuelType].i;let minLa=90,maxLa=-90,minLo=180,maxLo=-180;
+  g.forEach(p=>{if(p[0]<minLa)minLa=p[0];if(p[0]>maxLa)maxLa=p[0];if(p[1]<minLo)minLo=p[1];if(p[1]>maxLo)maxLo=p[1]});
+  const pad=maxKm/100,out=[];
+  for(const s of stations){
+    const pr=s.p[fi];if(pr==null)continue;
+    if(s.la<minLa-pad||s.la>maxLa+pad||s.lo<minLo-pad*1.7||s.lo>maxLo+pad*1.7)continue;
+    const kx=111*Math.cos(s.la*Math.PI/180),ky=111;let best=1e9,bi=0;
+    for(let i=0;i<g.length-1;i++){
+      const ax=(g[i][1]-s.lo)*kx,ay=(g[i][0]-s.la)*ky,bx=(g[i+1][1]-s.lo)*kx,by=(g[i+1][0]-s.la)*ky;
+      const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy,t=l2?Math.max(0,Math.min(1,-(ax*dx+ay*dy)/l2)):0;
+      const px=ax+t*dx,py=ay+t*dy,d=Math.sqrt(px*px+py*py);if(d<best){best=d;bi=i+t}
+    }
+    if(best<=maxKm)out.push({...s,price:pr,off:best,along:bi/(g.length-1)});
+  }
+  return out;
+}
 paintFuel();
 
 
@@ -505,26 +755,69 @@ async function getLive(force){
   }catch(e){}
   return live;
 }
+const WXI={
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  part:'<circle cx="9" cy="8" r="3"/><path d="M9 2v1M3 8h1M4.7 3.7l.7.7M13.3 3.7l-.7.7"/><path d="M9 20a3.5 3.5 0 0 1-.4-7A4.6 4.6 0 0 1 17.4 13a3.6 3.6 0 0 1 .4 7z"/>',
+  cloud:'<path d="M7 19a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 10.5a4.25 4.25 0 0 1 .5 8.5H7z"/>',
+  rain:'<path d="M7 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 6.5a4.25 4.25 0 0 1 .5 8.5H7z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',
+  snow:'<path d="M7 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 6.5a4.25 4.25 0 0 1 .5 8.5H7z"/><path d="M8 19h.01M12 21h.01M16 19h.01"/>',
+  fog:'<path d="M4 8h16M3 12h18M5 16h14M8 20h8"/>',
+  thunder:'<path d="M7 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 6.5a4.25 4.25 0 0 1 .5 8.5H7z"/><path d="M12 14l-2 4h3l-1 3"/>'
+};
+function wxIcon(desc){
+  const d=String(desc||'');
+  const k=/thunder/.test(d)?'thunder':/snow/.test(d)?'snow':/rain|shower|drizzle/.test(d)?'rain':/fog/.test(d)?'fog':/partly/.test(d)?'part':/overcast|cloud/.test(d)?'cloud':'sun';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+WXI[k]+'</svg>';
+}
 function paintWeather(){
   const w=(live&&live.weather)||[];
   const h=w.find(x=>/home/i.test(x.name)),k=w.find(x=>/work/i.test(x.name));
-  $('wH').textContent=h?h.t+'\u00b0':'--';$('wHd').textContent=h?`${h.desc}, ${h.rain}% rain`:'unavailable';
-  $('wW').textContent=k?k.t+'\u00b0':'--';$('wWd').textContent=k?`${k.desc}, ${k.rain}% rain`:'unavailable';
+  [['wH','wHd','wHi','wHr',h],['wW','wWd','wWi','wWr',k]].forEach(([t,d,i,rb,x])=>{
+    $(t).classList.remove('sk');
+    $(t).textContent=x?x.t+'\u00b0':'--';
+    $(d).textContent=x?`${x.desc}, ${x.rain}% rain`:'unavailable';
+    $(i).innerHTML=x?wxIcon(x.desc):'';
+    $(rb).style.width=x?Math.max(2,Math.min(100,x.rain))+'%':'0';
+  });
   const n=$('news');n.textContent='';
   const items=live&&live.news?[...(live.news.uk||[]).slice(0,3),...(live.news.local||[]).slice(0,1)]:[];
   if(!items.length)n.append(el('div','sub','Headlines unavailable'));
   items.forEach(t=>n.append(el('div','',t)));
 }
 function delayClass(d){return d<=2?'ok':d<=9?'am':'rd'}
+function paintBar(r){
+  const bar=$('cBar');bar.textContent='';
+  if(!r||!r.geom||r.geom.length<2)return;
+  const n=r.geom.length-1;
+  (r.jams||[]).forEach(j=>{
+    const i=el('i');i.style.left=(j[0]/n*100)+'%';i.style.width=Math.max(1.5,(j[1]-j[0])/n*100)+'%';i.style.background=JAM_COL[Math.min(4,j[2])]||JAM_COL[3];bar.append(i);
+  });
+}
 function paintCommute(){
   $('cDir').textContent=dir==='work'?'To work':'To home';
   const r=commuteUI;
-  if(!r){$('cMin').textContent='--';$('cChip').textContent='';return}
+  $('cMin').classList.remove('sk');
+  if(!r){$('cMin').textContent='--';$('cChip').textContent='';paintBar(null);return}
   const b=r.options[0],mn=r.eta?r.eta.min:b.min,dl=r.eta?r.eta.delay:b.delay;
   $('cMin').textContent=mn+' min';
   const c=$('cChip');c.className='chip '+delayClass(dl);c.textContent=dl<=2?'clear roads':'+'+dl+' min';
   const n=r.incidents.length;
   $('cSub').textContent=`via ${b.roads.join(', ')||'local roads'} \u00b7 ${n} incident${n===1?'':'s'} \u00b7 tap for route`;
+  paintBar(r);
+}
+function paintBrief(){
+  const b=$('brief');b.textContent='';
+  const add=t=>b.append(el('span','bp',t));
+  const r=commuteUI,where=dir==='work'?'work':'home';
+  if(r){
+    const mn=r.eta?r.eta.min:r.options[0].min,dl=r.eta?r.eta.delay:r.options[0].delay;
+    add(`${dir==='work'?'To work':'To home'}: ${mn} min`+(dl>2?`, ${dl} min slower than usual`:', roads clear'));
+    if(r.incidents&&r.incidents.length)add(`${r.incidents.length} incident${r.incidents.length===1?'':'s'} on your route`);
+  }
+  const w=(live&&live.weather)||[],dest=w.find(x=>new RegExp(where,'i').test(x.name));
+  if(dest&&dest.rain>=50)add(`Rain likely at ${where} (${dest.rain}%)`);
+  const near=nearby();
+  if(near.list.length>=3){const ps=near.list.map(s=>s.price),m=med(ps),mn=Math.min(...ps);if(m-mn>=1.5)add(`Cheapest ${FUELS[fuelType].name} ${(m-mn).toFixed(1)}p under typical nearby`)}
 }
 async function loadCommute(){
   if(!getWorker())return;
@@ -540,13 +833,22 @@ async function loadCommute(){
   paintCommute();
 }
 async function loadDash(force){
-  if(needsSetup()){$('cSub').textContent='Open Settings (top left) to add your home and work';return}
+  if(needsSetup()){
+    $('cSub').textContent='Open Settings (top left) to add your home and work';
+    ['cMin','wH','wW'].forEach(i=>$(i).classList.remove('sk'));paintBrief();return;
+  }
   await Promise.all([getLive(force).then(paintWeather),loadCommute()]);
+  paintBrief();
+  $('upd').textContent='Updated '+londonPart('hour')+':'+londonPart('minute');
 }
+$('refresh').onclick=()=>{
+  const b=$('refresh');b.classList.add('spin');commuteUI=null;
+  Promise.all([loadDash(true),loadFuel()]).finally(()=>b.classList.remove('spin'));
+};
 $('swap').onclick=e=>{e.stopPropagation();dir=dir==='work'?'home':'work';commuteUI=null;paintCommute();loadCommute()};
 $('tCommute').onclick=()=>{if(commuteUI){routeCard(commuteUI);}};
 $('tNews').onclick=()=>briefing();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-commuteAt>300000)loadDash(true)});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(Date.now()-commuteAt>300000)loadDash(true);if(Date.now()-fuelLoadedAt>1800000)loadFuel()});
 
 // ---------- voice out ----------
 function pickVoice(){
@@ -605,10 +907,23 @@ async function mountMap(div,r,o){
   catch(e){drawMapLeaflet(div,r);return null}
   map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
   if(o.interactive)map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
-  const ctl={want:o.sel||0,markers:[],destroy(){dead=true;try{map.remove()}catch(e){}}};
+  const ctl={want:o.sel||0,markers:[],fuelMk:[],destroy(){dead=true;try{map.remove()}catch(e){}}};
   const fallback=()=>{if(dead)return;ctl.destroy();div.textContent='';drawMapLeaflet(div,r)};
   const timer=setTimeout(()=>{if(!loaded)fallback()},9000);
   let etaMk=null;
+  ctl.refreshFuel=()=>{
+    ctl.fuelMk.splice(0).forEach(m=>m.remove());
+    const fo=o.fuel?o.fuel():null;
+    if(!fo||!fo.on||!ctl.ready||dead)return;
+    const list=fo.list.slice().sort((a,b)=>a.price-b.price);
+    if(!list.length)return;
+    const lo=list[0].price,hi=list[list.length-1].price;
+    list.slice(0,o.interactive?30:4).forEach((s,i)=>{
+      const m=new maplibregl.Marker({element:fuelPill(s,TIER_CLS[tierOf(s.price,lo,hi)],i===0)}).setLngLat([s.lo,s.la]);
+      if(o.interactive)m.setPopup(new maplibregl.Popup({offset:14,closeButton:false}).setDOMContent(fuelPopup(s)));
+      m.addTo(map);ctl.fuelMk.push(m);
+    });
+  };
   function apply(i,animate){
     const g=geomOf(r,i);
     map.getSource('main').setData(feat(lnglat(g)));
@@ -619,6 +934,7 @@ async function mountMap(div,r,o){
     etaMk.setLngLat([mid[1],mid[0]]);etaMk.getElement().textContent=timeOf(r,i)+' min';
     const bd=new maplibregl.LngLatBounds();g.forEach(p=>bd.extend([p[1],p[0]]));
     map.fitBounds(bd,{padding:o.interactive?{top:70,bottom:50,left:40,right:40}:{top:40,bottom:40,left:34,right:34},maxZoom:15,duration:animate?700:0});
+    ctl.refreshFuel();
   }
   map.on('load',()=>{
     loaded=true;clearTimeout(timer);if(dead)return;
@@ -663,18 +979,15 @@ function keepMaps(ctl,div,reload){
 }
 
 let fullCtl=null;
-function openFull(r,sel,onSelect,syncList){
+function openFull(r,sel,onSelect,syncList,chipRow,paintAll){
   const view=$('mapview');
   $('mvTitle').textContent=`${r.from} \u2192 ${r.to}`;
   view.classList.add('open');
-  const chips=$('mvChips');
-  const paint=i=>{chips.textContent='';r.options.forEach((op,j)=>{const b=el('button','rchip'+(j===i?' on':''),`${optName(op)} \u00b7 ${timeOf(r,j)} min`);b.onclick=()=>onSelect(j);chips.append(b)})};
-  paint(sel);
+  chipRow($('mvChips'),sel,onSelect);
   const div=$('mvMap');div.textContent='';
-  mountMap(div,r,{interactive:true,sel,onSelect}).then(c=>{
+  mountMap(div,r,{interactive:true,sel,onSelect,fuel:()=>({on:r.fuelOn,list:r.fuelFor(r.sel||0)})}).then(c=>{
     fullCtl=c;
-    if(c){const entry={setActive:i=>{c.setActive(i);paint(i)}};syncList.push(entry);c.entry=entry}
-    else syncList.push({setActive:paint});
+    syncList.push({setActive:i=>{if(c)c.setActive(i)},refreshFuel:()=>{if(c)c.refreshFuel()},repaint:()=>chipRow($('mvChips'),r.sel||0,onSelect)});
   });
 }
 function closeFull(syncList){
@@ -707,7 +1020,9 @@ function drawMapLeaflet(div,r){
 // ---------- route card ----------
 function routeCard(r){
   const c=el('div','card rc');
-  let sel=0;const syncList=[];
+  let sel=0;r.sel=0;r.fuelOn=stations.length>0;
+  const syncList=[],fcache={};
+  r.fuelFor=i=>{const k=i+fuelType;return fcache[k]||(fcache[k]=stationsOnRoute(geomOf(r,i)))};
   c.append(el('div','ct',`${r.from} \u2192 ${r.to}`));
   const hero=el('div','hero'),tEl=el('span','n'),dEl=el('span','chip'),fEl=el('span','chip gl');
   hero.append(tEl,dEl,fEl);c.append(hero);
@@ -717,8 +1032,14 @@ function routeCard(r){
   const wrap=el('div','mapwrap'),map=el('div','map'),ex=el('button','expand','\u2922');
   ex.setAttribute('aria-label','Expand map');wrap.append(map,ex);c.append(wrap);
   const chips=el('div','rchips');c.append(chips);
+  const fs=el('div','fsum');c.append(fs);
 
-  function paint(i){
+  function chipRow(box,i,pick){
+    box.textContent='';
+    r.options.forEach((op,j)=>{const b=el('button','rchip'+(j===i?' on':''),`${optName(op)} \u00b7 ${timeOf(r,j)} min`);b.onclick=()=>pick(j);box.append(b)});
+    if(stations.length){const fb=el('button','rchip'+(r.fuelOn?' on':''),'Fuel prices');fb.onclick=()=>toggleFuel();box.append(fb)}
+  }
+  function paintHero(i){
     const o=r.options[i],best=i===0;
     tEl.textContent=timeOf(r,i)+' min';
     const dl=(best&&r.eta)?r.eta.delay:o.delay;
@@ -728,11 +1049,29 @@ function routeCard(r){
     if(best&&r.eta&&r.eta.sources.length>1){
       band.textContent='';band.append(el('b','','Consensus '),document.createTextNode(r.eta.sources.map(s=>`${s.name} ${s.min}`).join(' \u00b7 ')+`  (range ${r.eta.low}\u2013${r.eta.high} min)`));
     }else band.textContent=best?'':`Estimate from ${r.eta?r.eta.sources[0].name:'TomTom'}`;
-    chips.textContent='';
-    r.options.forEach((op,j)=>{const b=el('button','rchip'+(j===i?' on':''),`${optName(op)} \u00b7 ${timeOf(r,j)} min`);b.onclick=()=>select(j);chips.append(b)});
   }
-  function select(i){sel=i;r.sel=i;paint(i);syncList.forEach(x=>x.setActive(i))}
-  paint(0);
+  function paintFuelSummary(i){
+    fs.textContent='';
+    if(!stations.length){fs.style.display='none';return}
+    fs.style.display='';
+    const fl=r.fuelFor(i);
+    if(!fl.length){fs.append(el('span','dim','No stations from the retailer feeds within 1 mile of this route.'));return}
+    const md=med(fl.map(s=>s.price)),b=fl.slice().sort((x,y)=>x.price-y.price)[0],save=(md-b.price)*tank()/100;
+    fs.append(el('b','',`Cheapest ${FUELS[fuelType].name} on route: `),document.createTextNode(`${tcase(b.b)} ${b.price.toFixed(1)}p, ${(b.off*0.621).toFixed(1)} mi off the route, ${Math.round(b.along*100)}% of the way.`+(save>=0.3?` About \u00a3${save.toFixed(2)} under the route's typical price on a ${tank()} L fill.`:'')));
+  }
+  function paintAll(){
+    paintHero(sel);chipRow(chips,sel,select);paintFuelSummary(sel);
+    syncList.forEach(x=>x.repaint&&x.repaint());
+  }
+  function select(i){
+    sel=i;r.sel=i;paintAll();
+    syncList.forEach(x=>x.setActive&&x.setActive(i));
+  }
+  function toggleFuel(){
+    r.fuelOn=!r.fuelOn;paintAll();
+    syncList.forEach(x=>x.refreshFuel&&x.refreshFuel());
+  }
+  paintAll();
 
   // incidents
   if(r.incidents.length){
@@ -753,17 +1092,20 @@ function routeCard(r){
   log.appendChild(c);toEnd();
 
   // map
+  const fuelOpt=()=>({on:r.fuelOn,list:r.fuelFor(r.sel||0)});
   function mountCompact(){
     map.textContent='';
-    mountMap(map,r,{interactive:false,sel}).then(ctl=>{
+    mountMap(map,r,{interactive:false,sel,fuel:fuelOpt}).then(ctl=>{
       if(ctl){syncList.unshift(ctl);keepMaps(ctl,map,mountCompact)}
     });
   }
   setTimeout(mountCompact,150);
-  const open=()=>{window.__closeFull=()=>closeFull(syncList);openFull(r,sel,select,syncList)};
+  const open=()=>{window.__closeFull=()=>closeFull(syncList);openFull(r,sel,select,syncList,chipRow,paintAll)};
   ex.onclick=e=>{e.stopPropagation();open()};
   map.addEventListener('click',()=>{if(map.querySelector('.ph2'))return;open()});
+  fs.onclick=open;
 }
+
 function briefingCard(d){
   if(!d)return;
   const c=el('div','card');c.append(el('div','ct','Briefing'));
@@ -774,7 +1116,14 @@ function briefingCard(d){
 }
 
 // ---------- brain ----------
-function petrolLine(){const p=effPrice();return `\nPETROL: ${p.ppl.toFixed(1)}p per litre (${p.src}).`}
+function petrolLine(){
+  const p=effPrice();let s=`\nPETROL: route costs use ${p.ppl.toFixed(1)}p per litre (${p.src}).`;
+  const near=nearby();
+  if(near.o&&near.list.length){
+    const md=med(near.list.map(x=>x.price));
+    s+=`\nNEARBY ${FUELS[fuelType].name} PRICES (within ${fuelRad} miles of ${near.o.src==='you'?'the user':'home'}, from retailer open feeds, updated ${ago(fuelUpdated)}; some stations are missing): typical ${md.toFixed(1)}p. Cheapest first:\n`+near.list.slice().sort((a,b)=>a.price-b.price).slice(0,5).map((x,i)=>`${i+1}. ${tcase(x.b)} ${x.pc}: ${x.price.toFixed(1)}p, ${x.d.toFixed(1)} miles away`).join('\n');
+  }
+  return s}
 function buildSystem(){
   const now=`${londonPart('weekday')} ${londonPart('day')} ${londonPart('month')} ${londonPart('year')}, ${londonPart('hour')}:${londonPart('minute')} (Europe/London)`;
   const iso=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London'}).format(new Date());
@@ -826,7 +1175,7 @@ $('qb').onclick=briefing;
 $('qw').onclick=()=>ask("How's the drive from home to work right now?");
 $('qh').onclick=()=>ask("How's the drive from work to home right now?");
 $('ql').onclick=()=>{const [f,t]=toOther();const v=prompt(`Arrive at ${t} by what time? (e.g. 08:00)`);if(v)ask(`What time should I leave ${f} to arrive at ${t} by ${v}? Use tomorrow if that time has already passed today.`)};
-$('qp').onclick=()=>window.open('https://www.google.com/maps/search/?api=1&query=petrol+station','_blank','noopener');
+$('qp').onclick=()=>openStationsMap();
 $('qr').onclick=()=>{if(lastReply)speak(lastReply)};
 $('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';$('t').blur();ask(v)}};
 speechSynthesis.onvoiceschanged=()=>{};
@@ -839,9 +1188,10 @@ function endBoot(sound){
   if(sound){ac();sfx.boot()}
   boot.classList.add('out');setTimeout(()=>boot.remove(),800);
   if(needsSetup())setTimeout(openSettings,600);
+  setTimeout(autoLocate,1200);
 }
 if(cmd){
-  booted=true;boot.remove();if(needsSetup())openSettings();
+  booted=true;boot.remove();if(needsSetup())openSettings();setTimeout(autoLocate,1500);
   const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?")}[cmd];
   if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname);
 }else{
@@ -851,7 +1201,7 @@ if(cmd){
   setTimeout(()=>endBoot(false),7000);
 }
 
-loadDash(false);
+loadDash(false);loadFuel();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script>
 </body>
