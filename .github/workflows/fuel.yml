@@ -1,7 +1,7 @@
 name: Update fuel prices
 on:
   schedule:
-    - cron: '17 */2 * * *'
+    - cron: '23 */3 * * *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -13,14 +13,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Fetch prices
+      - name: Collect prices
         run: node scripts/fuel.mjs
-        env:
-          FUEL_CLIENT_ID: ${{ secrets.FUEL_CLIENT_ID }}
-          FUEL_CLIENT_SECRET: ${{ secrets.FUEL_CLIENT_SECRET }}
-      - name: Commit if changed
+      - name: Publish to the data branch
         run: |
+          mkdir -p /tmp/pub && cp fuel.json /tmp/pub/fuel.json
+          cd /tmp/pub
+          git init -q -b data
           git config user.name "jarvis-bot"
           git config user.email "jarvis-bot@users.noreply.github.com"
           git add fuel.json
-          git diff --staged --quiet || (git commit -m "Update fuel prices" && git push)
+          git commit -q -m "Fuel prices $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" data
