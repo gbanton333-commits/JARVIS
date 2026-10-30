@@ -427,7 +427,7 @@ fstore.mh=fstore.mh||[];
 const saveF=()=>localStorage.setItem('fuel',JSON.stringify(fstore));
 const FUELS={e10:{name:'E10',i:0},e5:{name:'E5',i:1},b7:{name:'Diesel',i:2}};
 let fuelType=FUELS[cfg.fuelType]?cfg.fuelType:'e10',fuelSort=cfg.fuelSort==='dist'?'dist':'price',fuelRad=[3,5,10].includes(+cfg.fuelRad)?+cfg.fuelRad:5;
-let stations=[],fuelUpdated=0,fuelErr='',here=null,fuelLoadedAt=0;
+let stations=[],fuelUpdated=0,fuelErr='',here=null,fuelLoadedAt=0,fuelSrc='';
 const persistFuelPrefs=()=>{cfg.fuelType=fuelType;cfg.fuelSort=fuelSort;cfg.fuelRad=fuelRad;saveCfg()};
 const tank=()=>(+cfg.tank>10&&+cfg.tank<200)?+cfg.tank:40;
 const med=a=>{const s=[...a].sort((x,y)=>x-y),n=s.length;return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2};
@@ -482,7 +482,7 @@ async function loadFuel(){
       const j=await r.json();
       if(Array.isArray(j.stations)&&j.stations.length){
         stations=j.stations.map(s=>({b:s[0],pc:s[1],la:s[2],lo:s[3],p:[s[4],s[5],s[6]]}));
-        fuelUpdated=Date.parse(j.updated)||0;fuelErr='';break;
+        fuelUpdated=Date.parse(j.updated)||0;fuelSrc=j.source||'';fuelErr='';break;
       }
     }catch(e){}
   }
@@ -541,7 +541,7 @@ function paintFuel(){
     a.append(left,pc);list.append(a);
   });
   const save=(md-lo)*tank()/100;
-  note.textContent=(md-lo>=0.5?`Cheapest is ${(md-lo).toFixed(1)}p under typical: about \u00a3${save.toFixed(2)} saved on a ${tank()} L fill. `:'')+'Prices come from retailers that publish open data, so some stations are missing. Check the pump.';
+  note.textContent=(md-lo>=0.5?`Cheapest is ${(md-lo).toFixed(1)}p under typical: about \u00a3${save.toFixed(2)} saved on a ${tank()} L fill. `:'')+(fuelSrc==='fuel-finder'?'Prices from the GOV.UK Fuel Finder (Open Government Licence v3.0). Stations report their own prices, so check the pump.':'Prices come from retailers that publish open data, so some stations are missing. Check the pump.');
 }
 document.querySelectorAll('#fSeg button').forEach(b=>b.onclick=()=>{fuelType=b.dataset.f;persistFuelPrefs();paintFuel();paintBrief()});
 document.querySelectorAll('#fSort button').forEach(b=>b.onclick=()=>{fuelSort=b.dataset.s;persistFuelPrefs();paintFuel()});
