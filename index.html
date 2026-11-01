@@ -273,6 +273,23 @@
   .lstat b{display:block;color:var(--ink);font-size:1.15rem;font-weight:400;margin-top:3px}
   .lrow{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--line);font-size:.8rem;cursor:pointer}
   .lrow span:last-child{color:var(--dim);text-align:right}
+  .spk{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:50%;width:26px;height:26px;font-size:.6rem;margin-left:8px;vertical-align:middle;cursor:pointer;padding:0}
+  #hear{display:none;margin:0 auto 8px;background:var(--glow);color:#02101c;border:0;border-radius:999px;padding:9px 18px;font-size:.84rem;font-weight:600}
+  #hear.show{display:block}
+  details.dd{border-top:1px solid var(--line);margin-top:16px;padding-top:6px}
+  details.dd summary{cursor:pointer;font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);padding:8px 0;list-style:none}
+  details.dd summary::-webkit-details-marker{display:none}
+  details.dd summary::after{content:"+";float:right;font-size:1rem;line-height:1}
+  details[open].dd summary::after{content:"\2212"}
+  .two{display:flex;gap:8px}.two input{flex:1}
+  #sSave{position:sticky;bottom:6px;box-shadow:0 8px 24px #000c;margin-top:18px}
+  #hud{position:relative}
+  #hud:not(.listening):not(.thinking):not(.speaking) .core{animation:breathe 4.5s ease-in-out infinite}
+  @keyframes breathe{50%{transform:scale(1.07)}}
+  #hud.listening::before{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--glow);animation:ripple 1.4s ease-out infinite;pointer-events:none}
+  @keyframes ripple{from{transform:scale(.6);opacity:.8}to{transform:scale(1.6);opacity:0}}
+  html{font-size:calc(16px*var(--fs,1))}
+  .acts button.btn{font:inherit;background:transparent;cursor:pointer}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -306,7 +323,7 @@
       <div class="sub" id="cSub">Checking traffic...</div>
       <div class="sub" id="cUsual"></div>
       <div class="tbar" id="cBar"></div>
-      <div class="tbtns"><button class="pill" id="cLeave">Best time to leave</button></div>
+      <div class="tbtns"><button class="pill" id="cLeave">Best time to leave</button><button class="pill" id="cShare">Share ETA</button></div>
       <button id="swap" aria-label="Swap direction">&#8646;</button>
     </div>
     <div class="tile" id="tHome"><div class="ct">Home</div><div class="wrow"><span class="wi" id="wHi"></span><span class="n2 sk" id="wH">--</span></div><div class="sub" id="wHd">&nbsp;</div><div class="rbar"><i id="wHr" style="width:0"></i></div></div>
@@ -335,6 +352,7 @@
 
 <div id="dock">
   <div id="status">Tap the orb and speak</div>
+  <button id="hear">Tap to hear the reply</button>
   <div class="q">
     <button id="qb">Briefing</button><button id="qw">To work</button><button id="qh">To home</button><button id="ql">Leave by&hellip;</button><button id="qt">Leave times</button><button id="qp">Petrol near me</button><button id="qr">Replay</button>
   </div>
@@ -358,19 +376,31 @@
     <label>Car economy, combined mpg (optional)<input id="sMpg" inputmode="decimal" placeholder="e.g. 45" autocomplete="off"></label>
     <label>Tank size, litres (used for savings estimates)<input id="sTank" inputmode="decimal" placeholder="40" autocomplete="off"></label>
     <div class="sec">Behaviour</div>
-    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button></div>
-    <div class="sec">Voice</div>
+    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button><button class="pill" id="bigtxt">Larger text</button></div>
+    <details class="dd"><summary>Delay alerts</summary>
+      <div class="note">Get a notification when your usual journey is running slow. On iPhone this only works from the Home Screen app. It needs the Worker's storage and schedule set up (see the setup steps).</div>
+      <div class="toggles"><button class="pill" id="alEnable">Turn on alerts</button><button class="pill" id="alTest">Send test</button></div>
+      <label>Alert me when the delay is at least<select id="alTh"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="20">20 minutes</option></select></label>
+      <label>Morning check, to work (from, to)<div class="two"><input type="time" id="alMS" value="06:30"><input type="time" id="alME" value="09:30"></div></label>
+      <label>Evening check, to home (from, to)<div class="two"><input type="time" id="alES" value="16:00"><input type="time" id="alEE" value="19:00"></div></label>
+      <div class="toggles" style="margin-top:12px"><button class="pill" id="alWk">Weekdays only</button></div>
+      <div class="note" id="alStatus"></div>
+    </details>
+    <details class="dd"><summary>Voice</summary>
     <label>Voice<select id="sVoice"></select></label>
     <label>Speaking speed<input type="range" id="sRate" min="0.8" max="1.2" step="0.05" value="1"></label>
     <div class="toggles" style="margin-top:12px"><button class="pill" id="sTest">Test voice</button></div>
-    <div class="sec">Backup and privacy</div>
+    </details>
+    <details class="dd"><summary>Backup and privacy</summary>
     <div class="toggles"><button class="pill" id="bkCopy">Copy backup</button><button class="pill" id="bkRestore">Restore</button><button class="pill" id="bkClear">Clear data</button></div>
     <textarea id="bkText" class="bk" placeholder="Paste a backup here, then tap Apply" hidden></textarea>
     <button class="pill" id="bkApply" hidden style="margin-top:8px">Apply backup</button>
     <div class="note">A backup is plain text holding your places, preferences and history. Keep it private. Safari can clear a website's saved data if it is not used for a while, so add this app to your Home Screen.</div>
-    <div class="sec">Connection</div>
+    </details>
+    <details class="dd"><summary>Connection</summary>
     <label>Worker URL<input id="sWorker" placeholder="https://jarvis.yourname.workers.dev" autocomplete="off" autocapitalize="off"></label>
     <div class="note">Your addresses stay on this device and are only sent to your own Worker, to look up routes, traffic and weather.</div>
+    </details>
     <button class="btn pri" id="sSave">Save</button>
   </div>
 </div>
@@ -438,14 +468,18 @@ const ctx=()=>{const o={home:placeText('home'),work:placeText('work'),mpg:+cfg.m
 const needsSetup=()=>!getWorker()||!placeText('home')||!placeText('work');
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 function toEnd(){setTimeout(()=>main.scrollTo({top:main.scrollHeight,behavior:'smooth'}),60)}
-function add(cls,text){log.appendChild(el('div','m '+cls,text));toEnd()}
+function add(cls,text){
+  const d=el('div','m '+cls,text);
+  if(cls==='j'){const b=el('button','spk','\u25b6');b.setAttribute('aria-label','Hear this reply');b.onclick=()=>speak(text);d.append(b)}
+  log.appendChild(d);toEnd();
+}
 function setState(s,msg){hud.className=s;statusEl.textContent=msg||IDLE}
 function paintHF(){$('hf').classList.toggle('on',handsFree);}
 $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1':'0');paintHF()};
 const sheet=$('sheet');
 function openSettings(){
   $('sWorker').value=cfg.worker||'';paintPlaces();
-  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sTank').value=cfg.tank||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';paintALoc();paintVoice();
+  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sTank').value=cfg.tank||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';paintALoc();paintVoice();paintAlerts();applyText();
   sheet.classList.add('open');
 }
 function closeSettings(){sheet.classList.remove('open')}
@@ -453,12 +487,13 @@ $('gear').onclick=openSettings;$('sClose').onclick=closeSettings;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSettings()});
 $('sSave').onclick=()=>{
   cfg.worker=$('sWorker').value.trim();
-  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();cfg.tank=$('sTank').value.trim();cfg.voice=$('sVoice').value;cfg.rate=+$('sRate').value||1;
+  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();cfg.tank=$('sTank').value.trim();cfg.voice=$('sVoice').value;cfg.rate=+$('sRate').value||1;cfg.alerts=readAlerts();
   saveCfg();
   const pv=$('sPpl').value.trim(),n=parseFloat(pv);
   if(pv===''){if(fstore.manual){delete fstore.manual;saveF()}}
   else if(n>80&&n<300&&(!fstore.manual||fstore.manual.ppl!==n)){fstore.manual={ppl:n,ts:Date.now()};saveF()}
   paintFuel();
+  if(cfg.alerts&&cfg.alerts.on)pushSync();
   closeSettings();live=null;commuteUI=null;tick();paintCommute();loadDash(true);
 };
 paintHF();
@@ -889,6 +924,8 @@ function briefParts(){
   if(dest&&dest.rain>=50)parts.push(`Rain likely at ${where} (${dest.rain}%)`);
   const near=nearby();
   if(near.list.length>=3){const ps=near.list.map(s=>s.price),m=med(ps),mn=Math.min(...ps);if(m-mn>=1.5)parts.push(`Cheapest ${FUELS[fuelType].name} ${(m-mn).toFixed(1)}p under typical nearby`)}
+  const mh=fstore.mh;
+  if(mh.length>=2){const d=mh[mh.length-1].ppl-mh[mh.length-2].ppl;if(d<=-1.5)parts.push(`Local E10 down ${Math.abs(d).toFixed(1)}p since the last check`)}
   return parts;
 }
 function paintBrief(){const b=$('brief');b.textContent='';briefParts().forEach(t=>b.append(el('span','bp',t)))}
@@ -1169,23 +1206,107 @@ function speakBriefWhenReady(){
 $('cLeave').onclick=e=>{e.stopPropagation();openLeave()};
 $('qt').onclick=openLeave;
 
+
+// ---------- share my ETA ----------
+async function shareEta(r,where){
+  r=r||commuteUI;
+  if(!r){alert('No route yet. Wait for the commute to load.');return}
+  const mn=r.eta?r.eta.min:r.options[0].min;
+  const at=new Date(Date.now()+mn*60000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
+  const text=`On my way${where?' '+(where==='home'?'home':'to work'):' to '+r.to}. Should arrive about ${at} (${mn} min).`;
+  if(navigator.share){try{await navigator.share({text})}catch(e){}}
+  else{try{await navigator.clipboard.writeText(text);flash($('cShare'),'Copied')}catch(e){alert(text)}}
+}
+$('cShare').onclick=e=>{e.stopPropagation();shareEta(commuteUI,dir)};
+
+// ---------- delay alerts (notifications) ----------
+const alertsCfg=()=>Object.assign({on:false,th:10,ms:'06:30',me:'09:30',es:'16:00',ee:'19:00',all:false},cfg.alerts||{});
+const isStandalone=()=>window.navigator.standalone===true||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function setAlStatus(msg){
+  const s=$('alStatus');if(msg){s.textContent=msg;return}
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))s.textContent=isIOS()&&!isStandalone()?'On iPhone, add JARVIS to your Home Screen (Share, then Add to Home Screen) and open it from there to use alerts.':'This browser does not support push notifications.';
+  else s.textContent=alertsCfg().on?'Alerts are on. You will get a notification when your journey is slow during the times above.':'Alerts are off.';
+}
+function paintAlerts(){
+  const a=alertsCfg();
+  $('alTh').value=String(a.th);$('alMS').value=a.ms;$('alME').value=a.me;$('alES').value=a.es;$('alEE').value=a.ee;
+  $('alWk').classList.toggle('on',!a.all);$('alEnable').textContent=a.on?'Turn off alerts':'Turn on alerts';setAlStatus();
+}
+function readAlerts(){const a=alertsCfg();a.th=+$('alTh').value||10;a.ms=$('alMS').value||a.ms;a.me=$('alME').value||a.me;a.es=$('alES').value||a.es;a.ee=$('alEE').value||a.ee;return a}
+function alertSettings(){const a=readAlerts(),days=a.all?'all':'wk';return{...ctx(),enabled:true,threshold:a.th,name:title(),windows:[{dir:'work',start:a.ms,end:a.me,days},{dir:'home',start:a.es,end:a.ee,days}]}}
+const urlB64=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Uint8Array.from(atob(s),c=>c.charCodeAt(0))};
+async function pushSync(){
+  try{const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();if(sub)await post('/push/subscribe',{sub:sub.toJSON(),settings:alertSettings()})}catch(e){}
+}
+async function enableAlerts(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!window.Notification){setAlStatus();return false}
+  if(needsSetup()){setAlStatus('Add your Worker, home and work first, then save.');return false}
+  try{
+    setAlStatus('Asking for permission...');
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){setAlStatus('Notifications are blocked. Allow them for JARVIS in the iPhone Settings app, then try again.');return false}
+    const reg=await navigator.serviceWorker.ready;
+    const k=await post('/push/key',{});
+    if(k.error||!k.key){setAlStatus(k.error||'The Worker did not return a key. Is the latest Worker deployed?');return false}
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64(k.key)});
+    const res=await post('/push/subscribe',{sub:sub.toJSON(),settings:alertSettings()});
+    if(res.error){setAlStatus(res.error);return false}
+    const a=readAlerts();a.on=true;cfg.alerts=a;saveCfg();paintAlerts();return true;
+  }catch(e){setAlStatus('Could not turn on alerts: '+(e&&e.message||e));return false}
+}
+async function disableAlerts(){
+  try{const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();if(sub){await post('/push/unsubscribe',{endpoint:sub.endpoint});await sub.unsubscribe()}}catch(e){}
+  const a=readAlerts();a.on=false;cfg.alerts=a;saveCfg();paintAlerts();
+}
+$('alEnable').onclick=()=>{alertsCfg().on?disableAlerts():enableAlerts()};
+$('alTest').onclick=async()=>{
+  try{
+    const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();
+    if(!sub){setAlStatus('Turn alerts on first.');return}
+    const r=await post('/push/test',{endpoint:sub.endpoint});
+    setAlStatus(r.error||(r.status>=200&&r.status<300?'Test sent. It should arrive in a few seconds.':'The push service replied '+r.status+'.'));
+  }catch(e){setAlStatus('Test failed: '+(e.message||e))}
+};
+$('alWk').onclick=()=>{const a=readAlerts();a.all=!a.all;cfg.alerts=a;saveCfg();paintAlerts()};
+
+// ---------- larger text ----------
+function applyText(){document.documentElement.style.setProperty('--fs',cfg.bigText?'1.14':'1');$('bigtxt').classList.toggle('on',!!cfg.bigText)}
+$('bigtxt').onclick=()=>{cfg.bigText=!cfg.bigText;saveCfg();applyText()};
+applyText();
+
 // ---------- voice out ----------
 function pickVoice(){
   const vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
   const score=v=>{let s=0;if(/en[-_]GB/i.test(v.lang))s+=10;if(/premium/i.test(v.name))s+=6;if(/enhanced/i.test(v.name))s+=4;if(/daniel|arthur|oliver|malcolm/i.test(v.name))s+=5;if(/compact/i.test(v.name))s-=2;return s};
   return vs.sort((a,b)=>score(b)-score(a))[0];
 }
+// iPhones only allow speech that starts from a tap, so the first tap anywhere "unlocks" it for later replies
+let audioUnlocked=false,pendingText='';
+function unlockAudio(){
+  if(audioUnlocked)return;audioUnlocked=true;
+  try{ac()}catch(e){}
+  try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}catch(e){}
+}
+['touchend','pointerup','click'].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
+function hideHear(){$('hear').classList.remove('show');pendingText=''}
+$('hear').onclick=()=>{const t=pendingText;hideHear();if(t)speak(t)};
 function speak(text,o){
-  o=o||{};
+  o=o||{};hideHear();
   return new Promise(res=>{
-    speechSynthesis.cancel();
+    try{speechSynthesis.cancel();speechSynthesis.resume()}catch(e){}
     const u=new SpeechSynthesisUtterance(text);
     const nm=o.voice!==undefined?o.voice:cfg.voice;
     const v=(nm&&speechSynthesis.getVoices().find(x=>x.name===nm))||pickVoice();if(v)u.voice=v;
     u.lang='en-GB';u.rate=o.rate||cfg.rate||1.0;u.pitch=.9;
-    u.onstart=()=>setState('speaking','Speaking...');
+    let started=false,done=false,timer=null;
+    const finish=()=>{if(done)return;done=true;clearTimeout(timer);setState('');res()};
+    // if the phone silently blocks the speech, offer a one-tap button instead of staying quiet
+    timer=setTimeout(()=>{if(!started&&!done){try{speechSynthesis.cancel()}catch(e){}pendingText=text;$('hear').classList.add('show');finish()}},1800);
+    u.onstart=()=>{started=true;clearTimeout(timer);hideHear();setState('speaking','Speaking...')};
     u.onboundary=()=>{hud.classList.add('beat');setTimeout(()=>hud.classList.remove('beat'),110)};
-    u.onend=u.onerror=()=>{setState('');res()};
+    u.onend=u.onerror=finish;
     speechSynthesis.speak(u);
   });
 }
@@ -1409,7 +1530,8 @@ function routeCard(r){
     const acts=el('div','acts');
     const g=el('a','btn pri','Open in Google Maps');g.href=gmaps(r);g.target='_blank';g.rel='noopener';
     const ap=el('a','btn','Apple Maps');ap.href=amaps(r);ap.target='_blank';ap.rel='noopener';
-    acts.append(g,ap);c.append(acts);
+    const sh=el('button','btn','Share ETA');sh.onclick=()=>shareEta(r,null);
+    acts.append(g,ap,sh);c.append(acts);
   }
   log.appendChild(c);toEnd();
 
@@ -1468,7 +1590,7 @@ async function ask(text,opts){
     history.push({role:'assistant',content:reply});lastReply=reply;
     if(data.ui&&data.ui.route)routeCard(data.ui.route);
     add('j',reply);sfx.done();
-    busy=false;await speak(reply);
+    busy=false;try{rec&&rec.abort&&rec.abort()}catch(e){}await speak(reply);
     if(handsFree)setTimeout(listen,450);
   }catch(e){history.pop();add('e','Could not reach the brain: '+e.message);sfx.err();setState('')}
   busy=false;
