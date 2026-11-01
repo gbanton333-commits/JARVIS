@@ -14,7 +14,7 @@
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
   body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-       background:radial-gradient(120% 50% at 50% 0%,#0b2a47 0%,var(--bg) 62%)}
+       background:radial-gradient(120% 50% at 50% 0%,var(--top,#0b2a47) 0%,var(--bg) 62%)}
   button,a{font:inherit;color:inherit}
   header{display:flex;justify-content:space-between;align-items:center;padding:8px 18px 2px}
   h1{font-size:.7rem;letter-spacing:.3em;font-weight:600;margin:0;color:var(--dim);white-space:nowrap}
@@ -232,10 +232,52 @@
   .fpop b{display:block;font-weight:600;margin-bottom:2px}
   .fpop a{color:var(--glow);text-decoration:none;display:inline-block;margin-top:6px}
   .toggles{flex-wrap:wrap}
+  body[data-mood=rain]{--top:#12303f}body[data-mood=night]{--top:#08142a}body[data-mood=clear]{--top:#0d3556}body[data-mood=snow]{--top:#1b3347}body[data-mood=fog]{--top:#1a2a36}
+  #upd::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);margin-right:6px;animation:live 2s ease-in-out infinite;vertical-align:middle}
+  #upd.cached::before{background:var(--warn);animation:none}
+  @keyframes live{50%{opacity:.25}}
+  #ptr{position:fixed;top:calc(env(safe-area-inset-top) + 8px);left:50%;transform:translate(-50%,-70px);z-index:20;background:#06121ff0;border:1px solid var(--glow);border-radius:999px;padding:6px 14px;font-size:.75rem;color:var(--ink);transition:transform .2s;pointer-events:none}
+  #ptr.show{transform:translate(-50%,0)}
+  .swl{animation:swl .28s ease both}.swr{animation:swr .28s ease both}
+  @keyframes swl{from{transform:translateX(28px);opacity:.2}}
+  @keyframes swr{from{transform:translateX(-28px);opacity:.2}}
+  .tbtns{margin-top:12px}.tbtns .pill{padding:7px 14px;font-size:.78rem}
+  .tl{display:flex;flex-direction:column;gap:10px}
+  .tlbar{height:6px;border-radius:99px;background:#5ee6a840;position:relative;overflow:hidden}
+  .tlbar i{position:absolute;top:0;bottom:0}
+  .tlrow{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;text-align:center}
+  .st{min-width:0;font-size:.66rem;color:var(--dim)}
+  .st .tm{display:block;color:var(--ink);font-size:.72rem;font-weight:500}
+  .st .si{display:block;width:26px;height:26px;margin:5px auto 2px;color:var(--glow)}
+  .st .si svg{width:100%;height:100%}
+  .st b{display:block;color:var(--ink);font-weight:400;font-size:.95rem}
+  .st .pl{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .st.warn .si,.st.warn b{color:var(--warn)}
+  .warnline{font-size:.82rem;color:#9bd8ff;display:flex;gap:8px;line-height:1.35}
+  .warnline i{flex:0 0 7px;height:7px;border-radius:50%;background:#9bd8ff;margin-top:6px}
+  .lvctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .lvctl input[type=time]{background:#06121f;border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:6px 10px;font-size:.9rem}
+  .lvctl .pill{padding:7px 16px;font-size:.8rem;color:var(--ink);border-color:var(--glow)}
+  .lvsum{font-size:.9rem;line-height:1.45}.lvsum b{font-weight:500}
+  .lvrow{display:grid;grid-template-columns:46px 1fr 78px;gap:10px;align-items:center;font-size:.82rem;padding:5px 0}
+  .lvbar{height:10px;border-radius:99px;background:#ffffff14;overflow:hidden}
+  .lvbar i{display:block;height:100%;border-radius:99px}
+  .lvrow.best{color:var(--ok)}.lvrow .m{text-align:right;color:var(--ink)}.lvrow.best .m{color:var(--ok)}
+  .bk{width:100%;height:110px;background:#06121f;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:10px;font-size:.78rem;margin-top:10px}
+  .panel select{display:block;width:100%;margin-top:6px;background:#06121f;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:12px;font-size:1rem}
+  .panel input[type=range]{padding:0;border:0;background:transparent}
+  #lsheet{position:fixed;inset:0;z-index:40;background:#000b;display:none}
+  #lsheet.open{display:flex}
+  .lstat{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .lstat div{flex:1 1 90px;background:#06121f;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:.7rem;color:var(--dim)}
+  .lstat b{display:block;color:var(--ink);font-size:1.15rem;font-weight:400;margin-top:3px}
+  .lrow{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--line);font-size:.8rem;cursor:pointer}
+  .lrow span:last-child{color:var(--dim);text-align:right}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<div id="ptr">Release to refresh</div>
 <div id="boot" role="button" aria-label="Tap to begin">
   <svg viewBox="-60 -60 120 120"><circle class="b1" r="56"/><circle class="b2" r="46"/><circle class="b3" r="34"/><circle class="bcore" r="20"/></svg>
   <div class="bt1">J.A.R.V.I.S.</div>
@@ -262,7 +304,9 @@
       <div class="ct" id="cDir">Commute</div>
       <div class="row"><span class="n sk" id="cMin">--</span><span class="chip" id="cChip"></span></div>
       <div class="sub" id="cSub">Checking traffic...</div>
+      <div class="sub" id="cUsual"></div>
       <div class="tbar" id="cBar"></div>
+      <div class="tbtns"><button class="pill" id="cLeave">Best time to leave</button></div>
       <button id="swap" aria-label="Swap direction">&#8646;</button>
     </div>
     <div class="tile" id="tHome"><div class="ct">Home</div><div class="wrow"><span class="wi" id="wHi"></span><span class="n2 sk" id="wH">--</span></div><div class="sub" id="wHd">&nbsp;</div><div class="rbar"><i id="wHr" style="width:0"></i></div></div>
@@ -280,7 +324,7 @@
         <div class="seg" id="fSort"><button data-s="price" class="on">Cheapest</button><button data-s="dist">Nearest</button></div>
         <div class="seg" id="fRad"><button data-r="3">3 mi</button><button data-r="5" class="on">5 mi</button><button data-r="10">10 mi</button></div>
       </div>
-      <div class="fbtns"><button class="pill" id="fLoc">Use my location</button><button class="pill" id="fMap">Map</button><button class="pill" id="fSet">Set price</button></div>
+      <div class="fbtns"><button class="pill" id="fLoc">Use my location</button><button class="pill" id="fMap">Map</button><button class="pill" id="fSet">Set price</button><button class="pill" id="fLog">Fill-up log</button></div>
       <div class="note2" id="fNote"></div>
     </div>
     <div class="tile wide" id="tNews" role="button" tabindex="0"><div class="ct">Headlines</div><div id="news"><div class="sub">Loading...</div></div></div>
@@ -292,7 +336,7 @@
 <div id="dock">
   <div id="status">Tap the orb and speak</div>
   <div class="q">
-    <button id="qb">Briefing</button><button id="qw">To work</button><button id="qh">To home</button><button id="ql">Leave by&hellip;</button><button id="qp">Petrol near me</button><button id="qr">Replay</button>
+    <button id="qb">Briefing</button><button id="qw">To work</button><button id="qh">To home</button><button id="ql">Leave by&hellip;</button><button id="qt">Leave times</button><button id="qp">Petrol near me</button><button id="qr">Replay</button>
   </div>
   <div id="bar">
     <form id="f"><input id="t" placeholder="Type to JARVIS" autocomplete="off" enterkeyhint="send"></form>
@@ -314,11 +358,34 @@
     <label>Car economy, combined mpg (optional)<input id="sMpg" inputmode="decimal" placeholder="e.g. 45" autocomplete="off"></label>
     <label>Tank size, litres (used for savings estimates)<input id="sTank" inputmode="decimal" placeholder="40" autocomplete="off"></label>
     <div class="sec">Behaviour</div>
-    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button></div>
+    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button></div>
+    <div class="sec">Voice</div>
+    <label>Voice<select id="sVoice"></select></label>
+    <label>Speaking speed<input type="range" id="sRate" min="0.8" max="1.2" step="0.05" value="1"></label>
+    <div class="toggles" style="margin-top:12px"><button class="pill" id="sTest">Test voice</button></div>
+    <div class="sec">Backup and privacy</div>
+    <div class="toggles"><button class="pill" id="bkCopy">Copy backup</button><button class="pill" id="bkRestore">Restore</button><button class="pill" id="bkClear">Clear data</button></div>
+    <textarea id="bkText" class="bk" placeholder="Paste a backup here, then tap Apply" hidden></textarea>
+    <button class="pill" id="bkApply" hidden style="margin-top:8px">Apply backup</button>
+    <div class="note">A backup is plain text holding your places, preferences and history. Keep it private. Safari can clear a website's saved data if it is not used for a while, so add this app to your Home Screen.</div>
     <div class="sec">Connection</div>
     <label>Worker URL<input id="sWorker" placeholder="https://jarvis.yourname.workers.dev" autocomplete="off" autocapitalize="off"></label>
     <div class="note">Your addresses stay on this device and are only sent to your own Worker, to look up routes, traffic and weather.</div>
     <button class="btn pri" id="sSave">Save</button>
+  </div>
+</div>
+<div id="lsheet" role="dialog" aria-label="Fill-up log">
+  <div class="panel">
+    <div class="ph"><h2>Fill-up log</h2><button class="icon" id="lClose" aria-label="Close">&#10005;</button></div>
+    <div class="lstat" id="lStats"></div>
+    <div class="note" id="lNote"></div>
+    <div class="sec">Add a fill-up</div>
+    <label>Litres added<input id="lL" inputmode="decimal" placeholder="e.g. 32.4" autocomplete="off"></label>
+    <label>Price, pence per litre<input id="lP" inputmode="decimal" autocomplete="off"></label>
+    <label>Odometer, miles<input id="lO" inputmode="numeric" placeholder="e.g. 48210" autocomplete="off"></label>
+    <button class="btn pri" id="lSave" style="margin-top:14px">Save fill-up</button>
+    <div class="sec">Recent (tap one to delete)</div>
+    <div id="lList"></div>
   </div>
 </div>
 <div id="picker" role="dialog" aria-label="Choose location">
@@ -349,8 +416,13 @@ If asked for a briefing: a short greeting suited to the time of day, the weather
 
 let history=[],live=null,liveAt=0,busy=false,lastReply='';
 let handsFree=localStorage.getItem('hf')==='1';
-let dir=(+londonPart('hour')<13)?'work':'home';
+let prefs={};try{prefs=JSON.parse(localStorage.getItem('jarvisPrefs')||'{}')}catch(e){}
+prefs.dirPref=prefs.dirPref||{};
+const savePrefs=()=>{try{localStorage.setItem('jarvisPrefs',JSON.stringify(prefs))}catch(e){}};
+const bucket=()=>(['Saturday','Sunday'].includes(londonPart('weekday'))?'we':'wk')+(+londonPart('hour'));
+let dir=prefs.dirPref[bucket()]||((+londonPart('hour')<13)?'work':'home');
 let commuteUI=null,commuteAt=0;
+let chist=[];try{chist=JSON.parse(localStorage.getItem('jarvisHist')||'[]')}catch(e){}
 
 function londonPart(t){return new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hourCycle:'h23',hour:'2-digit',minute:'2-digit',weekday:'long',day:'numeric',month:'long',year:'numeric'}).formatToParts(new Date()).find(p=>p.type===t).value}
 let cfg={};try{cfg=JSON.parse(localStorage.getItem('jarvisCfg')||'{}')}catch(e){}
@@ -359,7 +431,7 @@ const saveCfg=()=>localStorage.setItem('jarvisCfg',JSON.stringify(cfg));
 const getWorker=()=>(cfg.worker||'').trim().replace(/\/+$/,'');
 const title=()=>((cfg.name||'').trim()||'sir');
 const placeText=w=>{const l=cfg[w+'Loc'];return l?l.label:((cfg[w]||'').trim())};
-const ctx=()=>{const o={home:placeText('home'),work:placeText('work'),mpg:+cfg.mpg||0,ppl:effPrice().ppl};
+const ctx=()=>{const o={home:placeText('home'),work:placeText('work'),mpg:+cfg.mpg||+cfg.mpgAuto||0,ppl:effPrice().ppl};
   if(cfg.homeLoc)o.homeLL={lat:cfg.homeLoc.lat,lon:cfg.homeLoc.lon};
   if(cfg.workLoc)o.workLL={lat:cfg.workLoc.lat,lon:cfg.workLoc.lon};
   return o};
@@ -373,7 +445,7 @@ $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1
 const sheet=$('sheet');
 function openSettings(){
   $('sWorker').value=cfg.worker||'';paintPlaces();
-  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sTank').value=cfg.tank||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';paintALoc();
+  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sTank').value=cfg.tank||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';paintALoc();paintVoice();
   sheet.classList.add('open');
 }
 function closeSettings(){sheet.classList.remove('open')}
@@ -381,7 +453,7 @@ $('gear').onclick=openSettings;$('sClose').onclick=closeSettings;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSettings()});
 $('sSave').onclick=()=>{
   cfg.worker=$('sWorker').value.trim();
-  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();cfg.tank=$('sTank').value.trim();
+  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();cfg.tank=$('sTank').value.trim();cfg.voice=$('sVoice').value;cfg.rate=+$('sRate').value||1;
   saveCfg();
   const pv=$('sPpl').value.trim(),n=parseFloat(pv);
   if(pv===''){if(fstore.manual){delete fstore.manual;saveF()}}
@@ -525,7 +597,7 @@ function paintFuel(){
   const near=nearby();
   if(!near.list.length){$('fP').textContent='--';S.className='sub am';S.textContent=`No ${f.name} prices within ${fuelRad} miles in the retailer feeds. Try a wider radius.`;note.textContent='';return}
   const ps=near.list.map(s=>s.price),md=med(ps),lo=Math.min(...ps),hi=Math.max(...ps);
-  $('fP').textContent=md.toFixed(1)+'p';
+  countTo($('fP'),md,v=>v.toFixed(1)+'p');
   S.className='sub';S.textContent=`typical within ${fuelRad} mi \u00b7 ${near.list.length} stations \u00b7 ${ago(fuelUpdated)}`;
   const h=fstore.mh;
   if(fuelType==='e10'&&h.length>=2){const d=h[h.length-1].ppl-h[h.length-2].ppl;if(Math.abs(d)>=.1){T.textContent=(d>0?'\u25b2 ':'\u25bc ')+Math.abs(d).toFixed(1)+'p';T.className='chip '+(d>0?'rd':'ok')}}
@@ -743,6 +815,7 @@ function tick(){
   $('hello').textContent=(h<5?'Working late, '+title()+'.':h<12?'Good morning, '+title()+'.':h<18?'Good afternoon, '+title()+'.':'Good evening, '+title()+'.');
   $('clock').textContent=londonPart('hour')+':'+londonPart('minute');
   $('date').textContent=londonPart('weekday')+' '+londonPart('day')+' '+londonPart('month');
+  applyMood();
 }
 tick();setInterval(tick,20000);
 
@@ -775,7 +848,8 @@ function paintWeather(){
   [['wH','wHd','wHi','wHr',h],['wW','wWd','wWi','wWr',k]].forEach(([t,d,i,rb,x])=>{
     $(t).classList.remove('sk');
     $(t).textContent=x?x.t+'\u00b0':'--';
-    $(d).textContent=x?`${x.desc}, ${x.rain}% rain`:'unavailable';
+    const risk=x?iceRisk(x.t,x.desc,x.rain):null;
+    $(d).textContent=x?`${x.desc}, ${x.rain}% rain`+(risk==='ice'?' \u00b7 ice risk':risk==='frost'?' \u00b7 frost':''):'unavailable';
     $(i).innerHTML=x?wxIcon(x.desc):'';
     $(rb).style.width=x?Math.max(2,Math.min(100,x.rain))+'%':'0';
   });
@@ -783,42 +857,41 @@ function paintWeather(){
   const items=live&&live.news?[...(live.news.uk||[]).slice(0,3),...(live.news.local||[]).slice(0,1)]:[];
   if(!items.length)n.append(el('div','sub','Headlines unavailable'));
   items.forEach(t=>n.append(el('div','',t)));
+  applyMood();
 }
 function delayClass(d){return d<=2?'ok':d<=9?'am':'rd'}
-function paintBar(r){
-  const bar=$('cBar');bar.textContent='';
-  if(!r||!r.geom||r.geom.length<2)return;
-  const n=r.geom.length-1;
-  (r.jams||[]).forEach(j=>{
-    const i=el('i');i.style.left=(j[0]/n*100)+'%';i.style.width=Math.max(1.5,(j[1]-j[0])/n*100)+'%';i.style.background=JAM_COL[Math.min(4,j[2])]||JAM_COL[3];bar.append(i);
-  });
-}
+function paintBar(r){jamBar($('cBar'),r)}
 function paintCommute(){
   $('cDir').textContent=dir==='work'?'To work':'To home';
   const r=commuteUI;
   $('cMin').classList.remove('sk');
-  if(!r){$('cMin').textContent='--';$('cChip').textContent='';paintBar(null);return}
+  if(!r){$('cMin').textContent='--';$('cChip').textContent='';$('cUsual').textContent='';paintBar(null);return}
   const b=r.options[0],mn=r.eta?r.eta.min:b.min,dl=r.eta?r.eta.delay:b.delay;
-  $('cMin').textContent=mn+' min';
+  countTo($('cMin'),mn,v=>Math.round(v)+' min');
   const c=$('cChip');c.className='chip '+delayClass(dl);c.textContent=dl<=2?'clear roads':'+'+dl+' min';
   const n=r.incidents.length;
   $('cSub').textContent=`via ${b.roads.join(', ')||'local roads'} \u00b7 ${n} incident${n===1?'':'s'} \u00b7 tap for route`;
+  const u=usual(),ue=$('cUsual');
+  if(u){const d=mn-u.min;ue.textContent=Math.abs(d)<=2?`About your usual (${u.n} past trips)`:`${Math.abs(d)} min ${d>0?'slower':'quicker'} than your usual (${u.n} past trips)`;ue.className='sub '+(d>5?'am':d<-2?'ok':'')}
+  else{ue.textContent='';ue.className='sub'}
   paintBar(r);
 }
-function paintBrief(){
-  const b=$('brief');b.textContent='';
-  const add=t=>b.append(el('span','bp',t));
-  const r=commuteUI,where=dir==='work'?'work':'home';
+function briefParts(){
+  const parts=[],r=commuteUI,where=dir==='work'?'work':'home';
   if(r){
-    const mn=r.eta?r.eta.min:r.options[0].min,dl=r.eta?r.eta.delay:r.options[0].delay;
-    add(`${dir==='work'?'To work':'To home'}: ${mn} min`+(dl>2?`, ${dl} min slower than usual`:', roads clear'));
-    if(r.incidents&&r.incidents.length)add(`${r.incidents.length} incident${r.incidents.length===1?'':'s'} on your route`);
+    const mn=r.eta?r.eta.min:r.options[0].min,dl=r.eta?r.eta.delay:r.options[0].delay,u=usual();
+    parts.push(`${dir==='work'?'To work':'To home'}: ${mn} min`+(dl>2?`, ${dl} min slower than free-flow`:', roads clear')+(u&&mn-u.min>5?`, ${mn-u.min} min above your usual`:''));
+    if(r.incidents&&r.incidents.length)parts.push(`${r.incidents.length} incident${r.incidents.length===1?'':'s'} on your route`);
+    const ice=routeIce(r);
+    if(ice)parts.push(ice.kind==='ice'?`Ice risk near ${ice.name}`:`Frost possible near ${ice.name}`);
   }
   const w=(live&&live.weather)||[],dest=w.find(x=>new RegExp(where,'i').test(x.name));
-  if(dest&&dest.rain>=50)add(`Rain likely at ${where} (${dest.rain}%)`);
+  if(dest&&dest.rain>=50)parts.push(`Rain likely at ${where} (${dest.rain}%)`);
   const near=nearby();
-  if(near.list.length>=3){const ps=near.list.map(s=>s.price),m=med(ps),mn=Math.min(...ps);if(m-mn>=1.5)add(`Cheapest ${FUELS[fuelType].name} ${(m-mn).toFixed(1)}p under typical nearby`)}
+  if(near.list.length>=3){const ps=near.list.map(s=>s.price),m=med(ps),mn=Math.min(...ps);if(m-mn>=1.5)parts.push(`Cheapest ${FUELS[fuelType].name} ${(m-mn).toFixed(1)}p under typical nearby`)}
+  return parts;
 }
+function paintBrief(){const b=$('brief');b.textContent='';briefParts().forEach(t=>b.append(el('span','bp',t)))}
 async function loadCommute(){
   if(!getWorker())return;
   $('cSub').textContent='Checking traffic...';
@@ -828,8 +901,11 @@ async function loadCommute(){
     const d=await r.json();
     if(d.error){commuteUI=null;paintCommute();$('cSub').textContent=d.error;return}
     commuteUI=d.route||null;commuteAt=Date.now();
-    if(!commuteUI)$('cSub').textContent='Traffic unavailable';
-  }catch(e){commuteUI=null;$('cSub').textContent='Traffic unavailable'}
+    if(commuteUI){recordTrip(commuteUI);saveCache()}else $('cSub').textContent='Traffic unavailable';
+  }catch(e){
+    if(commuteUI){paintCommute();$('cSub').textContent+=' \u00b7 offline, showing saved data';return}
+    commuteUI=null;$('cSub').textContent='Traffic unavailable';
+  }
   paintCommute();
 }
 async function loadDash(force){
@@ -839,16 +915,259 @@ async function loadDash(force){
   }
   await Promise.all([getLive(force).then(paintWeather),loadCommute()]);
   paintBrief();
-  $('upd').textContent='Updated '+londonPart('hour')+':'+londonPart('minute');
+  $('upd').textContent='Updated '+londonPart('hour')+':'+londonPart('minute');$('upd').className='';saveCache();
 }
 $('refresh').onclick=()=>{
   const b=$('refresh');b.classList.add('spin');commuteUI=null;
   Promise.all([loadDash(true),loadFuel()]).finally(()=>b.classList.remove('spin'));
 };
-$('swap').onclick=e=>{e.stopPropagation();dir=dir==='work'?'home':'work';commuteUI=null;paintCommute();loadCommute()};
+$('swap').onclick=e=>{e.stopPropagation();switchDir('right')};
 $('tCommute').onclick=()=>{if(commuteUI){routeCard(commuteUI);}};
 $('tNews').onclick=()=>briefing();
 document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(Date.now()-commuteAt>300000)loadDash(true);if(Date.now()-fuelLoadedAt>1800000)loadFuel()});
+
+// ---------- helpers: count-up, ice risk, mood ----------
+const reduceMotion=()=>!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+function countTo(node,to,fmt){
+  const from=+node.dataset.v||0;node.dataset.v=to;
+  if(reduceMotion()||!isFinite(to)||!window.requestAnimationFrame){node.textContent=fmt(to);return}
+  const t0=performance.now(),dur=520;
+  const step=t=>{const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);node.textContent=fmt(from+(to-from)*e);if(k<1)requestAnimationFrame(step)};
+  requestAnimationFrame(step);
+}
+function iceRisk(t,desc,rain){
+  const d=String(desc||'');
+  if(t<=2&&(rain>=30||/rain|drizzle|snow|shower|fog|sleet/.test(d)))return'ice';
+  if(t<=3)return'frost';
+  return null;
+}
+function routeIce(r){
+  let frost=null;
+  for(const w of (r.weather||[])){
+    if(!w.wx)continue;const k=iceRisk(w.wx.t,w.wx.desc,w.wx.rain);
+    if(k==='ice')return{kind:'ice',name:w.name||w.label,t:w.wx.t};
+    if(k==='frost'&&!frost)frost={kind:'frost',name:w.name||w.label,t:w.wx.t};
+  }
+  return frost;
+}
+function applyMood(){
+  const w=(live&&live.weather)||[],h=w.find(x=>/home/i.test(x.name)),hr=+londonPart('hour'),d=h?String(h.desc):'';
+  let m='clear';
+  if(hr>=21||hr<5)m='night';else if(/snow/.test(d))m='snow';else if(/rain|drizzle|shower|thunder/.test(d))m='rain';else if(/fog/.test(d))m='fog';
+  document.body.dataset.mood=m;
+}
+
+// ---------- commute memory (stays on this phone) ----------
+function recordTrip(r){
+  const mn=r.eta?r.eta.min:r.options[0].min,dl=r.eta?r.eta.delay:r.options[0].delay,now=Date.now();
+  const last=chist.filter(x=>x.dir===dir).pop();
+  if(last&&now-last.ts<25*60000)return;
+  chist.push({ts:now,dir,min:mn,delay:dl,we:bucket().startsWith('we'),hr:+londonPart('hour')});
+  chist=chist.slice(-400);
+  try{localStorage.setItem('jarvisHist',JSON.stringify(chist))}catch(e){}
+}
+function usual(){
+  const hr=+londonPart('hour'),we=bucket().startsWith('we'),cut=Date.now()-60*864e5,recent=Date.now()-10*60000;
+  const a=chist.filter(x=>x.dir===dir&&x.we===we&&Math.abs(x.hr-hr)<=1&&x.ts>cut&&x.ts<recent).map(x=>x.min);
+  return a.length>=3?{min:Math.round(med(a)),n:a.length}:null;
+}
+function switchDir(anim){
+  dir=dir==='work'?'home':'work';prefs.dirPref[bucket()]=dir;savePrefs();
+  commuteUI=null;paintCommute();loadCommute();
+  const t=$('tCommute');t.classList.remove('swl','swr');void t.offsetWidth;t.classList.add(anim==='left'?'swl':'swr');
+}
+(function(){
+  const t=$('tCommute');let x0=0,y0=0;
+  t.addEventListener('touchstart',e=>{const p=e.touches[0];x0=p.clientX;y0=p.clientY},{passive:true});
+  t.addEventListener('touchend',e=>{const p=e.changedTouches[0],dx=p.clientX-x0,dy=p.clientY-y0;if(Math.abs(dx)>60&&Math.abs(dy)<40)switchDir(dx<0?'left':'right')},{passive:true});
+})();
+(function(){
+  const ptr=$('ptr');let y0=0,pull=0,on=false;
+  main.addEventListener('touchstart',e=>{on=main.scrollTop<=0;y0=e.touches[0].clientY;pull=0},{passive:true});
+  main.addEventListener('touchmove',e=>{if(!on)return;pull=e.touches[0].clientY-y0;ptr.classList.toggle('show',pull>70)},{passive:true});
+  main.addEventListener('touchend',()=>{if(on&&pull>90&&!busy)$('refresh').click();ptr.classList.remove('show');on=false;pull=0},{passive:true});
+})();
+
+// ---------- offline: show the last data straight away ----------
+function saveCache(){try{localStorage.setItem('jarvisCache',JSON.stringify({ts:Date.now(),dir,live,commuteUI}))}catch(e){}}
+function restoreCache(){
+  try{
+    const c=JSON.parse(localStorage.getItem('jarvisCache')||'null');
+    if(!c||Date.now()-c.ts>12*36e5)return;
+    if(c.live){live=c.live;liveAt=0;paintWeather()}
+    if(c.commuteUI&&c.dir===dir){commuteUI=c.commuteUI;paintCommute()}
+    $('upd').textContent='Saved data from '+new Date(c.ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/London'});
+    $('upd').className='cached';paintBrief();
+  }catch(e){}
+}
+
+// route line draws itself in
+function drawIn(map){
+  if(reduceMotion()||!window.requestAnimationFrame)return;
+  const col='#7be0ff',clear='rgba(123,224,255,0)',t0=performance.now(),dur=900;
+  const step=t=>{
+    const k=Math.min(1,(t-t0)/dur),e=Math.min(.996,1-Math.pow(1-k,2));
+    try{map.setPaintProperty('main-line','line-gradient',k>=1?['interpolate',['linear'],['line-progress'],0,col,1,col]:['interpolate',['linear'],['line-progress'],0,col,Math.max(.002,e),col,Math.min(.999,e+.003),clear,1,clear])}catch(x){return}
+    if(k<1)requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ---------- journey timeline ----------
+function jamBar(box,r){
+  box.textContent='';
+  if(!r||!r.geom||r.geom.length<2)return;
+  const n=r.geom.length-1;
+  (r.jams||[]).forEach(j=>{
+    const i=el('i');i.style.left=(j[0]/n*100)+'%';i.style.width=Math.max(1.5,(j[1]-j[0])/n*100)+'%';i.style.background=JAM_COL[Math.min(4,j[2])]||JAM_COL[3];box.append(i);
+  });
+}
+function timeline(r){
+  const box=el('div','tl'),bar=el('div','tlbar');jamBar(bar,r);box.append(bar);
+  const row=el('div','tlrow'),mins=timeOf(r,0),now=Date.now(),W=r.weather;
+  W.forEach((w,k)=>{
+    const frac=W.length>1?k/(W.length-1):0;
+    const at=k===0?'Now':new Date(now+mins*60000*frac).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
+    const risk=w.wx&&(iceRisk(w.wx.t,w.wx.desc,w.wx.rain)==='ice'||w.wx.rain>=60);
+    const s=el('div','st'+(risk?' warn':''));
+    const ic=el('span','si');ic.innerHTML=w.wx?wxIcon(w.wx.desc):'';
+    s.append(el('span','tm',at),ic,el('b','',w.wx?w.wx.t+'\u00b0':'--'),el('span','pl',w.name||w.label));
+    row.append(s);
+  });
+  box.append(row);return box;
+}
+
+// ---------- best time to leave ----------
+const ymd=d=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London'}).format(d);
+function openLeave(){
+  if(needsSetup()){openSettings();return}
+  const c=el('div','card lvc');
+  c.append(el('div','ct',(dir==='work'?'Home \u2192 Work':'Work \u2192 Home')+' \u00b7 best time to leave'));
+  const ctl=el('div','lvctl'),mode=el('div','seg'),bSoon=el('button','on','Leave soon'),bAt=el('button','','Around a time');mode.append(bSoon,bAt);
+  const time=el('input');time.type='time';time.value=dir==='work'?'07:30':'17:15';time.style.display='none';
+  const day=el('div','seg'),bT=el('button','on','Today'),bM=el('button','','Tomorrow');day.append(bT,bM);day.style.display='none';
+  const go=el('button','pill','Check times');
+  ctl.append(mode,time,day,go);c.append(ctl);
+  const out=el('div','lvout');c.append(out);
+  let at=false,tomorrow=false;
+  const setMode=a=>{at=a;bSoon.className=a?'':'on';bAt.className=a?'on':'';time.style.display=a?'':'none';day.style.display=a?'':'none'};
+  bSoon.onclick=()=>setMode(false);bAt.onclick=()=>setMode(true);
+  bT.onclick=()=>{tomorrow=false;bT.className='on';bM.className=''};
+  bM.onclick=()=>{tomorrow=true;bT.className='';bM.className='on'};
+  function render(points){
+    out.textContent='';
+    const ok=(points||[]).filter(p=>p.min!=null);
+    if(!ok.length){out.textContent='No traffic data came back. Try again in a minute.';return}
+    const best=ok.reduce((m,p)=>p.min<m.min?p:m,ok[0]),worst=ok.reduce((m,p)=>p.min>m.min?p:m,ok[0]);
+    const ref=ok.find(p=>p.off===0)||ok[0],save=ref.min-best.min;
+    const sum=el('div','lvsum');
+    if(best.off===ref.off||save<=1)sum.append(el('b','','Leaving at '+ref.time+' is about as quick as any time checked'),document.createTextNode(` (${ref.min} min).`));
+    else sum.append(el('b','','Leave at '+best.time),document.createTextNode(`: ${best.min} min, ${save} min quicker than leaving at ${ref.time}.`));
+    out.append(sum);
+    ok.forEach(p=>{
+      const row=el('div','lvrow'+(p===best?' best':'')),bar=el('div','lvbar'),i=el('i');
+      const span=(worst.min-best.min)||1,t=(p.min-best.min)/span;
+      i.style.width=(35+65*p.min/worst.min)+'%';i.style.background=t<.34?'#5ee6a8':t<.67?'#f4d35e':'#ff6b6b';
+      bar.append(i);
+      row.append(el('span','',p.time),bar,el('span','m',p.min+' min'+(p.delay>2?` (+${p.delay})`:'')));
+      out.append(row);
+    });
+    out.append(el('div','note2','Predicted from live and historical traffic. Conditions can change.'));
+  }
+  async function run(){
+    out.textContent='Checking traffic for each time...';
+    const body={dir,...ctx()};
+    if(at){body.base_local=ymd(new Date(Date.now()+(tomorrow?864e5:0)))+' '+(time.value||'07:30');body.offsets=[-30,-15,0,15,30,45,60]}
+    else body.offsets=[0,15,30,45,60,90];
+    try{const d=await post('/leave',body);if(d.error){out.textContent=d.error;return}render(d.points)}
+    catch(e){out.textContent='Could not check times. Make sure the latest Worker is deployed.'}
+  }
+  go.onclick=run;
+  log.appendChild(c);toEnd();run();
+}
+
+// ---------- fill-up log and real mpg ----------
+let fills=[];try{fills=JSON.parse(localStorage.getItem('jarvisFills')||'[]')}catch(e){}
+const saveFills=()=>localStorage.setItem('jarvisFills',JSON.stringify(fills));
+const GAL=4.54609;
+function fillStats(){
+  const s=fills.slice().sort((a,b)=>a.odo-b.odo),seg=[];
+  for(let i=1;i<s.length;i++){const mi=s[i].odo-s[i-1].odo;if(mi>20&&s[i].l>0)seg.push({mi,gal:s[i].l/GAL})}
+  const last=seg.slice(-5),mi=last.reduce((t,x)=>t+x.mi,0),gal=last.reduce((t,x)=>t+x.gal,0);
+  const m=new Date(),key=m.getFullYear()+'-'+m.getMonth();
+  const month=fills.filter(f=>{const d=new Date(f.ts);return d.getFullYear()+'-'+d.getMonth()===key});
+  return{mpg:gal>0?mi/gal:null,n:last.length,spend:month.reduce((t,f)=>t+f.l*f.ppl/100,0),litres:month.reduce((t,f)=>t+f.l,0)};
+}
+function updateMpgAuto(){const st=fillStats();if(st.mpg&&st.mpg>10&&st.mpg<120)cfg.mpgAuto=+st.mpg.toFixed(1);else delete cfg.mpgAuto;saveCfg()}
+function paintLog(){
+  const st=fillStats(),box=$('lStats');box.textContent='';
+  const add=(k,v)=>{const d=el('div','',k);d.append(el('b','',v));box.append(d)};
+  add('Real mpg',st.mpg?st.mpg.toFixed(1):'--');
+  add('This month',st.spend?'\u00a3'+st.spend.toFixed(2):'--');
+  add('Litres this month',st.litres?st.litres.toFixed(1):'--');
+  $('lNote').textContent=st.mpg?`Based on your last ${st.n} fill interval${st.n===1?'':'s'}. Route costs now use this mpg unless you set one in Settings.`:'Log two or more fill-ups (filling the tank each time) to see your real mpg.';
+  const list=$('lList');list.textContent='';
+  fills.slice().sort((a,b)=>b.ts-a.ts).slice(0,12).forEach(f=>{
+    const row=el('div','lrow'),d=new Date(f.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    row.append(el('span','',`${d} \u00b7 ${f.l.toFixed(1)} L @ ${f.ppl.toFixed(1)}p`),el('span','',`\u00a3${(f.l*f.ppl/100).toFixed(2)} \u00b7 ${f.odo} mi`));
+    row.onclick=()=>{if(confirm('Delete this fill-up?')){fills=fills.filter(x=>x!==f);saveFills();updateMpgAuto();paintLog()}};
+    list.append(row);
+  });
+}
+function openLog(){$('lP').value=effPrice().ppl.toFixed(1);paintLog();$('lsheet').classList.add('open')}
+$('fLog').onclick=openLog;
+$('lClose').onclick=()=>$('lsheet').classList.remove('open');
+$('lsheet').addEventListener('click',e=>{if(e.target===$('lsheet'))$('lsheet').classList.remove('open')});
+$('lSave').onclick=()=>{
+  const l=parseFloat($('lL').value),p=parseFloat($('lP').value),o=parseFloat($('lO').value);
+  if(!(l>3&&l<150)||!(p>80&&p<300)||!(o>0)){alert('Check the numbers: litres, price in pence per litre, and odometer in miles.');return}
+  fills.push({ts:Date.now(),l,ppl:p,odo:Math.round(o)});saveFills();updateMpgAuto();
+  $('lL').value='';$('lO').value='';paintLog();
+};
+
+// ---------- backup, restore, privacy ----------
+const BK_KEYS=['jarvisCfg','fuel','jarvisHist','jarvisFills','jarvisPrefs','snd','hf','worker'];
+function flash(btn,t){const o=btn.textContent;btn.textContent=t;setTimeout(()=>btn.textContent=o,1400)}
+$('bkCopy').onclick=async()=>{
+  const o={v:1,app:'jarvis',at:new Date().toISOString(),data:{}};
+  BK_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!=null)o.data[k]=v});
+  const t=JSON.stringify(o);
+  try{await navigator.clipboard.writeText(t);flash($('bkCopy'),'Copied')}
+  catch(e){$('bkText').hidden=false;$('bkText').value=t;$('bkText').select();flash($('bkCopy'),'Select all and copy')}
+};
+$('bkRestore').onclick=()=>{$('bkText').hidden=false;$('bkApply').hidden=false;$('bkText').value='';$('bkText').focus()};
+$('bkApply').onclick=()=>{
+  try{
+    const o=JSON.parse($('bkText').value);
+    if(!o||o.app!=='jarvis'||!o.data)throw new Error('bad');
+    Object.entries(o.data).forEach(([k,v])=>{if(BK_KEYS.includes(k)&&typeof v==='string')localStorage.setItem(k,v)});
+    location.reload();
+  }catch(e){alert('That does not look like a JARVIS backup.')}
+};
+$('bkClear').onclick=()=>{if(confirm('Clear all saved settings, history and prices from this device?')){BK_KEYS.concat(['jarvisCache']).forEach(k=>localStorage.removeItem(k));location.reload()}};
+
+// ---------- voice choice and spoken brief ----------
+function paintSB(){$('sbrief').classList.toggle('on',!!cfg.spokenBrief)}
+function paintVoice(keep){
+  const sel=$('sVoice'),cur=sel.value;sel.textContent='';
+  sel.append(new Option('Auto (best British voice)',''));
+  speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).forEach(v=>sel.append(new Option(`${v.name} (${v.lang})`,v.name)));
+  sel.value=keep?cur:(cfg.voice||'');
+  if(!keep)$('sRate').value=cfg.rate||1;
+  paintSB();
+}
+$('sbrief').onclick=()=>{cfg.spokenBrief=!cfg.spokenBrief;saveCfg();paintSB()};
+$('sTest').onclick=()=>speak('Good day, '+title()+'. All systems nominal.',{voice:$('sVoice').value,rate:+$('sRate').value||1});
+const greetWord=()=>{const h=+londonPart('hour');return h<12?'Good morning':h<18?'Good afternoon':'Good evening'};
+function briefSentence(){const p=briefParts();return p.length?`${greetWord()}, ${title()}. `+p.join('. ')+'.':''}
+function speakBriefWhenReady(){
+  let tries=0;
+  const t=setInterval(()=>{tries++;if(commuteUI||tries>12){clearInterval(t);const s=briefSentence();if(s)speak(s)}},500);
+}
+
+
+$('cLeave').onclick=e=>{e.stopPropagation();openLeave()};
+$('qt').onclick=openLeave;
 
 // ---------- voice out ----------
 function pickVoice(){
@@ -856,12 +1175,14 @@ function pickVoice(){
   const score=v=>{let s=0;if(/en[-_]GB/i.test(v.lang))s+=10;if(/premium/i.test(v.name))s+=6;if(/enhanced/i.test(v.name))s+=4;if(/daniel|arthur|oliver|malcolm/i.test(v.name))s+=5;if(/compact/i.test(v.name))s-=2;return s};
   return vs.sort((a,b)=>score(b)-score(a))[0];
 }
-function speak(text){
+function speak(text,o){
+  o=o||{};
   return new Promise(res=>{
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
-    const v=pickVoice();if(v)u.voice=v;
-    u.lang='en-GB';u.rate=1.0;u.pitch=.9;
+    const nm=o.voice!==undefined?o.voice:cfg.voice;
+    const v=(nm&&speechSynthesis.getVoices().find(x=>x.name===nm))||pickVoice();if(v)u.voice=v;
+    u.lang='en-GB';u.rate=o.rate||cfg.rate||1.0;u.pitch=.9;
     u.onstart=()=>setState('speaking','Speaking...');
     u.onboundary=()=>{hud.classList.add('beat');setTimeout(()=>hud.classList.remove('beat'),110)};
     u.onend=u.onerror=()=>{setState('');res()};
@@ -927,6 +1248,7 @@ async function mountMap(div,r,o){
   function apply(i,animate){
     const g=geomOf(r,i);
     map.getSource('main').setData(feat(lnglat(g)));
+    if(ctl.grad&&(!ctl.drawn||animate)){ctl.drawn=true;drawIn(map)}
     map.getSource('alts').setData(FC(r.options.map((op,j)=>j===i?null:feat(lnglat(geomOf(r,j)),{i:j})).filter(Boolean)));
     map.getSource('jams').setData(FC(i===0?(r.jams||[]).map(j=>feat(lnglat(r.geom.slice(j[0],j[1]+1)),{m:j[2]})):[]));
     const mid=g[Math.floor(g.length/2)];
@@ -941,12 +1263,13 @@ async function mountMap(div,r,o){
     try{
       const cap={'line-cap':'round','line-join':'round'};
       map.addSource('alts',{type:'geojson',data:FC([])});
-      map.addSource('main',{type:'geojson',data:FC([])});
+      map.addSource('main',{type:'geojson',data:FC([]),lineMetrics:true});
       map.addSource('jams',{type:'geojson',data:FC([])});
       map.addLayer({id:'alts-hit',type:'line',source:'alts',layout:cap,paint:{'line-width':18,'line-opacity':0}});
       map.addLayer({id:'alts-line',type:'line',source:'alts',layout:cap,paint:{'line-color':'#8aa6ba','line-width':3,'line-opacity':.5}});
       map.addLayer({id:'main-glow',type:'line',source:'main',layout:cap,paint:{'line-color':'#4cc9f0','line-width':14,'line-opacity':.22,'line-blur':6}});
-      map.addLayer({id:'main-line',type:'line',source:'main',layout:cap,paint:{'line-color':'#7be0ff','line-width':4.5}});
+      try{map.addLayer({id:'main-line',type:'line',source:'main',layout:cap,paint:{'line-gradient':['interpolate',['linear'],['line-progress'],0,'#7be0ff',1,'#7be0ff'],'line-width':4.5}});ctl.grad=true}
+      catch(e){ctl.grad=false;map.addLayer({id:'main-line',type:'line',source:'main',layout:cap,paint:{'line-color':'#7be0ff','line-width':4.5}})}
       map.addLayer({id:'jams-line',type:'line',source:'jams',layout:cap,paint:{'line-color':['match',['get','m'],1,JAM_COL[1],2,JAM_COL[2],JAM_COL[3]],'line-width':5}});
       const g0=r.geom[0],g1=r.geom[r.geom.length-1];
       ctl.markers.push(new maplibregl.Marker({element:el('div','mk-start')}).setLngLat([g0[1],g0[0]]).addTo(map));
@@ -1041,7 +1364,7 @@ function routeCard(r){
   }
   function paintHero(i){
     const o=r.options[i],best=i===0;
-    tEl.textContent=timeOf(r,i)+' min';
+    countTo(tEl,timeOf(r,i),v=>Math.round(v)+' min');
     const dl=(best&&r.eta)?r.eta.delay:o.delay;
     dEl.className='chip '+delayClass(dl);dEl.textContent=dl<=2?'clear roads':`+${dl} min delay`;
     if(o.fuel!=null){fEl.style.display='';fEl.textContent=`${o.fuel} L \u00b7 \u00a3${o.cost.toFixed(2)}`}else fEl.style.display='none';
@@ -1078,11 +1401,10 @@ function routeCard(r){
     r.incidents.slice(0,2).forEach(i=>{const d=el('div','inc');d.append(el('i'),el('span','',i.text));c.append(d)});
     if(r.incidents.length>2)c.append(el('div','sub',`+${r.incidents.length-2} more, shown on the map`));
   }else{const d=el('div','inc none');d.append(el('i'),el('span','','No incidents on your route'));c.append(d)}
-  // weather
-  const ws=r.weather.length>=3?[r.weather[0],r.weather[Math.floor(r.weather.length/2)],r.weather[r.weather.length-1]]:r.weather;
-  const wx=el('div','wx');
-  ws.forEach(w=>wx.append(wxCell(w.wx?w.wx.t+'\u00b0':'--',w.name||w.label,w.wx?`${w.wx.desc}, ${w.wx.rain}%`:'n/a')));
-  c.append(wx);
+  // ice warning + journey timeline
+  const ice=routeIce(r);
+  if(ice){const w=el('div','warnline');w.append(el('i'),el('span','',(ice.kind==='ice'?'Ice risk':'Frost possible')+` near ${ice.name} (${ice.t}\u00b0 now). Based on current conditions, so allow extra time.`));c.append(w)}
+  c.append(timeline(r));
   if(r.a&&r.b){
     const acts=el('div','acts');
     const g=el('a','btn pri','Open in Google Maps');g.href=gmaps(r);g.target='_blank';g.rel='noopener';
@@ -1178,7 +1500,7 @@ $('ql').onclick=()=>{const [f,t]=toOther();const v=prompt(`Arrive at ${t} by wha
 $('qp').onclick=()=>openStationsMap();
 $('qr').onclick=()=>{if(lastReply)speak(lastReply)};
 $('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';$('t').blur();ask(v)}};
-speechSynthesis.onvoiceschanged=()=>{};
+speechSynthesis.onvoiceschanged=()=>{if(sheet.classList.contains('open'))paintVoice(true)};
 
 // ?cmd=briefing | work | home  (iPhone Shortcuts): skips the boot screen
 const cmd=new URLSearchParams(location.search).get('cmd');
@@ -1189,10 +1511,11 @@ function endBoot(sound){
   boot.classList.add('out');setTimeout(()=>boot.remove(),800);
   if(needsSetup())setTimeout(openSettings,600);
   setTimeout(autoLocate,1200);
+  if(sound&&cfg.spokenBrief)speakBriefWhenReady();
 }
 if(cmd){
   booted=true;boot.remove();if(needsSetup())openSettings();setTimeout(autoLocate,1500);
-  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?")}[cmd];
+  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?"),leave:openLeave,fuel:openStationsMap}[cmd];
   if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname);
 }else{
   const lines=['Initialising core','Linking traffic feeds','Weather online','Tap to begin'];
@@ -1201,7 +1524,7 @@ if(cmd){
   setTimeout(()=>endBoot(false),7000);
 }
 
-loadDash(false);loadFuel();
+restoreCache();loadDash(false);loadFuel();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script>
 </body>
