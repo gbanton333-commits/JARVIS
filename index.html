@@ -290,6 +290,27 @@
   @keyframes ripple{from{transform:scale(.6);opacity:.8}to{transform:scale(1.6);opacity:0}}
   html{font-size:calc(16px*var(--fs,1))}
   .acts button.btn{font:inherit;background:transparent;cursor:pointer}
+  .fcrow{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;text-align:center;margin-top:4px}
+  #fcSvg{width:100%;height:64px;margin-top:8px;display:block}
+  .ibars{display:flex;gap:8px;align-items:flex-end;height:104px;margin-top:10px}
+  .ib{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}
+  .ib i{display:block;width:100%;border-radius:6px 6px 2px 2px}
+  .ib b{font-size:.75rem;font-weight:500}.ib span{font-size:.66rem;color:var(--dim)}
+  .fvb{display:flex;gap:6px}.fvb .pill{padding:6px 12px;font-size:.74rem}
+  #drive{position:fixed;inset:0;z-index:47;background:var(--bg);display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 12px) 20px calc(env(safe-area-inset-bottom) + 18px)}
+  #drive.open{display:flex}
+  .dhead{display:flex;justify-content:space-between;align-items:center;color:var(--dim);font-size:.85rem}
+  .dmain{text-align:center;margin:7vh 0 4vh}.dlab{font-size:.7rem;letter-spacing:.25em;color:var(--dim)}
+  #dEta{font-size:5.2rem;font-weight:200;line-height:1.1}#dRem{font-size:1.1rem;color:var(--dim)}
+  .dbar{position:relative;height:10px;border-radius:99px;background:#5ee6a840;margin:4px 0 24px}
+  #dJam{position:absolute;inset:0;border-radius:99px;overflow:hidden}#dJam i{position:absolute;top:0;bottom:0}
+  #dPos{position:absolute;top:-5px;width:20px;height:20px;border-radius:50%;background:var(--glow);border:3px solid #fff;transform:translateX(-50%);box-shadow:0 0 14px var(--glow);transition:left .6s linear}
+  .dgrid{display:grid;grid-template-columns:1fr 1.4fr 1.4fr;gap:10px}
+  .dgrid div{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
+  .dgrid span{display:block;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .dgrid b{display:block;font-size:1rem;font-weight:500;margin-top:4px}.dgrid em{font-size:.7rem;color:var(--dim);font-style:normal}
+  #dWarn{margin-top:14px;color:var(--warn);font-size:.9rem;text-align:center}#dWarn a{color:var(--warn)}
+  .dfoot{margin-top:auto}.dfoot .btn{display:block;width:100%;border:0;font:inherit;padding:18px;font-size:1.05rem;cursor:pointer}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -323,11 +344,14 @@
       <div class="sub" id="cSub">Checking traffic...</div>
       <div class="sub" id="cUsual"></div>
       <div class="tbar" id="cBar"></div>
-      <div class="tbtns"><button class="pill" id="cLeave">Best time to leave</button><button class="pill" id="cShare">Share ETA</button></div>
+      <div class="tbtns"><button class="pill" id="cLeave">Best time to leave</button><button class="pill" id="cShare">Share ETA</button><button class="pill" id="cTrip">Start trip</button></div>
       <button id="swap" aria-label="Swap direction">&#8646;</button>
     </div>
+    <div class="tile wide" id="tLeave" style="display:none"><div class="ct">Leave by</div><div class="row"><span class="n" id="lbT">--:--</span><span class="chip" id="lbC"></span></div><div class="sub" id="lbS"></div></div>
     <div class="tile" id="tHome"><div class="ct">Home</div><div class="wrow"><span class="wi" id="wHi"></span><span class="n2 sk" id="wH">--</span></div><div class="sub" id="wHd">&nbsp;</div><div class="rbar"><i id="wHr" style="width:0"></i></div></div>
     <div class="tile" id="tWork"><div class="ct">Work</div><div class="wrow"><span class="wi" id="wWi"></span><span class="n2 sk" id="wW">--</span></div><div class="sub" id="wWd">&nbsp;</div><div class="rbar"><i id="wWr" style="width:0"></i></div></div>
+    <div class="tile wide" id="tFc" style="display:none"><div class="fhead"><div class="ct">Next 12 hours</div><div class="seg" id="fcSeg"><button data-w="home" class="on">Home</button><button data-w="work">Work</button></div></div><div class="sub" id="fcS">&nbsp;</div><svg id="fcSvg" viewBox="0 0 300 64" preserveAspectRatio="none"></svg><div class="fcrow" id="fcRow"></div></div>
+    <div class="tile wide" id="tPlaces" style="display:none"><div class="ct">Favourite places</div><div id="plList"></div></div>
     <div class="tile wide" id="tFuel">
       <div class="fhead"><div class="ct" id="fTitle">Petrol near you</div>
         <div class="seg" id="fSeg"><button data-f="e10" class="on">E10</button><button data-f="e5">E5</button><button data-f="b7">Diesel</button></div></div>
@@ -344,6 +368,7 @@
       <div class="fbtns"><button class="pill" id="fLoc">Use my location</button><button class="pill" id="fMap">Map</button><button class="pill" id="fSet">Set price</button><button class="pill" id="fLog">Fill-up log</button></div>
       <div class="note2" id="fNote"></div>
     </div>
+    <div class="tile wide" id="tIns" style="display:none"><div class="ct" id="insT">Commute insights</div><div class="ibars" id="insBars"></div><div class="sub" id="insS"></div></div>
     <div class="tile wide" id="tNews" role="button" tabindex="0"><div class="ct">Headlines</div><div id="news"><div class="sub">Loading...</div></div></div>
   </section>
 
@@ -377,6 +402,17 @@
     <label>Tank size, litres (used for savings estimates)<input id="sTank" inputmode="decimal" placeholder="40" autocomplete="off"></label>
     <div class="sec">Behaviour</div>
     <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button><button class="pill" id="bigtxt">Larger text</button></div>
+    <details class="dd"><summary>Arrive-by targets</summary>
+      <div class="note">Set when you need to be somewhere. JARVIS works out when to leave using live traffic, shows it on the dashboard and, with alerts on, reminds you.</div>
+      <label>Be at work by<input type="time" id="abW"></label><label>Be home by<input type="time" id="abH"></label>
+    </details>
+    <details class="dd"><summary>Favourite places</summary>
+      <div class="note">Up to four places with live drive times on the dashboard.</div>
+      <div class="place"><div><b>Place 1</b><span id="fvT0">Not set</span></div><div class="fvb"><button class="pill" data-fv="0">Set</button><button class="pill" data-fx="0">Clear</button></div></div><div class="place"><div><b>Place 2</b><span id="fvT1">Not set</span></div><div class="fvb"><button class="pill" data-fv="1">Set</button><button class="pill" data-fx="1">Clear</button></div></div><div class="place"><div><b>Place 3</b><span id="fvT2">Not set</span></div><div class="fvb"><button class="pill" data-fv="2">Set</button><button class="pill" data-fx="2">Clear</button></div></div><div class="place"><div><b>Place 4</b><span id="fvT3">Not set</span></div><div class="fvb"><button class="pill" data-fv="3">Set</button><button class="pill" data-fx="3">Clear</button></div></div>
+    </details>
+    <details class="dd"><summary>Vehicle reminders</summary>
+      <label>MOT due<input type="date" id="rm_mot"></label><label>Road tax due<input type="date" id="rm_tax"></label><label>Insurance renewal<input type="date" id="rm_ins"></label><label>Next service<input type="date" id="rm_svc"></label>
+    </details>
     <details class="dd"><summary>Delay alerts</summary>
       <div class="note">Get a notification when your usual journey is running slow. On iPhone this only works from the Home Screen app. It needs the Worker's storage and schedule set up (see the setup steps).</div>
       <div class="toggles"><button class="pill" id="alEnable">Turn on alerts</button><button class="pill" id="alTest">Send test</button></div>
@@ -403,6 +439,14 @@
     </details>
     <button class="btn pri" id="sSave">Save</button>
   </div>
+</div>
+<div id="drive" role="dialog" aria-label="Trip">
+  <div class="dhead"><div id="dTo">Trip</div><button class="icon" id="dEnd" aria-label="End trip">&#10005;</button></div>
+  <div class="dmain"><div class="dlab">ARRIVE</div><div id="dEta">--:--</div><div id="dRem">--</div></div>
+  <div class="dbar"><div id="dJam"></div><i id="dPos"></i></div>
+  <div class="dgrid"><div><span>Speed</span><b id="dSpd">--</b><em>mph</em></div><div><span>Ahead</span><b id="dAhead">Clear</b></div><div><span>Fuel ahead</span><b id="dFuel">--</b></div></div>
+  <div id="dWarn"></div>
+  <div class="dfoot"><button class="btn pri" id="dTalk">Tap to talk</button></div>
 </div>
 <div id="lsheet" role="dialog" aria-label="Fill-up log">
   <div class="panel">
@@ -453,6 +497,7 @@ const bucket=()=>(['Saturday','Sunday'].includes(londonPart('weekday'))?'we':'wk
 let dir=prefs.dirPref[bucket()]||((+londonPart('hour')<13)?'work':'home');
 let commuteUI=null,commuteAt=0;
 let chist=[];try{chist=JSON.parse(localStorage.getItem('jarvisHist')||'[]')}catch(e){}
+let lbData=null,favEta=[],fcData=null,trip=null,fcWhich='home';
 
 function londonPart(t){return new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hourCycle:'h23',hour:'2-digit',minute:'2-digit',weekday:'long',day:'numeric',month:'long',year:'numeric'}).formatToParts(new Date()).find(p=>p.type===t).value}
 let cfg={};try{cfg=JSON.parse(localStorage.getItem('jarvisCfg')||'{}')}catch(e){}
@@ -479,7 +524,7 @@ $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1
 const sheet=$('sheet');
 function openSettings(){
   $('sWorker').value=cfg.worker||'';paintPlaces();
-  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sTank').value=cfg.tank||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';paintALoc();paintVoice();paintAlerts();applyText();
+  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sTank').value=cfg.tank||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';paintALoc();paintVoice();paintAlerts();applyText();paintExtras();
   sheet.classList.add('open');
 }
 function closeSettings(){sheet.classList.remove('open')}
@@ -487,7 +532,7 @@ $('gear').onclick=openSettings;$('sClose').onclick=closeSettings;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSettings()});
 $('sSave').onclick=()=>{
   cfg.worker=$('sWorker').value.trim();
-  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();cfg.tank=$('sTank').value.trim();cfg.voice=$('sVoice').value;cfg.rate=+$('sRate').value||1;cfg.alerts=readAlerts();
+  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();cfg.tank=$('sTank').value.trim();cfg.voice=$('sVoice').value;cfg.rate=+$('sRate').value||1;cfg.alerts=readAlerts();readExtras();
   saveCfg();
   const pv=$('sPpl').value.trim(),n=parseFloat(pv);
   if(pv===''){if(fstore.manual){delete fstore.manual;saveF()}}
@@ -769,7 +814,7 @@ let pm=null,pk=null,pWhich='home',pPos=null,pTimer=null,pRev=0;
 const post=(path,body)=>fetch(getWorker()+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
 function openPicker(which){
   if(!getWorker()){alert('Add your Worker URL first (under Connection), then save.');return}
-  pWhich=which;$('pTitle').textContent='Set '+which;$('pQ').value='';$('pRes').textContent='';
+  pWhich=which;$('pTitle').textContent=/^fav/.test(which)?'Set favourite place':'Set '+which;$('pQ').value='';$('pRes').textContent='';
   picker.classList.add('open');
   if(!window.L){$('pLabel').textContent='The map could not load. Check your connection.';return}
   if(!pm){
@@ -777,7 +822,7 @@ function openPicker(which){
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'\u00a9 OpenStreetMap'}).addTo(pm);
     pm.on('click',e=>setPin(e.latlng.lat,e.latlng.lng,true));
   }
-  const cur=cfg[which+'Loc'],other=cfg[(which==='home'?'work':'home')+'Loc'];
+  const cur=getLoc(which),other=cfg[(which==='home'?'work':'home')+'Loc'];
   setTimeout(()=>{
     pm.invalidateSize();
     if(cur){pm.setView([cur.lat,cur.lon],16);setPin(cur.lat,cur.lon,false,cur.label)}
@@ -838,8 +883,9 @@ $('pLoc').onclick=()=>{
 $('pBack').onclick=()=>picker.classList.remove('open');
 $('pOk').onclick=()=>{
   if(!pPos){$('pLabel').textContent='Choose a spot first: search, use your location, or tap the map.';return}
-  cfg[pWhich+'Loc']={label:pPos.label||'Dropped pin',lat:+pPos.lat.toFixed(6),lon:+pPos.lon.toFixed(6)};
-  delete cfg[pWhich];saveCfg();paintPlaces();
+  const nv={label:pPos.label||'Dropped pin',lat:+pPos.lat.toFixed(6),lon:+pPos.lon.toFixed(6)};
+  if(/^fav/.test(pWhich)){const dn=(nv.label.split(',')[0]||'Place').slice(0,22);nv.name=(prompt('Short name for this place',dn)||dn).slice(0,22)}
+  setLoc(pWhich,nv);saveCfg();paintPlaces();paintExtras();loadPlaces();
   picker.classList.remove('open');
   live=null;commuteUI=null;paintCommute();loadDash(true);
 };
@@ -850,7 +896,7 @@ function tick(){
   $('hello').textContent=(h<5?'Working late, '+title()+'.':h<12?'Good morning, '+title()+'.':h<18?'Good afternoon, '+title()+'.':'Good evening, '+title()+'.');
   $('clock').textContent=londonPart('hour')+':'+londonPart('minute');
   $('date').textContent=londonPart('weekday')+' '+londonPart('day')+' '+londonPart('month');
-  applyMood();
+  applyMood();paintLeaveBy();
 }
 tick();setInterval(tick,20000);
 
@@ -926,6 +972,8 @@ function briefParts(){
   if(near.list.length>=3){const ps=near.list.map(s=>s.price),m=med(ps),mn=Math.min(...ps);if(m-mn>=1.5)parts.push(`Cheapest ${FUELS[fuelType].name} ${(m-mn).toFixed(1)}p under typical nearby`)}
   const mh=fstore.mh;
   if(mh.length>=2){const d=mh[mh.length-1].ppl-mh[mh.length-2].ppl;if(d<=-1.5)parts.push(`Local E10 down ${Math.abs(d).toFixed(1)}p since the last check`)}
+  reminderParts().forEach(x=>parts.push(x));
+  if(lbData){const m=Math.round((Date.parse(lbData.departISO)-Date.now())/60000);if(m>0&&m<=120)parts.push(`Leave by ${lbData.depart} for ${lbData.target}`)}
   return parts;
 }
 function paintBrief(){const b=$('brief');b.textContent='';briefParts().forEach(t=>b.append(el('span','bp',t)))}
@@ -952,7 +1000,7 @@ async function loadDash(force){
   }
   await Promise.all([getLive(force).then(paintWeather),loadCommute()]);
   paintBrief();
-  $('upd').textContent='Updated '+londonPart('hour')+':'+londonPart('minute');$('upd').className='';saveCache();
+  $('upd').textContent='Updated '+londonPart('hour')+':'+londonPart('minute');$('upd').className='';saveCache();loadExtras();
 }
 $('refresh').onclick=()=>{
   const b=$('refresh');b.classList.add('spin');commuteUI=null;
@@ -1010,7 +1058,7 @@ function usual(){
 }
 function switchDir(anim){
   dir=dir==='work'?'home':'work';prefs.dirPref[bucket()]=dir;savePrefs();
-  commuteUI=null;paintCommute();loadCommute();
+  commuteUI=null;paintCommute();loadCommute();loadLeaveBy();paintInsights();
   const t=$('tCommute');t.classList.remove('swl','swr');void t.offsetWidth;t.classList.add(anim==='left'?'swl':'swr');
 }
 (function(){
@@ -1234,7 +1282,7 @@ function paintAlerts(){
   $('alWk').classList.toggle('on',!a.all);$('alEnable').textContent=a.on?'Turn off alerts':'Turn on alerts';setAlStatus();
 }
 function readAlerts(){const a=alertsCfg();a.th=+$('alTh').value||10;a.ms=$('alMS').value||a.ms;a.me=$('alME').value||a.me;a.es=$('alES').value||a.es;a.ee=$('alEE').value||a.ee;return a}
-function alertSettings(){const a=readAlerts(),days=a.all?'all':'wk';return{...ctx(),enabled:true,threshold:a.th,name:title(),windows:[{dir:'work',start:a.ms,end:a.me,days},{dir:'home',start:a.es,end:a.ee,days}]}}
+function alertSettings(){const a=readAlerts(),days=a.all?'all':'wk';return{...ctx(),enabled:true,threshold:a.th,name:title(),leaveBy:leaveTargets(days),windows:[{dir:'work',start:a.ms,end:a.me,days},{dir:'home',start:a.es,end:a.ee,days}]}}
 const urlB64=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Uint8Array.from(atob(s),c=>c.charCodeAt(0))};
 async function pushSync(){
   try{const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();if(sub)await post('/push/subscribe',{sub:sub.toJSON(),settings:alertSettings()})}catch(e){}
@@ -1275,6 +1323,142 @@ $('alWk').onclick=()=>{const a=readAlerts();a.all=!a.all;cfg.alerts=a;saveCfg();
 function applyText(){document.documentElement.style.setProperty('--fs',cfg.bigText?'1.14':'1');$('bigtxt').classList.toggle('on',!!cfg.bigText)}
 $('bigtxt').onclick=()=>{cfg.bigText=!cfg.bigText;saveCfg();applyText()};
 applyText();
+
+// ---------- leave-by, favourites, forecast, insights, reminders, trip mode ----------
+const getLoc=w=>/^fav\d$/.test(w)?(cfg.favs||[])[+w[3]]:cfg[w+'Loc'];
+function setLoc(w,v){if(/^fav\d$/.test(w)){cfg.favs=cfg.favs||[];cfg.favs[+w[3]]=v}else{cfg[w+'Loc']=v;delete cfg[w]}}
+const arrive=()=>Object.assign({work:'',home:''},cfg.arrive||{});
+const leaveTargets=days=>['work','home'].filter(d=>arrive()[d]).map(d=>({dir:d,target:arrive()[d],days}));
+const REM={mot:'MOT',tax:'Road tax',ins:'Insurance',svc:'Service'};
+function reminderParts(){
+  const out=[],rem=cfg.rem||{},today=new Date(new Date().toDateString());
+  Object.keys(REM).forEach(k=>{if(!rem[k])return;const d=Math.ceil((new Date(rem[k])-today)/864e5);if(d<=30)out.push(d<0?`${REM[k]} overdue`:d===0?`${REM[k]} due today`:`${REM[k]} due in ${d} day${d===1?'':'s'}`)});
+  return out;
+}
+async function loadLeaveBy(){
+  const t=arrive()[dir];
+  if(!t||!getWorker()||needsSetup()){lbData=null;paintLeaveBy();return}
+  try{const d=await post('/leaveby',{dir,target:t,...ctx()});lbData=d.error?null:d}catch(e){lbData=null}
+  paintLeaveBy();
+}
+function paintLeaveBy(){
+  const tile=$('tLeave');
+  if(!lbData){tile.style.display='none';return}
+  tile.style.display='';$('lbT').textContent=lbData.depart;
+  $('lbS').textContent=`${lbData.min} min journey, arrive ${lbData.arrive}${lbData.day==='tomorrow'?' tomorrow':''} (${dir==='work'?'work':'home'} by ${lbData.target})`;
+  const m=Math.round((Date.parse(lbData.departISO)-Date.now())/60000),c=$('lbC');
+  c.className='chip '+(m<=0?'rd':m<=15?'am':'ok');
+  c.textContent=m<=0?'leave now':m<90?`in ${m} min`:`in ${Math.floor(m/60)}h ${m%60}m`;
+}
+async function loadPlaces(){
+  const favs=(cfg.favs||[]).filter(Boolean),tile=$('tPlaces');
+  if(!favs.length||!getWorker()){tile.style.display='none';return}
+  tile.style.display='';
+  const o=origin();if(!o){$('plList').textContent='Add your home in Settings.';return}
+  let d;try{d=await post('/eta',{from:{lat:o.lat,lon:o.lon},dests:favs.map(f=>({lat:f.lat,lon:f.lon}))})}catch(e){d={}}
+  favEta=d.items||[];
+  const box=$('plList');box.textContent='';
+  favs.forEach((f,i)=>{
+    const e=favEta[i],a=el('a','frw');a.href=`https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';
+    const nm=el('div','nm');nm.append(el('b','',f.name||f.label),el('span','',e?`${e.miles} mi from ${o.src==='you'?'you':'home'}`:'no estimate'));
+    const pc=el('div','pc');pc.append(el('b','',e?e.min+' min':'--'),el('span',e&&e.delay>5?'am':'',e&&e.delay>2?`+${e.delay} min`:'clear'));
+    a.append(nm,pc);box.append(a);
+  });
+}
+async function loadForecast(){
+  const p=getLoc(fcWhich);
+  if(!p||!getWorker()){$('tFc').style.display='none';return}
+  $('tFc').style.display='';
+  try{const d=await post('/forecast',{lat:p.lat,lon:p.lon});if(d&&d.hours){fcData=d;paintForecast()}}catch(e){}
+}
+function paintForecast(){
+  const d=fcData;if(!d)return;
+  const hrs=d.hours.slice(0,13),n=hrs.length,W=300,H=64,svg=$('fcSvg');
+  const ts=hrs.map(h=>h.t),tmin=Math.min(...ts),rg=(Math.max(...ts)-tmin)||1,x=i=>8+i*(W-16)/(n-1),y=t=>H-12-((t-tmin)/rg)*(H-30);
+  let s='';
+  hrs.forEach((h,i)=>{const bh=Math.max(1,h.rain/100*(H-14));s+=`<rect x="${x(i)-9}" y="${H-bh-2}" width="18" height="${bh}" rx="3" fill="#4cc9f0" opacity=".28"/>`});
+  s+=`<polyline points="${hrs.map((h,i)=>x(i).toFixed(1)+','+y(h.t).toFixed(1)).join(' ')}" fill="none" stroke="#ffd089" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svg.innerHTML=s;
+  const row=$('fcRow');row.textContent='';
+  hrs.forEach((h,i)=>{if(i%3)return;const c=el('div','st'),ic=el('span','si');ic.innerHTML=wxIcon(h.desc);c.append(el('span','tm',i===0?'Now':h.h),ic,el('b','',h.t+'\u00b0'),el('span','pl',h.rain+'% rain'));row.append(c)});
+  const wet=hrs.find(h=>h.rain>=50),cold=hrs.find(h=>h.t<=2);
+  $('fcS').textContent=(wet?`Rain likely from ${wet.h} (${wet.rain}%)`:'No rain expected in the next 12 hours')+(cold?`. Frost risk from ${cold.h}`:'')+(d.sunset?`. Sunset ${d.sunset}`:'');
+}
+function paintInsights(){
+  const tile=$('tIns'),a=chist.filter(x=>x.dir===dir);
+  if(a.length<6){tile.style.display='none';return}
+  tile.style.display='';$('insT').textContent=(dir==='work'?'To work':'To home')+' by weekday';
+  const D=['Mon','Tue','Wed','Thu','Fri'],by={},f=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',weekday:'short'});
+  a.forEach(x=>{const wd=f.format(new Date(x.ts));(by[wd]=by[wd]||[]).push(x.min)});
+  const vals=D.map(d=>by[d]?Math.round(med(by[d])):null),ok=vals.filter(v=>v!=null),mx=Math.max(...ok),mn=Math.min(...ok);
+  const box=$('insBars');box.textContent='';
+  D.forEach((d,i)=>{const v=vals[i],c=el('div','ib'),bar=el('i');bar.style.height=v?(30+70*v/mx)+'%':'6%';bar.style.background=v==null?'#ffffff14':v===mn&&mx>mn?'#5ee6a8':v===mx&&mx>mn?'#f4a259':'#4cc9f0';c.append(bar,el('b','',v?String(v):'--'),el('span','',d));box.append(c)});
+  const avg=Math.round(a.reduce((t,x)=>t+x.min,0)/a.length);
+  $('insS').textContent=mx-mn>=2?`${D[vals.indexOf(mx)]} is your slowest day (${mx} min), ${D[vals.indexOf(mn)]} your quickest (${mn}). Typical ${avg} min over ${a.length} trips.`:`Typical ${avg} min over ${a.length} trips.`;
+}
+function loadExtras(){loadLeaveBy();loadPlaces();loadForecast();paintInsights()}
+document.querySelectorAll('#fcSeg button').forEach(b=>b.onclick=()=>{fcWhich=b.dataset.w;document.querySelectorAll('#fcSeg button').forEach(x=>x.classList.toggle('on',x===b));loadForecast()});
+// settings: targets, favourites, reminders
+function paintExtras(){
+  $('abW').value=arrive().work;$('abH').value=arrive().home;
+  const rem=cfg.rem||{};Object.keys(REM).forEach(k=>$('rm_'+k).value=rem[k]||'');
+  for(let i=0;i<4;i++){const f=(cfg.favs||[])[i];$('fvT'+i).textContent=f?(f.name||f.label):'Not set'}
+}
+function readExtras(){
+  cfg.arrive={work:$('abW').value,home:$('abH').value};
+  cfg.rem={};Object.keys(REM).forEach(k=>{if($('rm_'+k).value)cfg.rem[k]=$('rm_'+k).value});
+}
+document.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>openPicker('fav'+b.dataset.fv));
+document.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{cfg.favs=cfg.favs||[];cfg.favs[+b.dataset.fx]=null;saveCfg();paintExtras();loadPlaces()});
+
+// trip mode: live progress along your route
+function project(g,la,lo){
+  const kx=111*Math.cos(la*Math.PI/180),cum=[0];
+  for(let i=0;i<g.length-1;i++)cum.push(cum[i]+Math.hypot((g[i+1][1]-g[i][1])*kx,(g[i+1][0]-g[i][0])*111));
+  let best=1e9,pos=0;
+  for(let i=0;i<g.length-1;i++){
+    const ax=(g[i][1]-lo)*kx,ay=(g[i][0]-la)*111,dx=(g[i+1][1]-g[i][1])*kx,dy=(g[i+1][0]-g[i][0])*111,l2=dx*dx+dy*dy,t=l2?Math.max(0,Math.min(1,-(ax*dx+ay*dy)/l2)):0,d=Math.hypot(ax+t*dx,ay+t*dy);
+    if(d<best){best=d;pos=cum[i]+t*Math.sqrt(l2)}
+  }
+  return{along:pos/(cum[cum.length-1]||1),off:best};
+}
+function startTrip(r){
+  r=r||commuteUI;
+  if(!r){alert('No route yet. Wait for the commute to load.');return}
+  if(!navigator.geolocation){alert('Location is not available here.');return}
+  if(trip)stopTrip();
+  trip={r,mi:r.options[0].miles,eta:r.eta?r.eta.min:r.options[0].min,said:{},last:null,fuel:stations.length?stationsOnRoute(r.geom):[]};
+  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('drive').classList.add('open');tripUI(0,0,null,false);
+  try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>{if(trip)trip.wake=l}).catch(()=>{})}catch(e){}
+  trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
+}
+function onFix(p){
+  if(!trip)return;const la=p.coords.latitude,lo=p.coords.longitude,now=Date.now();
+  let spd=p.coords.speed!=null&&p.coords.speed>=0?p.coords.speed*2.23694:null;
+  if(spd==null&&trip.last){const dt=(now-trip.last.t)/1000;if(dt>0)spd=miles({lat:trip.last.la,lon:trip.last.lo},{lat:la,lon:lo})/dt*3600}
+  trip.last={la,lo,t:now};
+  const pr=project(trip.r.geom,la,lo);tripUI(pr.along,pr.off,spd,true);
+}
+function tripUI(along,off,spd,live){
+  const t=trip,rem=Math.max(0,1-along),remMin=rem>0.02?Math.max(1,Math.round(t.eta*rem)):0;
+  $('dEta').textContent=new Date(Date.now()+remMin*60000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
+  $('dRem').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(1)} mi to go`;
+  $('dPos').style.left=(Math.min(1,along)*100)+'%';$('dSpd').textContent=spd==null?'--':String(Math.round(spd));
+  const inc=(t.r.incidents||[]).map(i=>({...i,a:project(t.r.geom,i.lat,i.lon).along})).filter(i=>i.a>along+0.003).sort((a,b)=>a.a-b.a)[0];
+  if(inc){const d=(inc.a-along)*t.mi,nm=inc.text.split(':')[0];$('dAhead').textContent=`${d.toFixed(1)} mi: ${nm}`;if(live&&d<=5&&!t.said[inc.text]){t.said[inc.text]=1;speak(`${nm} ahead in ${Math.round(d)} miles.`)}}else $('dAhead').textContent='Clear';
+  const f=t.fuel.filter(s=>s.along>along+0.01&&(s.along-along)*t.mi<40).sort((a,b)=>a.price-b.price)[0];
+  $('dFuel').textContent=f?`${tcase(f.b)} ${f.price.toFixed(1)}p, ${((f.along-along)*t.mi).toFixed(0)} mi`:'--';
+  const w=$('dWarn');w.textContent='';
+  if(live&&off>0.4){const a=el('a','','Off route: open Google Maps from here');a.href=`https://www.google.com/maps/dir/?api=1&destination=${t.r.b.lat},${t.r.b.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';w.append(a)}
+  if(live&&along>0.985&&!t.done){t.done=1;$('dRem').textContent='You have arrived';speak(`You have arrived, ${title()}.`)}
+}
+function stopTrip(){
+  if(!trip)return;
+  try{navigator.geolocation.clearWatch(trip.watch)}catch(e){}
+  try{trip.wake&&trip.wake.release()}catch(e){}
+  trip=null;$('drive').classList.remove('open');
+}
+$('dEnd').onclick=stopTrip;$('dTalk').onclick=()=>listen();$('cTrip').onclick=e=>{e.stopPropagation();startTrip(commuteUI)};
 
 // ---------- voice out ----------
 function pickVoice(){
@@ -1531,7 +1715,8 @@ function routeCard(r){
     const g=el('a','btn pri','Open in Google Maps');g.href=gmaps(r);g.target='_blank';g.rel='noopener';
     const ap=el('a','btn','Apple Maps');ap.href=amaps(r);ap.target='_blank';ap.rel='noopener';
     const sh=el('button','btn','Share ETA');sh.onclick=()=>shareEta(r,null);
-    acts.append(g,ap,sh);c.append(acts);
+    const tp=el('button','btn','Start trip');tp.onclick=()=>startTrip(r);
+    acts.append(g,tp,sh);c.append(acts);
   }
   log.appendChild(c);toEnd();
 
@@ -1637,7 +1822,7 @@ function endBoot(sound){
 }
 if(cmd){
   booted=true;boot.remove();if(needsSetup())openSettings();setTimeout(autoLocate,1500);
-  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?"),leave:openLeave,fuel:openStationsMap}[cmd];
+  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?"),leave:openLeave,fuel:openStationsMap,trip:()=>startTrip(commuteUI)}[cmd];
   if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname);
 }else{
   const lines=['Initialising core','Linking traffic feeds','Weather online','Tap to begin'];
