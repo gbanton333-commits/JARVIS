@@ -311,6 +311,38 @@
   .dgrid b{display:block;font-size:1rem;font-weight:500;margin-top:4px}.dgrid em{font-size:.7rem;color:var(--dim);font-style:normal}
   #dWarn{margin-top:14px;color:var(--warn);font-size:.9rem;text-align:center}#dWarn a{color:var(--warn)}
   .dfoot{margin-top:auto}.dfoot .btn{display:block;width:100%;border:0;font:inherit;padding:18px;font-size:1.05rem;cursor:pointer}
+  /* ---- style layer: glass surfaces, accent system, aurora background ---- */
+  :root{--ga:color-mix(in srgb,var(--glow) 22%,transparent);--gb:color-mix(in srgb,var(--glow) 55%,transparent)}
+  body[data-accent=teal]{--glow:#3de0c8;--top:#06302d}
+  body[data-accent=violet]{--glow:#a79bff;--top:#1c1850}
+  body[data-accent=amber]{--glow:#ffb454;--top:#3a2408}
+  body::after{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;background:radial-gradient(40% 30% at 20% 15%,var(--ga),transparent 70%),radial-gradient(35% 28% at 85% 42%,color-mix(in srgb,var(--glow) 12%,transparent),transparent 70%);animation:drift 24s ease-in-out infinite alternate}
+  @keyframes drift{to{transform:translate3d(4%,3%,0) scale(1.06)}}
+  .tile,.card{background:linear-gradient(160deg,#ffffff0d,#ffffff04 40%),linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid #ffffff14;box-shadow:inset 0 1px 0 #ffffff12,0 10px 30px #0006;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+  .tile{border-radius:20px}
+  .ct{display:flex;align-items:center;gap:8px;color:#8fb3c9}
+  .ct::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--glow);box-shadow:0 0 10px var(--glow)}
+  .n,.n2,#clock,#dEta{font-variant-numeric:tabular-nums}
+  .n{text-shadow:0 0 22px var(--ga)}#clock{text-shadow:0 0 30px var(--ga)}
+  .chip{background:color-mix(in srgb,currentColor 12%,transparent);border-color:color-mix(in srgb,currentColor 45%,transparent)}
+  .pill,.q button,.rchip,.seg button,.btn{transition:transform .12s ease,background .2s,border-color .2s}
+  .pill:active,.q button:active,.rchip:active,.btn:active{transform:scale(.96)}
+  .q button{background:linear-gradient(#ffffff0f,#ffffff05);border-color:#ffffff18}
+  .btn.pri{background:linear-gradient(135deg,var(--glow),color-mix(in srgb,var(--glow) 60%,#fff));box-shadow:0 6px 22px var(--ga)}
+  #dock{background:linear-gradient(180deg,#040b1400,#040b14e6 40%);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid #ffffff10}
+  #hud::after{content:"";position:absolute;inset:-10px;border-radius:50%;background:conic-gradient(from 0deg,transparent,var(--ga),transparent 40%);filter:blur(8px);animation:spin 6s linear infinite;pointer-events:none;opacity:.85;z-index:-1}
+  #tiles>.tile{animation:rise .5s ease both}
+  #tiles>.tile:nth-child(2){animation-delay:0.05s}
+  #tiles>.tile:nth-child(3){animation-delay:0.10s}
+  #tiles>.tile:nth-child(4){animation-delay:0.15s}
+  #tiles>.tile:nth-child(5){animation-delay:0.20s}
+  #tiles>.tile:nth-child(6){animation-delay:0.25s}
+  #tiles>.tile:nth-child(7){animation-delay:0.30s}
+  #tiles>.tile:nth-child(8){animation-delay:0.35s}
+  #tiles>.tile:nth-child(9){animation-delay:0.40s}
+  #tiles>.tile:nth-child(10){animation-delay:0.45s}
+  .map{border-radius:16px}
+  .sw{display:flex;gap:12px;margin-top:10px}.sw button{width:32px;height:32px;border-radius:50%;border:2px solid #ffffff30;background:var(--c);cursor:pointer;padding:0}.sw button.on{border-color:#fff;box-shadow:0 0 12px var(--c)}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -402,6 +434,8 @@
     <label>Tank size, litres (used for savings estimates)<input id="sTank" inputmode="decimal" placeholder="40" autocomplete="off"></label>
     <div class="sec">Behaviour</div>
     <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button><button class="pill" id="bigtxt">Larger text</button></div>
+    <div class="sec">Accent colour</div>
+    <div class="sw"><button data-a="" style="--c:#4cc9f0" aria-label="Blue"></button><button data-a="teal" style="--c:#3de0c8" aria-label="Teal"></button><button data-a="violet" style="--c:#a79bff" aria-label="Violet"></button><button data-a="amber" style="--c:#ffb454" aria-label="Amber"></button></div>
     <details class="dd"><summary>Arrive-by targets</summary>
       <div class="note">Set when you need to be somewhere. JARVIS works out when to leave using live traffic, shows it on the dashboard and, with alerts on, reminds you.</div>
       <label>Be at work by<input type="time" id="abW"></label><label>Be home by<input type="time" id="abH"></label>
@@ -1089,7 +1123,7 @@ function restoreCache(){
 // route line draws itself in
 function drawIn(map){
   if(reduceMotion()||!window.requestAnimationFrame)return;
-  const col='#7be0ff',clear='rgba(123,224,255,0)',t0=performance.now(),dur=900;
+  const col=ACC(),clear='rgba(123,224,255,0)',t0=performance.now(),dur=900;
   const step=t=>{
     const k=Math.min(1,(t-t0)/dur),e=Math.min(.996,1-Math.pow(1-k,2));
     try{map.setPaintProperty('main-line','line-gradient',k>=1?['interpolate',['linear'],['line-progress'],0,col,1,col]:['interpolate',['linear'],['line-progress'],0,col,Math.max(.002,e),col,Math.min(.999,e+.003),clear,1,clear])}catch(x){return}
@@ -1324,6 +1358,9 @@ function applyText(){document.documentElement.style.setProperty('--fs',cfg.bigTe
 $('bigtxt').onclick=()=>{cfg.bigText=!cfg.bigText;saveCfg();applyText()};
 applyText();
 
+const ACC=()=>getComputedStyle(document.body).getPropertyValue('--glow').trim()||'#4cc9f0';
+function applyAccent(){document.body.dataset.accent=cfg.accent||'';document.querySelectorAll('.sw button').forEach(b=>b.classList.toggle('on',(b.dataset.a||'')===(cfg.accent||'')))}
+document.querySelectorAll('.sw button').forEach(b=>b.onclick=()=>{cfg.accent=b.dataset.a;saveCfg();applyAccent()});applyAccent();
 // ---------- leave-by, favourites, forecast, insights, reminders, trip mode ----------
 const getLoc=w=>/^fav\d$/.test(w)?(cfg.favs||[])[+w[3]]:cfg[w+'Loc'];
 function setLoc(w,v){if(/^fav\d$/.test(w)){cfg.favs=cfg.favs||[];cfg.favs[+w[3]]=v}else{cfg[w+'Loc']=v;delete cfg[w]}}
@@ -1392,7 +1429,7 @@ function paintInsights(){
   a.forEach(x=>{const wd=f.format(new Date(x.ts));(by[wd]=by[wd]||[]).push(x.min)});
   const vals=D.map(d=>by[d]?Math.round(med(by[d])):null),ok=vals.filter(v=>v!=null),mx=Math.max(...ok),mn=Math.min(...ok);
   const box=$('insBars');box.textContent='';
-  D.forEach((d,i)=>{const v=vals[i],c=el('div','ib'),bar=el('i');bar.style.height=v?(30+70*v/mx)+'%':'6%';bar.style.background=v==null?'#ffffff14':v===mn&&mx>mn?'#5ee6a8':v===mx&&mx>mn?'#f4a259':'#4cc9f0';c.append(bar,el('b','',v?String(v):'--'),el('span','',d));box.append(c)});
+  D.forEach((d,i)=>{const v=vals[i],c=el('div','ib'),bar=el('i');bar.style.height=v?(30+70*v/mx)+'%':'6%';bar.style.background=v==null?'#ffffff14':v===mn&&mx>mn?'#5ee6a8':v===mx&&mx>mn?'#f4a259':ACC();c.append(bar,el('b','',v?String(v):'--'),el('span','',d));box.append(c)});
   const avg=Math.round(a.reduce((t,x)=>t+x.min,0)/a.length);
   $('insS').textContent=mx-mn>=2?`${D[vals.indexOf(mx)]} is your slowest day (${mx} min), ${D[vals.indexOf(mn)]} your quickest (${mn}). Typical ${avg} min over ${a.length} trips.`:`Typical ${avg} min over ${a.length} trips.`;
 }
@@ -1572,9 +1609,9 @@ async function mountMap(div,r,o){
       map.addSource('jams',{type:'geojson',data:FC([])});
       map.addLayer({id:'alts-hit',type:'line',source:'alts',layout:cap,paint:{'line-width':18,'line-opacity':0}});
       map.addLayer({id:'alts-line',type:'line',source:'alts',layout:cap,paint:{'line-color':'#8aa6ba','line-width':3,'line-opacity':.5}});
-      map.addLayer({id:'main-glow',type:'line',source:'main',layout:cap,paint:{'line-color':'#4cc9f0','line-width':14,'line-opacity':.22,'line-blur':6}});
-      try{map.addLayer({id:'main-line',type:'line',source:'main',layout:cap,paint:{'line-gradient':['interpolate',['linear'],['line-progress'],0,'#7be0ff',1,'#7be0ff'],'line-width':4.5}});ctl.grad=true}
-      catch(e){ctl.grad=false;map.addLayer({id:'main-line',type:'line',source:'main',layout:cap,paint:{'line-color':'#7be0ff','line-width':4.5}})}
+      map.addLayer({id:'main-glow',type:'line',source:'main',layout:cap,paint:{'line-color':ACC(),'line-width':14,'line-opacity':.22,'line-blur':6}});
+      try{map.addLayer({id:'main-line',type:'line',source:'main',layout:cap,paint:{'line-gradient':['interpolate',['linear'],['line-progress'],0,ACC(),1,ACC()],'line-width':4.5}});ctl.grad=true}
+      catch(e){ctl.grad=false;map.addLayer({id:'main-line',type:'line',source:'main',layout:cap,paint:{'line-color':ACC(),'line-width':4.5}})}
       map.addLayer({id:'jams-line',type:'line',source:'jams',layout:cap,paint:{'line-color':['match',['get','m'],1,JAM_COL[1],2,JAM_COL[2],JAM_COL[3]],'line-width':5}});
       const g0=r.geom[0],g1=r.geom[r.geom.length-1];
       ctl.markers.push(new maplibregl.Marker({element:el('div','mk-start')}).setLngLat([g0[1],g0[0]]).addTo(map));
@@ -1634,8 +1671,8 @@ function drawMapLeaflet(div,r){
     m.attributionControl.setPrefix('');
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'\u00a9 OpenStreetMap'}).addTo(m);
     const opts={lineCap:'round',lineJoin:'round'};
-    L.polyline(r.geom,{...opts,color:'#4cc9f0',weight:11,opacity:.18}).addTo(m);
-    const line=L.polyline(r.geom,{...opts,color:'#7be0ff',weight:3,opacity:1}).addTo(m);
+    L.polyline(r.geom,{...opts,color:ACC(),weight:11,opacity:.18}).addTo(m);
+    const line=L.polyline(r.geom,{...opts,color:ACC(),weight:3,opacity:1}).addTo(m);
     const ic=(cls,s)=>L.divIcon({className:'',html:`<div class="${cls}"></div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
     L.marker(r.geom[0],{icon:ic('mk-start',10),interactive:false}).addTo(m);
     L.marker(r.geom[r.geom.length-1],{icon:ic('mk-end',14),interactive:false}).addTo(m);
