@@ -343,6 +343,24 @@
   #tiles>.tile:nth-child(10){animation-delay:0.45s}
   .map{border-radius:16px}
   .sw{display:flex;gap:12px;margin-top:10px}.sw button{width:32px;height:32px;border-radius:50%;border:2px solid #ffffff30;background:var(--c);cursor:pointer;padding:0}.sw button.on{border-color:#fff;box-shadow:0 0 12px var(--c)}
+  .sw,.cw{display:flex;gap:12px;margin-top:10px}.cw button{width:32px;height:32px;border-radius:50%;border:2px solid #ffffff30;background:var(--c);cursor:pointer;padding:0}.cw button.on{border-color:#fff;box-shadow:0 0 12px var(--c)}
+  .road{position:relative;height:96px;margin-top:10px;overflow:hidden;border-radius:14px;background:linear-gradient(#0c1d2f,#07121f);cursor:pointer}
+  .road::after{content:"";position:absolute;left:0;right:0;bottom:10px;height:3px;background:repeating-linear-gradient(90deg,#ffffff50 0 22px,transparent 22px 44px);background-size:44px 3px;animation:road 1.8s linear infinite}
+  .drive .road::after{animation-duration:.3s}
+  @keyframes road{to{background-position:-44px 0}}
+  .cside{position:absolute;left:50%;bottom:11px;width:170px;transform:translateX(-50%);animation:bob 2.6s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateX(-50%) translateY(-1.5px)}}
+  .cside svg,#dPos svg,#bootCar svg{width:100%;display:block;overflow:visible}
+  .wh{animation:spin var(--ws,2.4s) linear infinite}.drive .wh{--ws:.25s}
+  .hl{opacity:0;transition:opacity .2s}.drive .hl{opacity:1}
+  .cchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .cstats{display:flex;gap:8px;margin-top:10px}.cstats div{flex:1;background:#ffffff0a;border-radius:12px;padding:8px 10px;font-size:.66rem;color:var(--dim)}.cstats b{display:block;color:var(--ink);font-size:.95rem;font-weight:500;margin-top:2px}
+  .mk-cartop{width:30px;height:55px;filter:drop-shadow(0 3px 6px #000a);cursor:pointer}.mk-cartop svg{width:100%;height:100%;display:block}
+  #dPos{width:58px!important;height:28px!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;top:-23px!important}
+  #bootCar{width:130px;margin-top:6px;animation:cross 2.4s cubic-bezier(.2,.7,.2,1) both}@keyframes cross{from{transform:translateX(-70vw)}to{transform:none}}
+  #bootCar .wh{--ws:.3s}
+  #mvSat.on{color:var(--glow);border-color:var(--glow)}
+  .mvh .pill{margin-left:auto;margin-right:8px}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -352,6 +370,7 @@
   <svg viewBox="-60 -60 120 120"><circle class="b1" r="56"/><circle class="b2" r="46"/><circle class="b3" r="34"/><circle class="bcore" r="20"/></svg>
   <div class="bt1">J.A.R.V.I.S.</div>
   <div class="bt2" id="bootLine">Initialising core</div>
+  <div id="bootCar"></div>
 </div>
 <header>
   <button class="icon" id="gear" aria-label="Settings"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
@@ -380,9 +399,10 @@
       <button id="swap" aria-label="Swap direction">&#8646;</button>
     </div>
     <div class="tile wide" id="tLeave" style="display:none"><div class="ct">Leave by</div><div class="row"><span class="n" id="lbT">--:--</span><span class="chip" id="lbC"></span></div><div class="sub" id="lbS"></div></div>
+    <div class="tile wide" id="tCar"><div class="ct" id="cName">My car</div><div class="sub" id="cSpec"></div><div class="road" aria-label="Tap to rev"><div class="cside" id="cSide"></div></div><div class="cchips" id="cChips"></div><div class="cstats" id="cStats"></div></div>
     <div class="tile" id="tHome"><div class="ct">Home</div><div class="wrow"><span class="wi" id="wHi"></span><span class="n2 sk" id="wH">--</span></div><div class="sub" id="wHd">&nbsp;</div><div class="rbar"><i id="wHr" style="width:0"></i></div></div>
     <div class="tile" id="tWork"><div class="ct">Work</div><div class="wrow"><span class="wi" id="wWi"></span><span class="n2 sk" id="wW">--</span></div><div class="sub" id="wWd">&nbsp;</div><div class="rbar"><i id="wWr" style="width:0"></i></div></div>
-    <div class="tile wide" id="tFc" style="display:none"><div class="fhead"><div class="ct">Next 12 hours</div><div class="seg" id="fcSeg"><button data-w="home" class="on">Home</button><button data-w="work">Work</button></div></div><div class="sub" id="fcS">&nbsp;</div><svg id="fcSvg" viewBox="0 0 300 64" preserveAspectRatio="none"></svg><div class="fcrow" id="fcRow"></div></div>
+    <div class="tile wide" id="tFc" style="display:none"><div class="fhead"><div class="ct">Next 12 hours</div><div class="seg" id="fcSeg"><button data-w="home" class="on">Home</button><button data-w="work">Work</button></div></div><div class="sub" id="fcS">&nbsp;</div><svg id="fcSvg" viewBox="0 0 300 64" preserveAspectRatio="none"></svg><div class="fcrow" id="fcRow"></div><div class="cchips" id="fcX"></div></div>
     <div class="tile wide" id="tPlaces" style="display:none"><div class="ct">Favourite places</div><div id="plList"></div></div>
     <div class="tile wide" id="tFuel">
       <div class="fhead"><div class="ct" id="fTitle">Petrol near you</div>
@@ -436,6 +456,11 @@
     <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button><button class="pill" id="bigtxt">Larger text</button></div>
     <div class="sec">Accent colour</div>
     <div class="sw"><button data-a="" style="--c:#4cc9f0" aria-label="Blue"></button><button data-a="teal" style="--c:#3de0c8" aria-label="Teal"></button><button data-a="violet" style="--c:#a79bff" aria-label="Violet"></button><button data-a="amber" style="--c:#ffb454" aria-label="Amber"></button></div>
+    <details class="dd"><summary>My car</summary>
+      <label>Name<input id="carName" placeholder="e.g. The Corsa" autocomplete="off"></label>
+      <label>Details<input id="carSpec" placeholder="e.g. 2017 Corsa E 1.4 Limited Edition" autocomplete="off"></label>
+      <div class="note">Pick a body colour for your little car. It drives around the dashboard and the map.</div><div class="cw" id="carCols"></div>
+    </details>
     <details class="dd"><summary>Arrive-by targets</summary>
       <div class="note">Set when you need to be somewhere. JARVIS works out when to leave using live traffic, shows it on the dashboard and, with alerts on, reminds you.</div>
       <label>Be at work by<input type="time" id="abW"></label><label>Be home by<input type="time" id="abH"></label>
@@ -506,7 +531,7 @@
   </div>
 </div>
 <div id="mapview" role="dialog" aria-label="Route map">
-  <div class="mvh"><div id="mvTitle">Route</div><button class="icon" id="mvClose" aria-label="Close map">&#10005;</button></div>
+  <div class="mvh"><div id="mvTitle">Route</div><button class="pill" id="mvSat">Satellite</button><button class="icon" id="mvClose" aria-label="Close map">&#10005;</button></div>
   <div id="mvMap"></div>
   <div class="mvf"><div class="rchips" id="mvChips"></div></div>
 </div>
@@ -558,7 +583,7 @@ $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1
 const sheet=$('sheet');
 function openSettings(){
   $('sWorker').value=cfg.worker||'';paintPlaces();
-  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sTank').value=cfg.tank||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';paintALoc();paintVoice();paintAlerts();applyText();paintExtras();
+  $('sName').value=cfg.name||'';$('sMpg').value=cfg.mpg||'';$('sTank').value=cfg.tank||'';$('sPpl').value=fstore.manual?fstore.manual.ppl:'';paintALoc();paintVoice();paintAlerts();applyText();paintExtras();paintCarSettings();
   sheet.classList.add('open');
 }
 function closeSettings(){sheet.classList.remove('open')}
@@ -566,7 +591,7 @@ $('gear').onclick=openSettings;$('sClose').onclick=closeSettings;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSettings()});
 $('sSave').onclick=()=>{
   cfg.worker=$('sWorker').value.trim();
-  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();cfg.tank=$('sTank').value.trim();cfg.voice=$('sVoice').value;cfg.rate=+$('sRate').value||1;cfg.alerts=readAlerts();readExtras();
+  cfg.name=$('sName').value.trim();cfg.mpg=$('sMpg').value.trim();cfg.tank=$('sTank').value.trim();cfg.voice=$('sVoice').value;cfg.rate=+$('sRate').value||1;cfg.alerts=readAlerts();readExtras();readCar();
   saveCfg();
   const pv=$('sPpl').value.trim(),n=parseFloat(pv);
   if(pv===''){if(fstore.manual){delete fstore.manual;saveF()}}
@@ -758,6 +783,7 @@ function openStationsMap(){
   const chips=$('mvChips');
   const paint=()=>{chips.textContent='';Object.keys(FUELS).forEach(k=>{const b=el('button','rchip'+(k===fuelType?' on':''),FUELS[k].name);b.onclick=()=>{fuelType=k;persistFuelPrefs();paint();paintFuel();paintBrief();if(stCtl)stCtl.refresh()};chips.append(b)})};
   paint();
+  satToggle(()=>stCtl);
   const div=$('mvMap');div.textContent='';
   window.__closeFull=()=>{$('mapview').classList.remove('open');if(stCtl){stCtl.destroy();stCtl=null}$('mvMap').textContent=''};
   mountStationsMap(div).then(c=>{stCtl=c});
@@ -774,13 +800,13 @@ async function mountStationsMap(div){
   try{map=new maplibregl.Map({container:div,style:STYLE_URL,attributionControl:false,fadeDuration:0,pixelRatio:Math.min(window.devicePixelRatio||1,2)})}catch(e){return stationsLeaflet(div)}
   map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
-  const ctl={destroy(){dead=true;try{map.remove()}catch(e){}}};
+  const ctl={destroy(){dead=true;try{map.remove()}catch(e){}},setSat(on){try{map.setLayoutProperty('sat','visibility',on?'visible':'none')}catch(e){}}};
   const fallback=()=>{if(dead)return;ctl.destroy();div.textContent='';stCtl=stationsLeaflet(div)};
   const timer=setTimeout(()=>{if(!loaded)fallback()},9000);
   ctl.refresh=()=>{
     mk.splice(0).forEach(m=>m.remove());
     const {o,show,lo,hi,best}=stationPills();if(!o||dead)return;
-    mk.push(new maplibregl.Marker({element:el('div','mk-you')}).setLngLat([o.lon,o.lat]).addTo(map));
+    mk.push(new maplibregl.Marker({element:carEl(),rotationAlignment:'map'}).setLngLat([o.lon,o.lat]).addTo(map));
     const bd=new maplibregl.LngLatBounds();bd.extend([o.lon,o.lat]);
     show.forEach(s=>{
       const m=new maplibregl.Marker({element:fuelPill(s,TIER_CLS[tierOf(s.price,lo,hi)],s===best)}).setLngLat([s.lo,s.la]);
@@ -789,7 +815,7 @@ async function mountStationsMap(div){
     });
     map.fitBounds(bd,{padding:{top:70,bottom:50,left:40,right:40},maxZoom:14,duration:600});
   };
-  map.on('load',()=>{loaded=true;clearTimeout(timer);if(!dead)ctl.refresh()});
+  map.on('load',()=>{loaded=true;clearTimeout(timer);try{addSat(map)}catch(e){}if(!dead)ctl.refresh()});
   return ctl;
 }
 function stationsLeaflet(div){
@@ -1027,7 +1053,8 @@ async function loadCommute(){
   }
   paintCommute();
 }
-async function loadDash(force){
+async function loadDash(force){const _c=$('tCar');_c.classList.add('drive');try{await loadDash0(force)}finally{setTimeout(()=>_c.classList.remove('drive'),400)}}
+async function loadDash0(force){
   if(needsSetup()){
     $('cSub').textContent='Open Settings (top left) to add your home and work';
     ['cMin','wH','wW'].forEach(i=>$(i).classList.remove('sk'));paintBrief();return;
@@ -1235,7 +1262,7 @@ function paintLog(){
 }
 function openLog(){$('lP').value=effPrice().ppl.toFixed(1);paintLog();$('lsheet').classList.add('open')}
 $('fLog').onclick=openLog;
-$('lClose').onclick=()=>$('lsheet').classList.remove('open');
+$('lClose').onclick=()=>{$('lsheet').classList.remove('open');paintGarage()};
 $('lsheet').addEventListener('click',e=>{if(e.target===$('lsheet'))$('lsheet').classList.remove('open')});
 $('lSave').onclick=()=>{
   const l=parseFloat($('lL').value),p=parseFloat($('lP').value),o=parseFloat($('lO').value);
@@ -1361,6 +1388,37 @@ applyText();
 const ACC=()=>getComputedStyle(document.body).getPropertyValue('--glow').trim()||'#4cc9f0';
 function applyAccent(){document.body.dataset.accent=cfg.accent||'';document.querySelectorAll('.sw button').forEach(b=>b.classList.toggle('on',(b.dataset.a||'')===(cfg.accent||'')))}
 document.querySelectorAll('.sw button').forEach(b=>b.onclick=()=>{cfg.accent=b.dataset.a;saveCfg();applyAccent()});applyAccent();
+// ---------- my little car ----------
+let carN=0;
+const carSide=()=>{const n=++carN;return `<svg viewBox="0 0 220 90" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bd${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" style="stop-color:var(--car,#f4f6f8)"/><stop offset="1" stop-color="#b9c2c9"/></linearGradient><linearGradient id="gl${n}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a3b4b"/><stop offset="1" stop-color="#0f1a24"/></linearGradient></defs><ellipse cx="110" cy="82" rx="92" ry="5" fill="#000" opacity=".35"/><path d="M14 68 L14 52 Q15 47 21 45 Q30 36 46 31 L60 22 Q68 18 86 18 L122 18 Q136 20 150 32 L188 38 Q203 41 207 52 L208 68 Z" fill="url(#bd${n})" stroke="#9aa5ad" stroke-width=".8"/><path d="M60 33 Q64 24 86 22 L120 22 Q132 24 146 34 Z" fill="url(#gl${n})"/><path d="M70 28 L84 24" stroke="#fff" stroke-opacity=".35" stroke-width="1.2" stroke-linecap="round"/><path d="M99 22 V62 M147 34 L150 62" stroke="#8d98a1" stroke-width=".9" fill="none"/><path d="M104 47 H114" stroke="#7d8891" stroke-width="2" stroke-linecap="round"/><path d="M18 62 H204" stroke="#20262b" stroke-width="3.2" opacity=".9"/><path d="M142 36 l8 -2 l1 4 l-8 2 z" fill="#20262b"/><path d="M189 41 L205 45 L204 51 L188 48 Z" fill="#ffe9a8"/><path d="M189 41 L205 45 L204 51 L188 48 Z" fill="#fff" opacity=".4" class="hl"/><rect x="13" y="48" width="7" height="9" rx="1.5" fill="#e23b3b"/><path d="M196 56 H208" stroke="#20262b" stroke-width="4"/><circle cx="52" cy="68" r="17" fill="#0b1015"/><circle cx="166" cy="68" r="17" fill="#0b1015"/><g class="whs"><g class="wh" style="transform-origin:52px 68px"><circle cx="52" cy="68" r="14" fill="#171d22"/><circle cx="52" cy="68" r="9.5" fill="#262e35"/><path d="M52 59 V77 M43 68 H61 M45.6 61.6 L58.4 74.4 M45.6 74.4 L58.4 61.6" stroke="#4b5760" stroke-width="1.6"/><circle cx="52" cy="68" r="2.4" fill="#0b1015"/></g><g class="wh" style="transform-origin:166px 68px"><circle cx="166" cy="68" r="14" fill="#171d22"/><circle cx="166" cy="68" r="9.5" fill="#262e35"/><path d="M166 59 V77 M157 68 H175 M159.6 61.6 L172.4 74.4 M159.6 74.4 L172.4 61.6" stroke="#4b5760" stroke-width="1.6"/><circle cx="166" cy="68" r="2.4" fill="#0b1015"/></g></g></svg>`};
+const carTop=()=>{const n=++carN;return `<svg viewBox="0 0 60 110" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tb${n}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b9c2c9"/><stop offset=".3" style="stop-color:var(--car,#f4f6f8)"/><stop offset=".7" style="stop-color:var(--car,#f4f6f8)"/><stop offset="1" stop-color="#b9c2c9"/></linearGradient></defs><ellipse cx="30" cy="58" rx="27" ry="50" fill="#000" opacity=".3"/><rect x="5.5" y="15" width="7" height="17" rx="3" fill="#0b1015"/><rect x="47.5" y="15" width="7" height="17" rx="3" fill="#0b1015"/><rect x="5.5" y="74" width="7" height="17" rx="3" fill="#0b1015"/><rect x="47.5" y="74" width="7" height="17" rx="3" fill="#0b1015"/><path d="M30 3 C44 3 51 13 51 28 L51 86 C51 99 44 107 30 107 C16 107 9 99 9 86 L9 28 C9 13 16 3 30 3 Z" fill="url(#tb${n})" stroke="#8d98a1" stroke-width=".8"/><path d="M18 9 Q30 6 42 9" stroke="#20262b" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M19 20 Q30 15 41 20" stroke="#8d98a1" stroke-width=".8" fill="none"/><path d="M17 41 Q30 34 43 41 L40 55 L20 55 Z" fill="#16222d"/><path d="M21 43 Q30 39 37 42" stroke="#fff" stroke-opacity=".3" stroke-width="1.2" fill="none"/><rect x="18" y="55" width="24" height="26" rx="4" fill="#e8edf0" stroke="#c4ccd2" stroke-width=".6"/><path d="M19 82 L41 82 L44 92 Q30 96 16 92 Z" fill="#16222d"/><ellipse cx="6.5" cy="50" rx="3.2" ry="4.5" fill="#20262b"/><ellipse cx="53.5" cy="50" rx="3.2" ry="4.5" fill="#20262b"/><path d="M12 8 L19 6 L18 11 L11 13 Z" fill="#ffe9a8"/><path d="M48 8 L41 6 L42 11 L49 13 Z" fill="#ffe9a8"/><rect x="12" y="101" width="8" height="3" rx="1.2" fill="#e23b3b"/><rect x="40" y="101" width="8" height="3" rx="1.2" fill="#e23b3b"/></svg>`};
+const CAR_COL=['#f4f6f8','#2a3036','#aeb7bf','#d33a3a','#2f6fd6','#f2c230'];
+const carEl=()=>{const d=el('div','mk-cartop');d.innerHTML=carTop();return d};
+function brg(g,i){const a=g[i],b=g[Math.min(g.length-1,i+3)],r=Math.PI/180,y=Math.sin((b[1]-a[1])*r)*Math.cos(b[0]*r),x=Math.cos(a[0]*r)*Math.sin(b[0]*r)-Math.sin(a[0]*r)*Math.cos(b[0]*r)*Math.cos((b[1]-a[1])*r);return(Math.atan2(y,x)/r+360)%360}
+sfx.rev=()=>{tone(90,0,.9,'sawtooth',.05,260);tone(140,.05,.8,'square',.02,320)};
+function applyCar(){
+  const c=cfg.car||{};document.body.style.setProperty('--car',c.color||CAR_COL[0]);
+  $('cSide').innerHTML=carSide();$('cName').textContent=c.name||'My car';$('cSpec').textContent=c.spec||'';
+  document.querySelectorAll('#carCols button').forEach(b=>b.classList.toggle('on',b.dataset.c===(c.color||CAR_COL[0])));
+}
+function paintGarage(){
+  const ch=$('cChips');ch.textContent='';const rem=cfg.rem||{},today=new Date(new Date().toDateString());
+  Object.keys(REM).forEach(k=>{if(!rem[k])return;const d=Math.ceil((new Date(rem[k])-today)/864e5);ch.append(el('span','chip '+(d<=7?'rd':d<=30?'am':'ok'),`${REM[k]} ${d<0?'overdue':d===0?'today':d+' d'}`))});
+  const st=fillStats(),bx=$('cStats');bx.textContent='';
+  const add=(k,v)=>{const d=el('div','',k);d.append(el('b','',v));bx.append(d)};
+  add('Real mpg',st.mpg?st.mpg.toFixed(1):'--');add('This month',st.spend?'\u00a3'+st.spend.toFixed(0):'--');
+  if(fcData&&fcData.hours){let n=0;for(const h of fcData.hours){if(h.rain>=30)break;n++}add('Car wash',n>=fcData.hours.length?'dry 36h+':n>=8?`dry ${n}h`:n===0?'raining':`rain in ${n}h`)}
+}
+$('tCar').onclick=e=>{if(e.target.closest('.road')){const t=$('tCar');t.classList.add('drive');sfx.rev();setTimeout(()=>t.classList.remove('drive'),1400)}else openLog()};
+function paintCarSettings(){const c=cfg.car||{};$('carName').value=c.name||'';$('carSpec').value=c.spec||'';applyCar()}
+function readCar(){cfg.car=Object.assign({},cfg.car,{name:$('carName').value.trim().slice(0,30),spec:$('carSpec').value.trim().slice(0,60)})}
+CAR_COL.forEach(c=>{const b=el('button');b.dataset.c=c;b.style.setProperty('--c',c);b.setAttribute('aria-label','Car colour');b.onclick=()=>{cfg.car=Object.assign({},cfg.car,{color:c});saveCfg();applyCar()};$('carCols').append(b)});
+$('bootCar').innerHTML=carSide();applyCar();
+// satellite imagery toggle for the big maps
+const addSat=m=>{m.addSource('sat',{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19,attribution:'Imagery \u00a9 Esri'});m.addLayer({id:'sat',type:'raster',source:'sat',layout:{visibility:'none'}})};
+function satToggle(getCtl){let on=false;$('mvSat').classList.remove('on');window.__satToggle=()=>{on=!on;const c=getCtl();if(c&&c.setSat)c.setSat(on);$('mvSat').classList.toggle('on',on)}}
+$('mvSat').onclick=()=>{if(window.__satToggle)window.__satToggle()};
+
 // ---------- leave-by, favourites, forecast, insights, reminders, trip mode ----------
 const getLoc=w=>/^fav\d$/.test(w)?(cfg.favs||[])[+w[3]]:cfg[w+'Loc'];
 function setLoc(w,v){if(/^fav\d$/.test(w)){cfg.favs=cfg.favs||[];cfg.favs[+w[3]]=v}else{cfg[w+'Loc']=v;delete cfg[w]}}
@@ -1419,6 +1477,12 @@ function paintForecast(){
   const row=$('fcRow');row.textContent='';
   hrs.forEach((h,i)=>{if(i%3)return;const c=el('div','st'),ic=el('span','si');ic.innerHTML=wxIcon(h.desc);c.append(el('span','tm',i===0?'Now':h.h),ic,el('b','',h.t+'\u00b0'),el('span','pl',h.rain+'% rain'));row.append(c)});
   const wet=hrs.find(h=>h.rain>=50),cold=hrs.find(h=>h.t<=2);
+  const fx=$('fcX');fx.textContent='';
+  const lab=(v,t)=>t.find(x=>v<=x[0])[1];
+  if(d.uv!=null)fx.append(el('span','chip '+(d.uv>=6?'am':'ok'),`UV ${d.uv} ${lab(d.uv,[[2,'low'],[5,'moderate'],[7,'high'],[10,'very high'],[99,'extreme']])}`));
+  if(d.aqi!=null)fx.append(el('span','chip '+(d.aqi>60?'rd':d.aqi>40?'am':'ok'),`Air ${lab(d.aqi,[[20,'good'],[40,'fair'],[60,'moderate'],[80,'poor'],[999,'very poor']])}`));
+  if(d.pollen!=null)fx.append(el('span','chip '+(d.pollen>=90?'rd':d.pollen>=20?'am':'ok'),`Pollen ${lab(d.pollen,[[19,'low'],[89,'moderate'],[9999,'high']])}`));
+  paintGarage();
   $('fcS').textContent=(wet?`Rain likely from ${wet.h} (${wet.rain}%)`:'No rain expected in the next 12 hours')+(cold?`. Frost risk from ${cold.h}`:'')+(d.sunset?`. Sunset ${d.sunset}`:'');
 }
 function paintInsights(){
@@ -1433,7 +1497,7 @@ function paintInsights(){
   const avg=Math.round(a.reduce((t,x)=>t+x.min,0)/a.length);
   $('insS').textContent=mx-mn>=2?`${D[vals.indexOf(mx)]} is your slowest day (${mx} min), ${D[vals.indexOf(mn)]} your quickest (${mn}). Typical ${avg} min over ${a.length} trips.`:`Typical ${avg} min over ${a.length} trips.`;
 }
-function loadExtras(){loadLeaveBy();loadPlaces();loadForecast();paintInsights()}
+function loadExtras(){paintGarage();loadLeaveBy();loadPlaces();loadForecast();paintInsights()}
 document.querySelectorAll('#fcSeg button').forEach(b=>b.onclick=()=>{fcWhich=b.dataset.w;document.querySelectorAll('#fcSeg button').forEach(x=>x.classList.toggle('on',x===b));loadForecast()});
 // settings: targets, favourites, reminders
 function paintExtras(){
@@ -1465,7 +1529,7 @@ function startTrip(r){
   if(!navigator.geolocation){alert('Location is not available here.');return}
   if(trip)stopTrip();
   trip={r,mi:r.options[0].miles,eta:r.eta?r.eta.min:r.options[0].min,said:{},last:null,fuel:stations.length?stationsOnRoute(r.geom):[]};
-  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('drive').classList.add('open');tripUI(0,0,null,false);
+  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('dPos').innerHTML=carSide();$('drive').classList.add('open');tripUI(0,0,null,false);
   try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>{if(trip)trip.wake=l}).catch(()=>{})}catch(e){}
   trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
 }
@@ -1480,7 +1544,7 @@ function tripUI(along,off,spd,live){
   const t=trip,rem=Math.max(0,1-along),remMin=rem>0.02?Math.max(1,Math.round(t.eta*rem)):0;
   $('dEta').textContent=new Date(Date.now()+remMin*60000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
   $('dRem').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(1)} mi to go`;
-  $('dPos').style.left=(Math.min(1,along)*100)+'%';$('dSpd').textContent=spd==null?'--':String(Math.round(spd));
+  $('dPos').style.left=(Math.min(1,along)*100)+'%';$('dPos').style.setProperty('--ws',spd>1?Math.max(.12,2/(spd/10))+'s':'0s');$('dSpd').textContent=spd==null?'--':String(Math.round(spd));
   const inc=(t.r.incidents||[]).map(i=>({...i,a:project(t.r.geom,i.lat,i.lon).along})).filter(i=>i.a>along+0.003).sort((a,b)=>a.a-b.a)[0];
   if(inc){const d=(inc.a-along)*t.mi,nm=inc.text.split(':')[0];$('dAhead').textContent=`${d.toFixed(1)} mi: ${nm}`;if(live&&d<=5&&!t.said[inc.text]){t.said[inc.text]=1;speak(`${nm} ahead in ${Math.round(d)} miles.`)}}else $('dAhead').textContent='Clear';
   const f=t.fuel.filter(s=>s.along>along+0.01&&(s.along-along)*t.mi<40).sort((a,b)=>a.price-b.price)[0];
@@ -1570,7 +1634,8 @@ async function mountMap(div,r,o){
   catch(e){drawMapLeaflet(div,r);return null}
   map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
   if(o.interactive)map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
-  const ctl={want:o.sel||0,markers:[],fuelMk:[],destroy(){dead=true;try{map.remove()}catch(e){}}};
+  const ctl={want:o.sel||0,markers:[],fuelMk:[],destroy(){dead=true;cancelAnimationFrame(ctl.raf);try{map.remove()}catch(e){}}};
+  ctl.setSat=on=>{try{map.setLayoutProperty('sat','visibility',on?'visible':'none')}catch(e){}};
   const fallback=()=>{if(dead)return;ctl.destroy();div.textContent='';drawMapLeaflet(div,r)};
   const timer=setTimeout(()=>{if(!loaded)fallback()},9000);
   let etaMk=null;
@@ -1598,7 +1663,14 @@ async function mountMap(div,r,o){
     etaMk.setLngLat([mid[1],mid[0]]);etaMk.getElement().textContent=timeOf(r,i)+' min';
     const bd=new maplibregl.LngLatBounds();g.forEach(p=>bd.extend([p[1],p[0]]));
     map.fitBounds(bd,{padding:o.interactive?{top:70,bottom:50,left:40,right:40}:{top:40,bottom:40,left:34,right:34},maxZoom:15,duration:animate?700:0});
-    ctl.refreshFuel();
+    ctl.refreshFuel();if(o.interactive)startPreview();
+  }
+  function startPreview(){
+    if(reduceMotion()||!window.requestAnimationFrame||!ctl.car)return;cancelAnimationFrame(ctl.raf);
+    const g=geomOf(r,ctl.want),t0=performance.now(),dur=Math.min(22000,Math.max(9000,g.length*140));
+    const step=t=>{if(dead)return;const p=Math.min(1,((t-t0)%(dur+1800))/dur)*(g.length-1),i=Math.min(g.length-2,Math.floor(p)),u=p-i;
+      ctl.car.setLngLat([g[i][1]+(g[i+1][1]-g[i][1])*u,g[i][0]+(g[i+1][0]-g[i][0])*u]);ctl.car.setRotation(brg(g,i));ctl.raf=requestAnimationFrame(step)};
+    ctl.raf=requestAnimationFrame(step);
   }
   map.on('load',()=>{
     loaded=true;clearTimeout(timer);if(dead)return;
@@ -1607,6 +1679,7 @@ async function mountMap(div,r,o){
       map.addSource('alts',{type:'geojson',data:FC([])});
       map.addSource('main',{type:'geojson',data:FC([]),lineMetrics:true});
       map.addSource('jams',{type:'geojson',data:FC([])});
+      try{addSat(map)}catch(e){}
       map.addLayer({id:'alts-hit',type:'line',source:'alts',layout:cap,paint:{'line-width':18,'line-opacity':0}});
       map.addLayer({id:'alts-line',type:'line',source:'alts',layout:cap,paint:{'line-color':'#8aa6ba','line-width':3,'line-opacity':.5}});
       map.addLayer({id:'main-glow',type:'line',source:'main',layout:cap,paint:{'line-color':ACC(),'line-width':14,'line-opacity':.22,'line-blur':6}});
@@ -1614,7 +1687,7 @@ async function mountMap(div,r,o){
       catch(e){ctl.grad=false;map.addLayer({id:'main-line',type:'line',source:'main',layout:cap,paint:{'line-color':ACC(),'line-width':4.5}})}
       map.addLayer({id:'jams-line',type:'line',source:'jams',layout:cap,paint:{'line-color':['match',['get','m'],1,JAM_COL[1],2,JAM_COL[2],JAM_COL[3]],'line-width':5}});
       const g0=r.geom[0],g1=r.geom[r.geom.length-1];
-      ctl.markers.push(new maplibregl.Marker({element:el('div','mk-start')}).setLngLat([g0[1],g0[0]]).addTo(map));
+      const carMk=new maplibregl.Marker({element:carEl(),rotation:brg(r.geom,0),rotationAlignment:'map'}).setLngLat([g0[1],g0[0]]).addTo(map);ctl.markers.push(carMk);ctl.car=carMk;
       ctl.markers.push(new maplibregl.Marker({element:el('div','mk-end')}).setLngLat([g1[1],g1[0]]).addTo(map));
       (r.incidents||[]).forEach(i=>{
         const m=new maplibregl.Marker({element:el('div','mk-inc')}).setLngLat([i.lon,i.lat]);
@@ -1626,6 +1699,7 @@ async function mountMap(div,r,o){
         map.on('mouseenter','alts-hit',()=>map.getCanvas().style.cursor='pointer');
         map.on('mouseleave','alts-hit',()=>map.getCanvas().style.cursor='');
       }
+      carMk.getElement().onclick=e=>{e.stopPropagation();startPreview()};
       ctl.ready=true;apply(ctl.want,false);
     }catch(e){fallback()}
   });
@@ -1645,6 +1719,7 @@ function keepMaps(ctl,div,reload){
 
 let fullCtl=null;
 function openFull(r,sel,onSelect,syncList,chipRow,paintAll){
+  satToggle(()=>fullCtl);
   const view=$('mapview');
   $('mvTitle').textContent=`${r.from} \u2192 ${r.to}`;
   view.classList.add('open');
