@@ -366,10 +366,17 @@
   .cartop::after{content:"";position:absolute;inset:0;background:var(--car,#f4f6f8);-webkit-mask:var(--sprTop) center/contain no-repeat;mask:var(--sprTop) center/contain no-repeat;mix-blend-mode:multiply}
   .mk-cartop{width:34px!important;height:67px!important}
   .road{height:112px!important}.cside{width:205px!important}
+  #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 120px);transform:translate(-50%,20px);z-index:60;background:#06121ff2;border:1px solid var(--glow);color:var(--ink);border-radius:999px;padding:9px 18px;font-size:.84rem;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #tiles>.tile[data-off="1"]{display:none!important}
+  body[data-mood=night] .cside .hl,body[data-mood=rain] .cside .hl{opacity:1}
+  .hrow{display:flex;justify-content:space-between;gap:10px;font-size:.84rem;padding:8px 0;border-top:1px solid var(--line)}.hrow span:last-child{color:var(--dim);text-align:right;font-size:.74rem}
+  .hrow.ok b{color:var(--ok)}.hrow.no b{color:var(--bad)}.hrow.op b{color:var(--warn)}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<div id="toast"></div>
 <div id="ptr">Release to refresh</div>
 <div id="boot" role="button" aria-label="Tap to begin">
   <svg viewBox="-60 -60 120 120"><circle class="b1" r="56"/><circle class="b2" r="46"/><circle class="b3" r="34"/><circle class="bcore" r="20"/></svg>
@@ -477,6 +484,8 @@
     <details class="dd"><summary>Vehicle reminders</summary>
       <label>MOT due<input type="date" id="rm_mot"></label><label>Road tax due<input type="date" id="rm_tax"></label><label>Insurance renewal<input type="date" id="rm_ins"></label><label>Next service<input type="date" id="rm_svc"></label>
     </details>
+    <details class="dd"><summary>Dashboard tiles</summary><div class="note">Show or hide sections of the dashboard.</div><div class="toggles" id="tileTog"></div></details>
+    <details class="dd"><summary>Setup status</summary><div class="toggles"><button class="pill" id="hcRun">Check now</button></div><div id="hcList"></div></details>
     <details class="dd"><summary>Delay alerts</summary>
       <div class="note">Get a notification when your usual journey is running slow. On iPhone this only works from the Home Screen app. It needs the Worker's storage and schedule set up (see the setup steps).</div>
       <div class="toggles"><button class="pill" id="alEnable">Turn on alerts</button><button class="pill" id="alTest">Send test</button></div>
@@ -603,7 +612,7 @@ $('sSave').onclick=()=>{
   else if(n>80&&n<300&&(!fstore.manual||fstore.manual.ppl!==n)){fstore.manual={ppl:n,ts:Date.now()};saveF()}
   paintFuel();
   if(cfg.alerts&&cfg.alerts.on)pushSync();
-  closeSettings();live=null;commuteUI=null;tick();paintCommute();loadDash(true);
+  closeSettings();toast('Saved');live=null;commuteUI=null;tick();paintCommute();loadDash(true);
 };
 paintHF();
 function paintALoc(){$('aloc').classList.toggle('on',cfg.autoLoc!==false)}
@@ -1278,7 +1287,7 @@ $('lSave').onclick=()=>{
 
 // ---------- backup, restore, privacy ----------
 const BK_KEYS=['jarvisCfg','fuel','jarvisHist','jarvisFills','jarvisPrefs','snd','hf','worker'];
-function flash(btn,t){const o=btn.textContent;btn.textContent=t;setTimeout(()=>btn.textContent=o,1400)}
+function flash(btn,t){toast(t)}
 $('bkCopy').onclick=async()=>{
   const o={v:1,app:'jarvis',at:new Date().toISOString(),data:{}};
   BK_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!=null)o.data[k]=v});
@@ -1423,6 +1432,46 @@ $('bootCar').innerHTML=carSide();applyCar();
 const addSat=m=>{m.addSource('sat',{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19,attribution:'Imagery \u00a9 Esri'});m.addLayer({id:'sat',type:'raster',source:'sat',layout:{visibility:'none'}})};
 function satToggle(getCtl){let on=false;$('mvSat').classList.remove('on');window.__satToggle=()=>{on=!on;const c=getCtl();if(c&&c.setSat)c.setSat(on);$('mvSat').classList.toggle('on',on)}}
 $('mvSat').onclick=()=>{if(window.__satToggle)window.__satToggle()};
+
+// ---------- toast, tile toggles, setup status, voice shortcuts ----------
+let toastT=null;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200)}
+const TILES={tCar:'Garage',tFc:'Forecast',tPlaces:'Places',tFuel:'Fuel prices',tIns:'Insights',tNews:'Headlines'};
+function applyTiles(){Object.keys(TILES).forEach(id=>{const t=$(id);if(t)t.dataset.off=(cfg.hide&&cfg.hide[id])?'1':''});document.querySelectorAll('#tileTog button').forEach(b=>b.classList.toggle('on',!(cfg.hide&&cfg.hide[b.dataset.t])))}
+Object.keys(TILES).forEach(id=>{const b=el('button','pill',TILES[id]);b.dataset.t=id;b.onclick=()=>{cfg.hide=cfg.hide||{};cfg.hide[id]=!cfg.hide[id];saveCfg();applyTiles()};$('tileTog').append(b)});
+applyTiles();
+async function runHealth(){
+  const box=$('hcList');box.textContent='';
+  const row=(state,name,note)=>{const r=el('div','hrow '+state);r.append(el('b','',(state==='ok'?'\u2713 ':state==='no'?'\u2717 ':'\u25cb ')+name),el('span','',note||''));box.append(r)};
+  let h=null;
+  try{h=await post('/health',{})}catch(e){}
+  if(!getWorker())row('no','Worker URL','Add it under Connection');
+  else if(!h)row('no','Worker reachable','Could not reach it. Check the URL and that it is deployed');
+  else{
+    row('ok','Worker reachable','version '+h.v);
+    row(h.tomtom?'ok':'no','TomTom key',h.tomtom?'':'Add the TOMTOM_API_KEY secret');
+    row(h.anthropic?'ok':'no','Claude key',h.anthropic?'':'Add the ANTHROPIC_API_KEY secret');
+    row(h.kv?'ok':'op','Storage for alerts',h.kv?'':'Optional: bind a KV namespace called STORE');
+    row(h.here?'ok':'op','HERE traffic',h.here?'':'Optional extra source');
+    row(h.mapbox?'ok':'op','Mapbox traffic',h.mapbox?'':'Optional extra source');
+  }
+  row(placeText('home')&&placeText('work')?'ok':'no','Home and work',placeText('home')&&placeText('work')?'':'Set both under Your places');
+  row(stations.length?'ok':'op','Fuel price data',stations.length?stations.length+' stations, '+ago(fuelUpdated):'Run the Update fuel prices workflow on GitHub');
+  row(isStandalone()?'ok':'op','Home Screen app',isStandalone()?'':'Needed for notifications on iPhone');
+  row(window.Notification?(Notification.permission==='granted'?'ok':'op'):'op','Notifications',window.Notification?Notification.permission:'not supported');
+  row(navigator.geolocation?'ok':'op','Location',navigator.geolocation?'allowed when you tap Use my location':'not available');
+}
+$('hcRun').onclick=runHealth;
+function localIntent(t){
+  const s=t.toLowerCase(),say=m=>{add('u',t);add('j',m);speak(m)};
+  if(/\b(start|begin)\b.*\b(trip|drive|journey)\b/.test(s)){say(`Starting your trip, ${title()}.`);startTrip(commuteUI);return true}
+  if(/\b(stop|end|finish)\b.*\b(trip|drive|journey)\b/.test(s)){say('Trip ended.');stopTrip();return true}
+  if(/\b(best time to leave|leave times?)\b/.test(s)){say('Checking the best times to leave.');openLeave();return true}
+  if(/\b(cheapest|nearest|closest)\b.*\b(petrol|fuel|diesel)\b|\b(petrol|fuel)\b.*\bmap\b/.test(s)){say('Opening nearby fuel prices.');openStationsMap();return true}
+  if(/\bshare\b.*\beta\b/.test(s)){say('Opening the share sheet.');shareEta(commuteUI,dir);return true}
+  if(/\bopen\b.*\bsettings\b/.test(s)){say('Opening settings.');openSettings();return true}
+  return false;
+}
 
 // ---------- leave-by, favourites, forecast, insights, reminders, trip mode ----------
 const getLoc=w=>/^fav\d$/.test(w)?(cfg.favs||[])[+w[3]]:cfg[w+'Loc'];
@@ -1877,6 +1926,7 @@ function buildSystem(){
 }
 async function ask(text,opts){
   if(busy)return;
+  if(!(opts&&opts.raw)&&localIntent(text))return;
   const url=getWorker();
   if(!url){add('e','Open Settings (top left) and add your Worker URL first.');openSettings();return}
   busy=true;add('u',text);history.push({role:'user',content:text});
