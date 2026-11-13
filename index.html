@@ -372,11 +372,41 @@
   body[data-mood=night] .cside .hl,body[data-mood=rain] .cside .hl{opacity:1}
   .hrow{display:flex;justify-content:space-between;gap:10px;font-size:.84rem;padding:8px 0;border-top:1px solid var(--line)}.hrow span:last-child{color:var(--dim);text-align:right;font-size:.74rem}
   .hrow.ok b{color:var(--ok)}.hrow.no b{color:var(--bad)}.hrow.op b{color:var(--warn)}
+  /* ---- weather + time-of-day theming ---- */
+  @property --top{syntax:'<color>';inherits:true;initial-value:#0b2a47}
+  @property --tint{syntax:'<color>';inherits:true;initial-value:#00000000}
+  body{transition:--top 2.5s ease,--tint 2.5s ease;--tint:#00000000}
+  body[data-tod=day]{--top:#0f3f6a}body[data-tod=dawn]{--top:#47305e}body[data-tod=dusk]{--top:#522f35}body[data-tod=night]{--top:#08142a}
+  body[data-mood=cloud]{--top:#1c3348}body[data-mood=clear][data-tod=day]{--top:#145888;--tint:#ffd27a14}
+  body[data-mood=rain]{--top:#12303f;--tint:#4a90d824}body[data-mood=thunder]{--top:#1a1633;--tint:#8a6ad926}
+  body[data-mood=snow]{--top:#24415a;--tint:#cfe6ff1e}body[data-mood=fog]{--top:#27333c;--tint:#9aa8b222}
+  body[data-tod=night][data-mood=rain]{--top:#0a1f2c}body[data-tod=night][data-mood=cloud]{--top:#0c1a2b}
+  .tile,.card{box-shadow:inset 0 1px 0 #ffffff12,inset 0 0 44px var(--tint),0 10px 30px #0006}
+  #fx{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+  #fx i{position:absolute;inset:0;opacity:0;transition:opacity 2s ease}
+  .fxr{background:repeating-linear-gradient(100deg,transparent 0 16px,#b4d8ff30 16px 17px),repeating-linear-gradient(100deg,transparent 0 31px,#b4d8ff1c 31px 32px);background-size:64px 150px,96px 230px;animation:rain .55s linear infinite;-webkit-mask-image:linear-gradient(#000,transparent 88%);mask-image:linear-gradient(#000,transparent 88%)}
+  @keyframes rain{to{background-position:-26px 150px,-40px 230px}}
+  .fxs{background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(3px 3px at 90px 80px,#fff,transparent),radial-gradient(2px 2px at 150px 140px,#fff,transparent),radial-gradient(2px 2px at 60px 170px,#fff,transparent);background-size:200px 200px;animation:snow 10s linear infinite}
+  @keyframes snow{to{background-position:-30px 200px}}
+  .fxf{background:radial-gradient(60% 30% at 20% 30%,#cfd8e040,transparent),radial-gradient(70% 35% at 80% 62%,#cfd8e02e,transparent);filter:blur(24px);animation:fogd 22s ease-in-out infinite alternate}
+  @keyframes fogd{to{transform:translate3d(8%,3%,0)}}
+  .fxn{background-image:radial-gradient(1.2px 1.2px at 8% 10%,#fff,transparent),radial-gradient(1.2px 1.2px at 22% 24%,#fff,transparent),radial-gradient(1.2px 1.2px at 37% 8%,#fff,transparent),radial-gradient(1.2px 1.2px at 51% 19%,#fff,transparent),radial-gradient(1.2px 1.2px at 66% 7%,#fff,transparent),radial-gradient(1.2px 1.2px at 79% 22%,#fff,transparent),radial-gradient(1.2px 1.2px at 91% 12%,#fff,transparent),radial-gradient(1.2px 1.2px at 14% 38%,#fff,transparent),radial-gradient(1.2px 1.2px at 44% 33%,#fff,transparent),radial-gradient(1.2px 1.2px at 72% 40%,#fff,transparent),radial-gradient(1.2px 1.2px at 88% 30%,#fff,transparent),radial-gradient(1.2px 1.2px at 30% 50%,#fff,transparent);animation:twinkle 5s ease-in-out infinite alternate}
+  @keyframes twinkle{50%{filter:brightness(.55)}}
+  .fxd{background:radial-gradient(34% 24% at 86% 6%,#ffd27a66,transparent 70%)}
+  body[data-mood=rain] .fxr,body[data-mood=thunder] .fxr,body[data-mood=snow] .fxs,body[data-mood=fog] .fxf,body[data-tod=night] .fxn,body[data-mood=clear][data-tod=day] .fxd{opacity:1}
+  body[data-tod=night][data-mood=rain] .fxn,body[data-tod=night][data-mood=thunder] .fxn,body[data-tod=night][data-mood=snow] .fxn,body[data-tod=night][data-mood=fog] .fxn{opacity:.25}
+  body[data-tod=dawn][data-mood=clear] .fxd,body[data-tod=dusk][data-mood=clear] .fxd{opacity:1;background:radial-gradient(70% 26% at 50% 100%,#ff9a6a70,transparent 72%)}
+  body[data-mood=thunder]::before{content:"";position:fixed;inset:0;z-index:-1;background:#d6e8ff;opacity:0;pointer-events:none;animation:flash 8s infinite}
+  @keyframes flash{0%,90%,94%,100%{opacity:0}91%{opacity:.20}92%{opacity:.03}93%{opacity:.14}}
+  body[data-fx=off] #fx,body[data-fx=off]::before{display:none}
+  body[data-mood=rain] .wi,body[data-mood=thunder] .wi{color:#8ec5ff}body[data-mood=clear][data-tod=day] .wi{color:#ffd27a}body[data-mood=snow] .wi{color:#dff0ff}
+  .n2.cold{color:#9bd8ff}.n2.hot{color:#ffb76b}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div id="toast"></div>
+<div id="fx"><i class="fxr"></i><i class="fxs"></i><i class="fxf"></i><i class="fxn"></i><i class="fxd"></i></div>
 <div id="ptr">Release to refresh</div>
 <div id="boot" role="button" aria-label="Tap to begin">
   <svg viewBox="-60 -60 120 120"><circle class="b1" r="56"/><circle class="b2" r="46"/><circle class="b3" r="34"/><circle class="bcore" r="20"/></svg>
@@ -465,7 +495,7 @@
     <label>Car economy, combined mpg (optional)<input id="sMpg" inputmode="decimal" placeholder="e.g. 45" autocomplete="off"></label>
     <label>Tank size, litres (used for savings estimates)<input id="sTank" inputmode="decimal" placeholder="40" autocomplete="off"></label>
     <div class="sec">Behaviour</div>
-    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button><button class="pill" id="bigtxt">Larger text</button></div>
+    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button><button class="pill" id="bigtxt">Larger text</button><button class="pill" id="fxtog">Weather effects</button></div>
     <div class="sec">Accent colour</div>
     <div class="sw"><button data-a="" style="--c:#4cc9f0" aria-label="Blue"></button><button data-a="teal" style="--c:#3de0c8" aria-label="Teal"></button><button data-a="violet" style="--c:#a79bff" aria-label="Violet"></button><button data-a="amber" style="--c:#ffb454" aria-label="Amber"></button></div>
     <details class="dd"><summary>My car</summary>
@@ -1110,12 +1140,18 @@ function routeIce(r){
   }
   return frost;
 }
-function applyMood(){
-  const w=(live&&live.weather)||[],h=w.find(x=>/home/i.test(x.name)),hr=+londonPart('hour'),d=h?String(h.desc):'';
-  let m='clear';
-  if(hr>=21||hr<5)m='night';else if(/snow/.test(d))m='snow';else if(/rain|drizzle|shower|thunder/.test(d))m='rain';else if(/fog/.test(d))m='fog';
-  document.body.dataset.mood=m;
+function applyMood(nowMin){
+  const w=(live&&live.weather)||[],hm=w.find(x=>/home/i.test(x.name)),d=hm?String(hm.desc):'';
+  const mood=/thunder/.test(d)?'thunder':/snow/.test(d)?'snow':/rain|drizzle|shower/.test(d)?'rain':/fog/.test(d)?'fog':/overcast|cloud/.test(d)?'cloud':'clear';
+  const now=nowMin!=null?nowMin:(+londonPart('hour')*60+ +londonPart('minute'));
+  const mm=s=>{const p=String(s||'').split(':');return p.length>1?+p[0]*60+ +p[1]:null};
+  const sr=mm(fcData&&fcData.sunrise)??7*60,ss=mm(fcData&&fcData.sunset)??18*60;
+  const tod=now<sr-45||now>ss+45?'night':now<sr+45?'dawn':now>ss-45?'dusk':'day';
+  const b=document.body;b.dataset.mood=mood;b.dataset.tod=tod;b.dataset.fx=cfg.fx===false?'off':'';
+  [['wH',hm],['wW',w.find(x=>/work/i.test(x.name))]].forEach(([id,x])=>{const n=$(id);if(n&&x){n.classList.toggle('cold',x.t<=3);n.classList.toggle('hot',x.t>=22)}});
+  $('fxtog')&&$('fxtog').classList.toggle('on',cfg.fx!==false);
 }
+$('fxtog').onclick=()=>{cfg.fx=cfg.fx===false;saveCfg();applyMood();toast(cfg.fx===false?'Weather effects off':'Weather effects on')};
 
 // ---------- commute memory (stays on this phone) ----------
 function recordTrip(r){
@@ -1536,7 +1572,7 @@ function paintForecast(){
   if(d.uv!=null)fx.append(el('span','chip '+(d.uv>=6?'am':'ok'),`UV ${d.uv} ${lab(d.uv,[[2,'low'],[5,'moderate'],[7,'high'],[10,'very high'],[99,'extreme']])}`));
   if(d.aqi!=null)fx.append(el('span','chip '+(d.aqi>60?'rd':d.aqi>40?'am':'ok'),`Air ${lab(d.aqi,[[20,'good'],[40,'fair'],[60,'moderate'],[80,'poor'],[999,'very poor']])}`));
   if(d.pollen!=null)fx.append(el('span','chip '+(d.pollen>=90?'rd':d.pollen>=20?'am':'ok'),`Pollen ${lab(d.pollen,[[19,'low'],[89,'moderate'],[9999,'high']])}`));
-  paintGarage();
+  paintGarage();applyMood();
   $('fcS').textContent=(wet?`Rain likely from ${wet.h} (${wet.rain}%)`:'No rain expected in the next 12 hours')+(cold?`. Frost risk from ${cold.h}`:'')+(d.sunset?`. Sunset ${d.sunset}`:'');
 }
 function paintInsights(){
