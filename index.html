@@ -482,6 +482,15 @@ button:active,.btn:active,.tile[role=button]:active,.road:active{transform:scale
 #toast{max-width:88vw;text-align:center;border-radius:16px;line-height:1.35;font-family:var(--mono);font-size:.78rem}
 #toast.warn{border-color:var(--warn);color:#ffe2b0}
 #log>.card,#log>.m{will-change:transform}
+/* ===== DESIGN PASS v4 ===== */
+#wave{display:none;justify-content:center;align-items:center;gap:3px;height:22px;margin-bottom:4px}
+#wave i{width:3px;height:6px;border-radius:2px;background:var(--glow);box-shadow:0 0 8px var(--ga);animation:wv .9s ease-in-out infinite}
+#wave i:nth-child(3n+1){animation-delay:.12s}
+#wave i:nth-child(3n+2){animation-delay:.27s}
+#wave i:nth-child(4n){animation-duration:.7s}
+@keyframes wv{50%{height:20px}}
+#dock:has(#hud.listening) #wave,#dock:has(#hud.speaking) #wave{display:flex}
+#news .sk{display:block;height:1em;margin:10px 0}
 </style>
 </head>
 <body>
@@ -543,14 +552,14 @@ button:active,.btn:active,.tile[role=button]:active,.road:active{transform:scale
       <div class="note2" id="fNote"></div>
     </div>
     <div class="tile wide" id="tIns" style="display:none"><div class="ct" id="insT">Commute insights</div><div class="ibars" id="insBars"></div><div class="sub" id="insS"></div></div>
-    <div class="tile wide" id="tNews" role="button" tabindex="0"><div class="ct">Headlines</div><div id="news"><div class="sub">Loading...</div></div></div>
+    <div class="tile wide" id="tNews" role="button" tabindex="0"><div class="ct">Headlines</div><div id="news"><div class="sk">Loading the headlines now</div><div class="sk">Checking the news feeds again</div><div class="sk">One more headline loading</div></div></div>
   </section>
 
   <div id="log" aria-live="polite"></div>
 </div>
 
 <div id="dock">
-  <div id="status">Tap the orb and speak</div>
+  <div id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div id="status">Tap the orb and speak</div>
   <button id="hear">Tap to hear the reply</button>
   <div class="q">
     <button id="qb">Briefing</button><button id="qw">To work</button><button id="qh">To home</button><button id="ql">Leave by&hellip;</button><button id="qt">Leave times</button><button id="qp">Petrol near me</button><button id="qr">Replay</button><button id="qc">Clear</button>
@@ -2170,6 +2179,8 @@ $('qc').onclick=()=>{log.textContent='';history=[];lastReply='';toast('Cleared')
  log.addEventListener('touchend',()=>{if(!c)return;const k=c;c=null;if(!go)return;k.style.transition='transform .25s cubic-bezier(.22,1,.36,1),opacity .25s';
   if(Math.abs(dx)>110){k.style.transform='translateX('+(dx>0?'110%':'-110%')+')';k.style.opacity=0;setTimeout(()=>{try{k.remove()}catch(e){}},230)}else{k.style.transform='';k.style.opacity=''}},{passive:true});
 })();
+// one-time hint about the swipe gesture
+setTimeout(()=>{if(commuteUI&&!cfg.hintSwipe&&!$('boot')){cfg.hintSwipe=1;saveCfg();toast('Tip: swipe the commute tile to flip direction')}},9000);
 </script>
 </body>
 </html>
