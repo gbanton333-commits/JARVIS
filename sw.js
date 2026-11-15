@@ -1,5 +1,5 @@
 // JARVIS service worker: keeps the app loading offline and shows delay-alert notifications.
-const C = 'jarvis-v14', F = ['./', 'index.html', 'manifest.json'];
+const C = 'jarvis-v15', F = ['./', 'index.html', 'manifest.json'];
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(C).then(c => c.addAll(F)).catch(() => {})); });
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', e => {
@@ -10,7 +10,7 @@ self.addEventListener('push', e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { title: 'JARVIS', body: e.data ? e.data.text() : '' }; }
   e.waitUntil(self.registration.showNotification(d.title || 'JARVIS', {
-    body: d.body || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: d.tag || 'jarvis', data: { url: d.url || './' },
+    body: d.body || '', icon: 'jarvis-192.png', badge: 'jarvis-192.png', tag: d.tag || 'jarvis', data: { url: d.url || './' },
   }));
 });
 self.addEventListener('notificationclick', e => {
