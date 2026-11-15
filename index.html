@@ -491,6 +491,15 @@ button:active,.btn:active,.tile[role=button]:active,.road:active{transform:scale
 @keyframes wv{50%{height:20px}}
 #dock:has(#hud.listening) #wave,#dock:has(#hud.speaking) #wave{display:flex}
 #news .sk{display:block;height:1em;margin:10px 0}
+/* ===== DESIGN PASS v5: audit fixes ===== */
+#upd,.note2{color:#6f8ea8}
+input::placeholder{color:#62809a}
+.dgrid div{min-width:0}.dgrid b{overflow-wrap:anywhere;line-height:1.25}
+.acts{flex-wrap:wrap}
+.acts .btn.pri{flex:1 1 100%}
+.acts .btn{flex:1 1 30%}
+#toast{bottom:calc(env(safe-area-inset-bottom) + 170px)}
+.place span{max-width:min(210px,52vw)}
 </style>
 </head>
 <body>
@@ -2008,7 +2017,7 @@ function routeCard(r){
     const ap=el('a','btn','Apple Maps');ap.href=amaps(r);ap.target='_blank';ap.rel='noopener';
     const sh=el('button','btn','Share ETA');sh.onclick=()=>shareEta(r,null);
     const tp=el('button','btn','Start trip');tp.onclick=()=>startTrip(r);
-    acts.append(g,tp,sh);c.append(acts);
+    acts.append(g,tp,ap,sh);c.append(acts);
   }
   log.appendChild(c);toEnd();
 
