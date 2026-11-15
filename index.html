@@ -457,6 +457,27 @@ button:active,.btn:active,.tile[role=button]:active,.road:active{transform:scale
 /* dock */
 #dock{padding:6px 14px calc(6px + env(safe-area-inset-bottom))}
 #hud{width:68px;height:68px}
+/* ===== DESIGN PASS v2 ===== */
+.cfm{position:fixed;inset:0;z-index:70;background:#000a;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;padding:16px 16px calc(16px + env(safe-area-inset-bottom));animation:fadein .2s ease}
+.cfm.out{opacity:0;transition:opacity .2s}
+.cfc{width:100%;max-width:420px;border:1px solid rgba(245,158,11,.5);border-radius:20px;background:linear-gradient(160deg,#1a1408,#0B0F17 60%);box-shadow:0 20px 50px #000c,0 0 40px rgba(245,158,11,.12);padding:18px;display:flex;flex-direction:column;gap:12px;animation:sheetup .35s var(--spring) backwards}
+.cft{font:600 .7rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--warn)}
+.cfb{font-size:.92rem;line-height:1.45}
+.cfc input{display:block;width:100%;background:#070B12;border:1px solid rgba(245,158,11,.35);border-radius:12px;color:var(--ink);padding:12px 14px;font-size:16px}
+.cfr{display:flex;gap:8px}
+.cfr .btn{flex:1;background:transparent;cursor:pointer;border:1px solid var(--line)}
+.cfr .btn.pri{flex:1.4;background:linear-gradient(135deg,#F59E0B,#fbbf4d);border-color:#F59E0B;color:#1a1100;box-shadow:0 6px 22px rgba(245,158,11,.3)}
+/* amber orb: awaiting approval / fault */
+#hud.error,body.cfm #hud{--glow:#F59E0B;--ga:rgba(245,158,11,.3)}
+#hud.error .core,body.cfm #hud .core{fill:#4a3008}
+#hud.error .core{animation:pulse 1s ease-in-out infinite}
+/* detail drawer */
+#dsheet{position:fixed;inset:0;z-index:42;background:#000b;display:none}
+#dsheet.open{display:flex;align-items:flex-end}
+#dsheet .panel{width:100%;max-width:560px;margin:0 auto;height:auto;max-height:80dvh;border-radius:22px 22px 0 0;border-right:0;border-top:1px solid var(--line);padding-top:10px;background:linear-gradient(180deg,var(--panel2),var(--bg));animation:sheetup .38s var(--spring) backwards;overscroll-behavior:contain}
+#dsheet .panel::before{content:"";display:block;width:38px;height:4px;border-radius:9px;background:#ffffff30;margin:0 auto 12px}
+.hl{font-size:.92rem;line-height:1.45;padding:11px 0;border-top:1px solid var(--line)}
+#tNews,#tFc{cursor:pointer}
 </style>
 </head>
 <body>
@@ -629,6 +650,7 @@ button:active,.btn:active,.tile[role=button]:active,.road:active{transform:scale
     <div class="pbtns"><button class="btn" id="pLoc">Use my location</button><button class="btn pri" id="pOk">Confirm</button></div>
   </div>
 </div>
+<div id="dsheet" role="dialog" aria-label="Details"><div class="panel"><div class="ph"><h2 id="dtT"></h2><button class="icon" id="dtX" aria-label="Close">&#10005;</button></div><div id="dtB"></div></div></div>
 <div id="mapview" role="dialog" aria-label="Route map">
   <div class="mvh"><div id="mvTitle">Route</div><button class="pill" id="mvSat">Satellite</button><button class="icon" id="mvClose" aria-label="Close map">&#10005;</button></div>
   <div id="mvMap"></div>
@@ -863,8 +885,8 @@ $('fLoc').onclick=async()=>{
   paintFuel();paintBrief();
 };
 $('fMap').onclick=()=>openStationsMap();
-$('fSet').onclick=()=>{
-  const v=prompt('Your usual local price in pence per litre, used for route costs (e.g. 168.9). Leave blank to use the local typical price.',effPrice().ppl.toFixed(1));
+$('fSet').onclick=async()=>{
+  const v=await cfm({title:'Set local price',body:'Pence per litre, used for route costs. Leave blank to use the local typical price.',input:effPrice().ppl.toFixed(1),inputMode:'decimal',ok:'Save'});
   if(v===null)return;
   if(v.trim()===''){delete fstore.manual;saveF();paintFuel();return}
   const n=parseFloat(v);
@@ -1040,10 +1062,10 @@ $('pLoc').onclick=()=>{
     {timeout:8000,maximumAge:60000});
 };
 $('pBack').onclick=()=>picker.classList.remove('open');
-$('pOk').onclick=()=>{
+$('pOk').onclick=async()=>{
   if(!pPos){$('pLabel').textContent='Choose a spot first: search, use your location, or tap the map.';return}
   const nv={label:pPos.label||'Dropped pin',lat:+pPos.lat.toFixed(6),lon:+pPos.lon.toFixed(6)};
-  if(/^fav/.test(pWhich)){const dn=(nv.label.split(',')[0]||'Place').slice(0,22);nv.name=(prompt('Short name for this place',dn)||dn).slice(0,22)}
+  if(/^fav/.test(pWhich)){const dn=(nv.label.split(',')[0]||'Place').slice(0,22);nv.name=((await cfm({title:'Name this place',input:dn,ok:'Save'}))||dn).slice(0,22)}
   setLoc(pWhich,nv);saveCfg();paintPlaces();paintExtras();loadPlaces();
   picker.classList.remove('open');
   live=null;commuteUI=null;paintCommute();loadDash(true);
@@ -1361,7 +1383,7 @@ function paintLog(){
   fills.slice().sort((a,b)=>b.ts-a.ts).slice(0,12).forEach(f=>{
     const row=el('div','lrow'),d=new Date(f.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
     row.append(el('span','',`${d} \u00b7 ${f.l.toFixed(1)} L @ ${f.ppl.toFixed(1)}p`),el('span','',`\u00a3${(f.l*f.ppl/100).toFixed(2)} \u00b7 ${f.odo} mi`));
-    row.onclick=()=>{if(confirm('Delete this fill-up?')){fills=fills.filter(x=>x!==f);saveFills();updateMpgAuto();paintLog()}};
+    row.onclick=async()=>{if(await cfm({title:'Delete fill-up?',body:row.textContent,ok:'Delete'})){fills=fills.filter(x=>x!==f);saveFills();updateMpgAuto();paintLog()}};
     list.append(row);
   });
 }
@@ -1395,7 +1417,7 @@ $('bkApply').onclick=()=>{
     location.reload();
   }catch(e){alert('That does not look like a JARVIS backup.')}
 };
-$('bkClear').onclick=()=>{if(confirm('Clear all saved settings, history and prices from this device?')){BK_KEYS.concat(['jarvisCache']).forEach(k=>localStorage.removeItem(k));location.reload()}};
+$('bkClear').onclick=async()=>{if(await cfm({title:'Clear all data?',body:'Settings, history and prices on this device will be erased.',ok:'Clear data'})){BK_KEYS.concat(['jarvisCache']).forEach(k=>localStorage.removeItem(k));location.reload()}};
 
 // ---------- voice choice and spoken brief ----------
 function paintSB(){$('sbrief').classList.toggle('on',!!cfg.spokenBrief)}
@@ -2035,7 +2057,7 @@ async function ask(text,opts){
     add('j',reply);sfx.done();
     busy=false;try{rec&&rec.abort&&rec.abort()}catch(e){}await speak(reply);
     if(handsFree)setTimeout(listen,450);
-  }catch(e){history.pop();add('e','Could not reach the brain: '+e.message);sfx.err();setState('')}
+  }catch(e){history.pop();add('e','Could not reach the brain: '+e.message);sfx.err();setState('error','Fault: '+e.message);setTimeout(()=>setState(''),4000)}
   busy=false;
 }
 const toOther=()=>dir==='work'?['home','work']:['work','home'];
@@ -2061,7 +2083,7 @@ hud.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();listen()}}
 $('qb').onclick=briefing;
 $('qw').onclick=()=>ask("How's the drive from home to work right now?");
 $('qh').onclick=()=>ask("How's the drive from work to home right now?");
-$('ql').onclick=()=>{const [f,t]=toOther();const v=prompt(`Arrive at ${t} by what time? (e.g. 08:00)`);if(v)ask(`What time should I leave ${f} to arrive at ${t} by ${v}? Use tomorrow if that time has already passed today.`)};
+$('ql').onclick=async()=>{const [f,t]=toOther();const v=await cfm({title:'Leave by',body:`Arrive at ${t} by what time?`,input:'',type:'time',ok:'Check'});if(v)ask(`What time should I leave ${f} to arrive at ${t} by ${v}? Use tomorrow if that time has already passed today.`)};
 $('qp').onclick=()=>openStationsMap();
 $('qr').onclick=()=>{if(lastReply)speak(lastReply)};
 $('f').onsubmit=e=>{e.preventDefault();const v=$('t').value.trim();if(v){$('t').value='';$('t').blur();ask(v)}};
@@ -2093,12 +2115,46 @@ restoreCache();loadDash(false);loadFuel();
 function paintSys(){const s=$('sys');if(!s)return;const on=navigator.onLine;s.textContent=on?'SYS ONLINE':'SYS OFFLINE';s.className=on?'':'off'}
 addEventListener('online',paintSys);addEventListener('offline',paintSys);paintSys();
 // swipe a drawer down from its top edge to close it
-document.querySelectorAll('#sheet .panel,#lsheet .panel').forEach(p=>{let y0=null,dy=0;
+document.querySelectorAll('#sheet .panel,#lsheet .panel,#dsheet .panel').forEach(p=>{let y0=null,dy=0;
  p.addEventListener('touchstart',e=>{const r=p.getBoundingClientRect();y0=(p.scrollTop<=0&&e.touches[0].clientY-r.top<48)?e.touches[0].clientY:null;dy=0},{passive:true});
  p.addEventListener('touchmove',e=>{if(y0==null)return;dy=Math.max(0,e.touches[0].clientY-y0);p.style.transition='none';p.style.transform='translateY('+dy+'px)'},{passive:true});
  p.addEventListener('touchend',()=>{if(y0==null)return;p.style.transition='transform .25s cubic-bezier(.22,1,.36,1)';p.style.transform='';if(dy>90)p.parentElement.classList.remove('open');y0=null},{passive:true});
 });
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+// amber confirmation card (replaces confirm/prompt). Returns true/false, or string/null when input is set
+function cfm(o){return new Promise(res=>{
+  const w=el('div','cfm'),c=el('div','cfc');
+  c.append(el('div','cft',o.title||'Confirm'));
+  if(o.body)c.append(el('div','cfb',o.body));
+  let inp=null;
+  if(o.input!=null){inp=el('input');if(o.type)inp.type=o.type;inp.value=o.input;inp.inputMode=o.inputMode||'text';inp.autocomplete='off';c.append(inp)}
+  const row=el('div','cfr'),no=el('button','btn',o.cancel||'Cancel'),ok=el('button','btn pri',o.ok||'Confirm');
+  const done=v=>{document.body.classList.remove('cfm');w.classList.add('out');setTimeout(()=>w.remove(),200);res(v)};
+  no.onclick=()=>done(inp?null:false);ok.onclick=()=>done(inp?inp.value:true);
+  w.onclick=e=>{if(e.target===w)no.click()};
+  if(inp)inp.onkeydown=e=>{if(e.key==='Enter')ok.click()};
+  row.append(no,ok);c.append(row);w.append(c);document.body.append(w);document.body.classList.add('cfm');
+  if(inp)setTimeout(()=>inp.focus(),60);
+})}
+// tap-to-expand drawer
+function openDetail(title,fill){$('dtT').textContent=title;const b=$('dtB');b.textContent='';fill(b);$('dsheet').classList.add('open')}
+const closeDetail=()=>$('dsheet').classList.remove('open');
+$('dtX').onclick=closeDetail;
+$('dsheet').addEventListener('click',e=>{if(e.target===$('dsheet'))closeDetail()});
+$('tNews').onclick=()=>{
+  const n=live&&live.news;if(!n){briefing();return}
+  openDetail('Headlines',b=>{
+    const sec=(h,a)=>{if(!a||!a.length)return;b.append(el('div','sec',h));a.forEach(t=>b.append(el('div','hl',t)))};
+    sec('UK',n.uk);sec('Local',n.local);
+    const g=el('button','btn pri','Read me the briefing');g.onclick=()=>{closeDetail();briefing()};b.append(g);
+  });
+};
+$('tFc').onclick=e=>{
+  if(e.target.closest('.seg')||!fcData)return;
+  openDetail('Next hours \u00b7 '+(fcWhich==='home'?'Home':'Work'),b=>{
+    fcData.hours.forEach(h=>{const r=el('div','hrow');r.append(el('span','',`${h.h} \u00b7 ${h.desc}`),el('span','',`${h.t}\u00b0 \u00b7 ${h.rain}% rain`));b.append(r)});
+  });
+};
 </script>
 </body>
 </html>
