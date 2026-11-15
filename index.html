@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="jarvis-180.png">
+<link rel="apple-touch-startup-image" href="splash-1179x2556.png" media="(device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3)">
+<meta name="apple-mobile-web-app-title" content="JARVIS">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <title>JARVIS</title>
 <style>
@@ -500,6 +503,47 @@ input::placeholder{color:#62809a}
 .acts .btn{flex:1 1 30%}
 #toast{bottom:calc(env(safe-area-inset-bottom) + 170px)}
 .place span{max-width:min(210px,52vw)}
+/* ===== DESIGN PASS v6: breathing room ===== */
+body{padding-bottom:0}
+#dock{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+#main{-webkit-mask:linear-gradient(transparent 0,#000 16px);mask:linear-gradient(transparent 0,#000 16px);padding-bottom:20px}
+/* fewer ovals: soft rounded rectangles, quieter borders */
+.pill,.q button,.rchip,.seg,.seg button,.btn{border-radius:12px}
+.pill,.q button,.rchip{letter-spacing:.01em;font-size:.72rem;padding:0 13px;border-color:rgba(56,189,248,.14);background:#ffffff06}
+.pill.on,.rchip.on,.seg button.on{background:rgba(56,189,248,.14);border-color:rgba(56,189,248,.45);color:var(--ink)}
+.chip{border:0;background:color-mix(in srgb,currentColor 14%,transparent);border-radius:8px;padding:3px 9px}
+/* no corner brackets */
+.tile::before{display:none}
+.tile,.card{padding:16px}
+#tiles{gap:12px}
+/* summary: plain list, not buttons */
+#brief{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.bp{display:flex;align-items:center;gap:10px;border:0;background:none;padding:0;margin:0;border-radius:0;font-size:.86rem;line-height:1.35}
+.bp::before{content:"";flex:0 0 5px;height:5px;border-radius:50%;background:var(--glow);box-shadow:0 0 8px var(--glow)}
+#upd{margin-top:12px}
+/* commute tile */
+.tbtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.tbtns .pill{padding:0 6px;font-size:.68rem;text-align:center}
+#cSub{padding-right:48px}
+#swap{border-radius:12px;top:12px;right:12px}
+/* fuel + other button rows */
+.fbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fctl{gap:10px}
+.fctl .seg{flex:1}.fctl .seg button{flex:1;padding:0 6px}
+/* weekday bars */
+.ibars{height:84px;gap:14px;margin-top:14px;padding:0 6px}
+.ib{gap:5px}
+.ib i{width:60%;max-width:34px;border-radius:7px 7px 3px 3px}
+#insS{margin-top:14px;line-height:1.45}
+/* chips row fades at the edge so scrolling is obvious */
+.q,.rchips{-webkit-mask:linear-gradient(90deg,#000 88%,transparent);mask:linear-gradient(90deg,#000 88%,transparent);padding-right:24px}
+/* route card text */
+.inc{font-size:.78rem}
+.inc span{-webkit-line-clamp:2}
+.fsum{font-size:.78rem;padding-top:12px}
+.rc{gap:14px}
+.sec{margin:24px 0 10px}
+.panel label{margin-top:16px}
 </style>
 </head>
 <body>
