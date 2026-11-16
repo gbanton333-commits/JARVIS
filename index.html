@@ -544,6 +544,28 @@ body{padding-bottom:0}
 .rc{gap:14px}
 .sec{margin:24px 0 10px}
 .panel label{margin-top:16px}
+/* ===== DESIGN PASS v7: arc-reactor orb ===== */
+#hud .r1{stroke-width:5;stroke-dasharray:.45 1.55;opacity:.55;animation:spin 70s linear infinite}
+#hud .r2{stroke-width:3.6;stroke-dasharray:12 3 6 4;stroke-linecap:butt;opacity:1;animation:spin 16s linear infinite reverse}
+#hud .r3{stroke-width:1.8;opacity:.9}
+#hud .core{fill:#0e3a56;stroke-width:2}
+#hud .dot{fill:#bfeaff;stroke:none;filter:drop-shadow(0 0 5px #bfeaff);animation:dotp 3s ease-in-out infinite}
+#hud.thinking .r2{animation-duration:2.2s}
+#hud.thinking .r1{animation-duration:8s}
+#hud.listening .r3{animation:ripple 1.1s ease-out infinite}
+#hud.speaking .dot{animation:dotp .5s ease-in-out infinite}
+#hud.error .dot{fill:#ffd9a0;filter:drop-shadow(0 0 5px #F59E0B)}
+@keyframes dotp{50%{opacity:.45;transform:scale(.8)}}
+@keyframes ripple{from{transform:scale(1);opacity:.9}to{transform:scale(1.35);opacity:0}}
+/* boot */
+#boot svg{width:170px;height:170px}
+#boot .b1{stroke-width:1.2;opacity:.6}
+#boot .b2{stroke-width:3.6;stroke-dasharray:12 3 6 4;animation:spin 9s linear infinite,fadein 1s .4s both}
+#boot .b3{stroke-width:5;stroke-dasharray:.45 1.55;opacity:.5;animation:spin 60s linear infinite}
+#boot .b4{stroke-width:1.8;animation:fadein 1s .8s both}
+#boot .bcore{fill:#0e3a56;stroke-width:2}
+#boot .dot{fill:#bfeaff;stroke:none;filter:drop-shadow(0 0 6px #bfeaff);animation:dotp 2.4s ease-in-out infinite}
+#hud .dot,#boot .dot{transform-box:fill-box;transform-origin:center}
 </style>
 </head>
 <body>
@@ -551,7 +573,7 @@ body{padding-bottom:0}
 <div id="fx"><i class="fxr"></i><i class="fxs"></i><i class="fxf"></i><i class="fxn"></i><i class="fxd"></i></div>
 <div id="ptr">Release to refresh</div>
 <div id="boot" role="button" aria-label="Tap to begin">
-  <svg viewBox="-60 -60 120 120"><circle class="b1" r="56"/><circle class="b2" r="46"/><circle class="b3" r="34"/><circle class="bcore" r="20"/></svg>
+<svg viewBox="-60 -60 120 120"><circle class="b1" r="52"/><circle class="b2" r="40" pathLength="100"/><circle class="b3" r="58" pathLength="120"/><circle class="b4" r="28"/><circle class="bcore" r="17"/><circle class="dot" r="6"/></svg>
   <div class="bt1">J.A.R.V.I.S.</div>
   <div class="bt2" id="bootLine">Initialising core</div>
   <div id="bootCar"></div>
@@ -620,7 +642,7 @@ body{padding-bottom:0}
   <div id="bar">
     <form id="f"><input id="t" placeholder="Type to JARVIS" autocomplete="off" enterkeyhint="send"></form>
     <div id="hud" role="button" tabindex="0" aria-label="Tap to talk">
-      <svg viewBox="-60 -60 120 120"><circle class="r1" r="56"/><circle class="r2" r="46"/><circle class="r3" r="34"/><circle class="core" r="22"/></svg>
+     <svg viewBox="-60 -60 120 120"><circle class="r1" r="56" pathLength="120"/><circle class="r2" r="44" pathLength="100"/><circle class="r3" r="33"/><circle class="core" r="20"/><circle class="dot" r="7"/></svg>
     </div>
   </div>
 </div>
