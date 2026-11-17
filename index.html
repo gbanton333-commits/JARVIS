@@ -471,8 +471,8 @@ button:active,.btn:active,.tile[role=button]:active,.road:active{transform:scale
 .cfr .btn{flex:1;background:transparent;cursor:pointer;border:1px solid var(--line)}
 .cfr .btn.pri{flex:1.4;background:linear-gradient(135deg,#F59E0B,#fbbf4d);border-color:#F59E0B;color:#1a1100;box-shadow:0 6px 22px rgba(245,158,11,.3)}
 /* amber orb: awaiting approval / fault */
-#hud.error,body.cfm #hud{--glow:#F59E0B;--ga:rgba(245,158,11,.3)}
-#hud.error .core,body.cfm #hud .core{fill:#4a3008}
+#hud.error,body.cfmo #hud{--glow:#F59E0B;--ga:rgba(245,158,11,.3)}
+#hud.error .core,body.cfmo #hud .core{fill:#4a3008}
 #hud.error .core{animation:pulse 1s ease-in-out infinite}
 /* detail drawer */
 #dsheet{position:fixed;inset:0;z-index:42;background:#000b;display:none}
@@ -566,6 +566,11 @@ body{padding-bottom:0}
 #boot .bcore{fill:#0e3a56;stroke-width:2}
 #boot .dot{fill:#bfeaff;stroke:none;filter:drop-shadow(0 0 6px #bfeaff);animation:dotp 2.4s ease-in-out infinite}
 #hud .dot,#boot .dot{transform-box:fill-box;transform-origin:center}
+  /* ===== DESIGN PASS v8: fixes ===== */
+#sheet .panel,#lsheet .panel{padding-bottom:96px}
+#sys{font-size:.68rem}
+.ct,.sec,.dlab{font-size:.7rem}
+.seg button{min-width:44px}
 </style>
 </head>
 <body>
@@ -1080,7 +1085,7 @@ function paintPlaces(){
 document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>openPicker(b.dataset.p));
 const picker=$('picker');
 let pm=null,pk=null,pWhich='home',pPos=null,pTimer=null,pRev=0;
-const post=(path,body)=>fetch(getWorker()+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+const post=(path,body)=>fetch(getWorker()+path,{signal:AbortSignal.timeout(20000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
 function openPicker(which){
   if(!getWorker()){alert('Add your Worker URL first (under Connection), then save.');return}
   pWhich=which;$('pTitle').textContent=/^fav/.test(which)?'Set favourite place':'Set '+which;$('pQ').value='';$('pRes').textContent='';
@@ -1172,7 +1177,7 @@ tick();setInterval(tick,20000);
 async function getLive(force){
   if(!force&&live&&Date.now()-liveAt<600000)return live;
   try{
-    const r=await fetch(getWorker()+'/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ctx())});
+    const r=await fetch(getWorker()+'/data',{signal:AbortSignal.timeout(20000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ctx())});
     if(!r.ok)throw new Error(r.status);
     live=await r.json();liveAt=Date.now();
   }catch(e){}
@@ -1250,7 +1255,7 @@ async function loadCommute(){
   if(!getWorker())return;
   $('cSub').textContent='Checking traffic...';
   try{
-    const r=await fetch(getWorker()+'/commute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir,...ctx()})});
+    const r=await fetch(getWorker()+'/commute',{signal:AbortSignal.timeout(20000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir,...ctx()})});
     if(!r.ok)throw new Error(r.status);
     const d=await r.json();
     if(d.error){commuteUI=null;paintCommute();$('cSub').textContent=d.error;return}
@@ -2135,7 +2140,7 @@ async function ask(text,opts){
   try{
     await getLive(opts&&opts.fresh);
     if(opts&&opts.card)briefingCard(live);
-    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:buildSystem(),messages:history.slice(-12),...ctx()})});
+    const r=await fetch(url,{signal:AbortSignal.timeout(30000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:buildSystem(),messages:history.slice(-12),...ctx()})});
     if(!r.ok)throw new Error('Worker returned '+r.status);
     const data=await r.json();
     const reply=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(' ').trim();
@@ -2217,11 +2222,11 @@ function cfm(o){return new Promise(res=>{
   let inp=null;
   if(o.input!=null){inp=el('input');if(o.type)inp.type=o.type;inp.value=o.input;inp.inputMode=o.inputMode||'text';inp.autocomplete='off';c.append(inp)}
   const row=el('div','cfr'),no=el('button','btn',o.cancel||'Cancel'),ok=el('button','btn pri',o.ok||'Confirm');
-  const done=v=>{document.body.classList.remove('cfm');w.classList.add('out');setTimeout(()=>w.remove(),200);res(v)};
+  const done=v=>{document.body.classList.remove('cfmo');w.classList.add('out');setTimeout(()=>w.remove(),200);res(v)};
   no.onclick=()=>done(inp?null:false);ok.onclick=()=>done(inp?inp.value:true);
   w.onclick=e=>{if(e.target===w)no.click()};
   if(inp)inp.onkeydown=e=>{if(e.key==='Enter')ok.click()};
-  row.append(no,ok);c.append(row);w.append(c);document.body.append(w);document.body.classList.add('cfm');
+  row.append(no,ok);c.append(row);w.append(c);document.body.append(w);document.body.classList.add('cfmo');
   if(inp)setTimeout(()=>inp.focus(),60);
 })}
 // tap-to-expand drawer
