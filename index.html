@@ -583,6 +583,51 @@ body{padding-bottom:0}
   <div class="bt1">J.A.R.V.I.S.</div>
   <div class="bt2" id="bootLine">Initialising core</div>
 </div>
+  
+<div class="bt2" id="bootLine">Initialising core</div>
+</div>
+
+<!-- JARVIS STARTUP FAILSAFE - NEW CODE -->
+<script>
+(function () {
+  const boot = document.getElementById('boot');
+  const line = document.getElementById('bootLine');
+
+  if (!boot) return;
+
+  function report(message) {
+    if (line) {
+      line.textContent = 'SYSTEM ERROR: ' + message;
+    }
+  }
+
+  window.addEventListener('error', function (event) {
+    report(event.message || 'JavaScript failed to load');
+  });
+
+  window.addEventListener('unhandledrejection', function (event) {
+    const reason = event.reason;
+    report(reason && reason.message
+      ? reason.message
+      : 'Initialisation promise failed');
+  });
+
+  // Independent 12-second startup failsafe
+  setTimeout(function () {
+    if (!boot.isConnected) return;
+
+    boot.classList.add('out');
+
+    setTimeout(function () {
+      if (boot.isConnected) boot.remove();
+    }, 800);
+  }, 12000);
+})();
+</script>
+<!-- END JARVIS STARTUP FAILSAFE -->
+
+<header>
+
 <header>
   <button class="icon" id="gear" aria-label="Settings"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   <h1>J.A.R.V.I.S.</h1>
