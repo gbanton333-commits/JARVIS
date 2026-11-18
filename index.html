@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="jarvis-180.png">
-<link rel="apple-touch-startup-image" href="splash-1179x2556.png" media="(device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3)">
 <meta name="apple-mobile-web-app-title" content="JARVIS">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <title>JARVIS</title>
@@ -560,13 +559,49 @@ body{position:fixed;inset:0;height:auto;overflow:hidden;overscroll-behavior:none
 #boot .bcore,#boot .dot{filter:none!important}
 #boot .b2{animation:spin 10s linear infinite}
 #boot .b4{animation:none}
+  /* ===== v25: motion, icons, garage, trip log ===== */
+html[data-black="1"]{background:#000;--bg:#000;--panel:#050608;--panel2:#090c10}
+#dsheet{background:transparent}
+#dsheet.open{align-items:stretch}
+#dsheet .panel{width:100%;max-width:none;height:100dvh;max-height:none;margin:0;border-radius:0;border:0;padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 28px);background:linear-gradient(180deg,var(--panel2),var(--bg));overflow-y:auto;animation:none;will-change:clip-path}
+#dsheet .panel::before{display:none}
+.xs{font:600 .66rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:24px 0 8px}
+.xrow{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid var(--line);font-size:.88rem;cursor:pointer}
+.xrow span:last-child{color:var(--dim);text-align:right;font-size:.76rem}
+.xbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.xstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.xstat div{background:#ffffff08;border-radius:12px;padding:10px;font-size:.66rem;color:var(--dim)}
+.xstat b{display:block;color:var(--ink);font-size:1.05rem;font-weight:500;margin-top:3px}
+.pimg{width:100%;max-height:200px;object-fit:cover;border-radius:14px;margin-top:10px}
+.empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;color:var(--dim);font-size:.8rem;text-align:center}
+.empty svg{width:96px;opacity:.7}
+.ibtn svg,.icon svg,.spk svg,.expand svg{width:18px;height:18px;display:block}
+.spk svg{width:11px;height:11px}
+#mini{position:sticky;top:0;height:0;z-index:5}
+#mini>div{position:absolute;left:-18px;right:-18px;top:-6px;display:flex;justify-content:space-between;align-items:baseline;padding:10px 18px;background:#05070Ae6;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .25s,transform .3s var(--spring)}
+#mini.show>div{opacity:1;transform:none}
+#mini b{font:500 1.05rem var(--mono)}#mini span{font:.74rem var(--mono);color:var(--dim)}
+#ptr{display:flex;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border-radius:50%}
+#ptr svg{width:26px;height:26px;transform:rotate(-90deg)}
+#ptr circle{fill:none;stroke:var(--glow);stroke-width:3;stroke-linecap:round;stroke-dasharray:88;stroke-dashoffset:calc(88 * (1 - var(--p,0)))}
+#ptr.spin svg{animation:spin .8s linear infinite}
+#tpill{position:fixed;top:calc(env(safe-area-inset-top) + 56px);left:50%;transform:translate(-50%,-30px);opacity:0;pointer-events:none;z-index:46;display:flex;align-items:center;gap:8px;background:#06121ff2;border:1px solid var(--glow);border-radius:999px;padding:6px 14px 6px 10px;font:600 .78rem var(--mono);box-shadow:0 8px 26px #000a;transition:opacity .25s,transform .35s var(--spring);cursor:pointer}
+#tpill.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#tpill .tp svg{width:38px;display:block}
+.dbtn{display:flex;gap:6px}
+#dDone{display:none;flex-direction:column;gap:12px;text-align:center;margin-top:4vh;animation:rise .5s var(--spring) both}
+#dDone.show{display:flex}
+#dDone h2{font-weight:200;font-size:2.6rem;margin:0}
+#dDone .tp{width:150px;margin:0 auto}#dDone .tp svg{width:100%;display:block}
+#siriList .xrow{cursor:default;align-items:center}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div id="toast"></div>
 <div id="fx"><i class="fxr"></i><i class="fxs"></i><i class="fxf"></i><i class="fxn"></i><i class="fxd"></i></div>
-<div id="ptr">Release to refresh</div>
+<div id="ptr"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14"/></svg></div>
+<div id="tpill" role="button" aria-label="Open trip"><span class="tp" id="tpCar"></span><span id="tpTxt">--</span></div>
 <div id="boot" role="button" aria-label="Tap to begin">
   <svg viewBox="-60 -60 120 120"><circle class="b1" r="52"/><circle class="b2" r="40" pathLength="100"/><circle class="b3" r="58" pathLength="120"/><circle class="b4" r="28"/><circle class="bcore" r="17"/><circle class="dot" r="6"/></svg>
   <div class="bt1">J.A.R.V.I.S.</div>
@@ -587,6 +622,7 @@ body{position:fixed;inset:0;height:auto;overflow:hidden;overscroll-behavior:none
 </header>
 
 <div id="main">
+  <div id="mini"><div><b id="miniClock"></b><span id="miniInfo"></span></div></div>
   <section id="hero">
     <button class="icon" id="refresh" aria-label="Refresh data">&#8635;</button>
     <div id="hello">&nbsp;</div>
@@ -661,7 +697,7 @@ body{position:fixed;inset:0;height:auto;overflow:hidden;overscroll-behavior:none
     <label>Car economy, combined mpg (optional)<input id="sMpg" inputmode="decimal" placeholder="e.g. 45" autocomplete="off"></label>
     <label>Tank size, litres (used for savings estimates)<input id="sTank" inputmode="decimal" placeholder="40" autocomplete="off"></label>
     <div class="sec">Behaviour</div>
-    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button><button class="pill" id="bigtxt">Larger text</button><button class="pill" id="fxtog">Weather effects</button></div>
+    <div class="toggles"><button class="pill" id="hf">Hands-free</button><button class="pill" id="snd">Sound</button><button class="pill" id="aloc">Auto-locate</button><button class="pill" id="sbrief">Spoken brief</button><button class="pill" id="bigtxt">Larger text</button><button class="pill" id="fxtog">Weather effects</button><button class="pill" id="blk">True black</button></div>
     <div class="sec">Accent colour</div>
     <div class="sw"><button data-a="" style="--c:#4cc9f0" aria-label="Blue"></button><button data-a="teal" style="--c:#3de0c8" aria-label="Teal"></button><button data-a="violet" style="--c:#a79bff" aria-label="Violet"></button><button data-a="amber" style="--c:#ffb454" aria-label="Amber"></button></div>
     <details class="dd"><summary>My car</summary>
@@ -681,6 +717,7 @@ body{position:fixed;inset:0;height:auto;overflow:hidden;overscroll-behavior:none
       <label>MOT due<input type="date" id="rm_mot"></label><label>Road tax due<input type="date" id="rm_tax"></label><label>Insurance renewal<input type="date" id="rm_ins"></label><label>Next service<input type="date" id="rm_svc"></label>
     </details>
     <details class="dd"><summary>Dashboard tiles</summary><div class="note">Show or hide sections of the dashboard.</div><div class="toggles" id="tileTog"></div></details>
+    <details class="dd"><summary>Siri shortcuts</summary><div class="note">In the Shortcuts app, tap +, add the action Open URLs, paste a link from here, then name the shortcut with the phrase you want to say to Siri. Tap Copy link to get each one.</div><div id="siriList"></div></details>
     <details class="dd"><summary>Setup status</summary><div class="toggles"><button class="pill" id="hcRun">Check now</button><button class="pill" id="hcReload">Reload latest</button></div><div id="hcList"></div></details>
     <details class="dd"><summary>Delay alerts</summary>
       <div class="note">Get a notification when your usual journey is running slow. On iPhone this only works from the Home Screen app. It needs the Worker's storage and schedule set up (see the setup steps).</div>
@@ -714,11 +751,14 @@ body{position:fixed;inset:0;height:auto;overflow:hidden;overscroll-behavior:none
   </div>
 </div>
 <div id="drive" role="dialog" aria-label="Trip">
-  <div class="dhead"><div id="dTo">Trip</div><button class="icon" id="dEnd" aria-label="End trip">&#10005;</button></div>
-  <div class="dmain"><div class="dlab">ARRIVE</div><div id="dEta">--:--</div><div id="dRem">--</div></div>
-  <div class="dbar"><div id="dJam"></div><i id="dPos"></i></div>
-  <div class="dgrid"><div><span>Speed</span><b id="dSpd">--</b><em>mph</em></div><div><span>Ahead</span><b id="dAhead">Clear</b></div><div><span>Fuel ahead</span><b id="dFuel">--</b></div></div>
-  <div id="dWarn"></div>
+  <div class="dhead"><div id="dTo">Trip</div><div class="dbtn"><button class="icon" id="dMin" aria-label="Minimise trip">&#8964;</button><button class="icon" id="dEnd" aria-label="End trip">&#10005;</button></div></div>
+  <div id="dLive">
+    <div class="dmain"><div class="dlab">ARRIVE</div><div id="dEta">--:--</div><div id="dRem">--</div></div>
+    <div class="dbar"><div id="dJam"></div><i id="dPos"></i></div>
+    <div class="dgrid"><div><span>Speed</span><b id="dSpd">--</b><em>mph</em></div><div><span>Ahead</span><b id="dAhead">Clear</b></div><div><span>Fuel ahead</span><b id="dFuel">--</b></div></div>
+    <div id="dWarn"></div>
+  </div>
+  <div id="dDone"></div>
   <div class="dfoot"><button class="btn pri" id="dTalk">Tap to talk</button></div>
 </div>
 <div id="lsheet" role="dialog" aria-label="Fill-up log">
@@ -790,7 +830,7 @@ function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className
 function toEnd(){setTimeout(()=>main.scrollTo({top:main.scrollHeight,behavior:'smooth'}),60)}
 function add(cls,text){
   const d=el('div','m '+cls,text);
-  if(cls==='j'){const b=el('button','spk','\u25b6');b.setAttribute('aria-label','Hear this reply');b.onclick=()=>speak(text);d.append(b)}
+  if(cls==='j'){const b=el('button','spk');b.innerHTML=icon('play');b.setAttribute('aria-label','Hear this reply');b.onclick=()=>speak(text);d.append(b)}
   log.appendChild(d);toEnd();
 }
 function setState(s,msg){hud.className=s;statusEl.textContent=msg||IDLE}
@@ -947,7 +987,7 @@ function paintFuel(){
   if(!stations.length){
     const p=effPrice();$('fP').textContent=p.ppl.toFixed(1)+'p';
     S.className='sub'+(fuelErr?' am':'');S.textContent=fuelErr||'Loading prices...';
-    note.textContent='Until station data loads, route costs use '+p.src+'.';return;
+    note.textContent='Until station data loads, route costs use '+p.src+'.';list.append(emptyEl('No fuel prices loaded yet.'));return;
   }
   const near=nearby();
   if(!near.list.length){$('fP').textContent='--';S.className='sub am';S.textContent=`No ${f.name} prices within ${fuelRad} miles in the retailer feeds. Try a wider radius.`;note.textContent='';return}
@@ -1172,7 +1212,7 @@ function tick(){
   $('hello').textContent=(h<5?'Working late, '+title()+'.':h<12?'Good morning, '+title()+'.':h<18?'Good afternoon, '+title()+'.':'Good evening, '+title()+'.');
   $('clock').textContent=londonPart('hour')+':'+londonPart('minute');
   $('date').textContent=londonPart('weekday')+' '+londonPart('day')+' '+londonPart('month');
-  applyMood();paintLeaveBy();
+  applyMood();paintLeaveBy();paintMini();
 }
 tick();setInterval(tick,20000);
 
@@ -1212,7 +1252,7 @@ function paintWeather(){
   });
   const n=$('news');n.textContent='';
   const items=live&&live.news?[...(live.news.uk||[]).slice(0,3),...(live.news.local||[]).slice(0,1)]:[];
-  if(!items.length)n.append(el('div','sub','Headlines unavailable'));
+  if(!items.length)n.append(emptyEl('No headlines right now. Pull down to refresh.'));
   items.forEach(t=>n.append(el('div','',t)));
   applyMood();
 }
@@ -1231,7 +1271,7 @@ function paintCommute(){
   const u=usual(),ue=$('cUsual');
   if(u){const d=mn-u.min;ue.textContent=Math.abs(d)<=2?`About your usual (${u.n} past trips)`:`${Math.abs(d)} min ${d>0?'slower':'quicker'} than your usual (${u.n} past trips)`;ue.className='sub '+(d>5?'am':d<-2?'ok':'')}
   else{ue.textContent='';ue.className='sub'}
-  paintBar(r);
+  paintBar(r);paintMini();
 }
 function briefParts(){
   const parts=[],r=commuteUI,where=dir==='work'?'work':'home';
@@ -1349,12 +1389,7 @@ function switchDir(anim){
   t.addEventListener('touchstart',e=>{const p=e.touches[0];x0=p.clientX;y0=p.clientY},{passive:true});
   t.addEventListener('touchend',e=>{const p=e.changedTouches[0],dx=p.clientX-x0,dy=p.clientY-y0;if(Math.abs(dx)>60&&Math.abs(dy)<40)switchDir(dx<0?'left':'right')},{passive:true});
 })();
-(function(){
-  const ptr=$('ptr');let y0=0,pull=0,on=false;
-  main.addEventListener('touchstart',e=>{on=main.scrollTop<=0;y0=e.touches[0].clientY;pull=0},{passive:true});
-  main.addEventListener('touchmove',e=>{if(!on)return;pull=e.touches[0].clientY-y0;ptr.classList.toggle('show',pull>70)},{passive:true});
-  main.addEventListener('touchend',()=>{if(on&&pull>90&&!busy)$('refresh').click();ptr.classList.remove('show');on=false;pull=0},{passive:true});
-})();
+
 
 // ---------- offline: show the last data straight away ----------
 function saveCache(){try{localStorage.setItem('jarvisCache',JSON.stringify({ts:Date.now(),dir,live,commuteUI}))}catch(e){}}
@@ -1494,7 +1529,7 @@ $('lSave').onclick=()=>{
 };
 
 // ---------- backup, restore, privacy ----------
-const BK_KEYS=['jarvisCfg','fuel','jarvisHist','jarvisFills','jarvisPrefs','snd','hf','worker'];
+const BK_KEYS=['jarvisCfg','fuel','jarvisHist','jarvisFills','jarvisPrefs','jarvisTrips','jarvisPark','jarvisParkPhoto','snd','hf','worker'];
 function flash(btn,t){toast(t)}
 $('bkCopy').onclick=async()=>{
   const o={v:1,app:'jarvis',at:new Date().toISOString(),data:{}};
@@ -1641,7 +1676,7 @@ function paintGarage(){
   add('Real mpg',st.mpg?st.mpg.toFixed(1):'--');add('This month',st.spend?'\u00a3'+st.spend.toFixed(0):'--');
   if(fcData&&fcData.hours){let n=0;for(const h of fcData.hours){if(h.rain>=30)break;n++}add('Car wash',n>=fcData.hours.length?'dry 36h+':n>=8?`dry ${n}h`:n===0?'raining':`rain in ${n}h`)}
 }
-$('tCar').onclick=e=>{if(e.target.closest('.road')){const t=$('tCar');t.classList.add('drive');sfx.rev();setTimeout(()=>t.classList.remove('drive'),1400)}else openLog()};
+
 function paintCarSettings(){const c=cfg.car||{};$('carName').value=c.name||'';$('carSpec').value=c.spec||'';applyCar()}
 function readCar(){cfg.car=Object.assign({},cfg.car,{name:$('carName').value.trim().slice(0,30),spec:$('carSpec').value.trim().slice(0,60)})}
 CAR_COL.forEach(c=>{const b=el('button');b.dataset.c=c;b.style.setProperty('--c',c);b.setAttribute('aria-label','Car colour');b.onclick=()=>{cfg.car=Object.assign({},cfg.car,{color:c});saveCfg();applyCar()};$('carCols').append(b)});
@@ -1681,11 +1716,14 @@ async function runHealth(){
   row(window.Notification?(Notification.permission==='granted'?'ok':'op'):'op','Notifications',window.Notification?Notification.permission:'not supported');
   row(navigator.geolocation?'ok':'op','Location',navigator.geolocation?'allowed when you tap Use my location':'not available');
 }
-const APP_VER='v23';
+const APP_VER='v25';
 $('hcRun').onclick=runHealth;
 $('hcReload').onclick=async()=>{try{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k)}catch(e){}location.reload()};
 function localIntent(t){
   const s=t.toLowerCase(),say=m=>{add('u',t);add('j',m);speak(m)};
+  if(/\bwhere\b.*\b(park|parked|my car)\b/.test(s)){say('Opening your parking spot.');openGarage(null);return true}
+  if(/\bi('?ve| have| just)? parked\b|\bpark here\b|\bsave\b.*\b(parking|spot)\b/.test(s)){say('Saving your parking spot.');savePark();return true}
+  if(/\b(monthly|month)\b.*\b(report|summary)\b/.test(s)){say('Opening your monthly report.');openReport(null);return true}
   if(/\b(start|begin)\b.*\b(trip|drive|journey)\b/.test(s)){say(`Starting your trip, ${title()}.`);startTrip(commuteUI);return true}
   if(/\b(stop|end|finish)\b.*\b(trip|drive|journey)\b/.test(s)){say('Trip ended.');stopTrip();return true}
   if(/\b(best time to leave|leave times?)\b/.test(s)){say('Checking the best times to leave.');openLeave();return true}
@@ -1742,25 +1780,6 @@ async function loadForecast(){
   $('tFc').style.display='';
   try{const d=await post('/forecast',{lat:p.lat,lon:p.lon});if(d&&d.hours){fcData=d;paintForecast()}}catch(e){}
 }
-function paintForecast(){
-  const d=fcData;if(!d)return;
-  const hrs=d.hours.slice(0,13),n=hrs.length,W=300,H=64,svg=$('fcSvg');
-  const ts=hrs.map(h=>h.t),tmin=Math.min(...ts),rg=(Math.max(...ts)-tmin)||1,x=i=>8+i*(W-16)/(n-1),y=t=>H-12-((t-tmin)/rg)*(H-30);
-  let s='';
-  hrs.forEach((h,i)=>{const bh=Math.max(1,h.rain/100*(H-14));s+=`<rect x="${x(i)-9}" y="${H-bh-2}" width="18" height="${bh}" rx="3" fill="#4cc9f0" opacity=".28"/>`});
-  s+=`<polyline points="${hrs.map((h,i)=>x(i).toFixed(1)+','+y(h.t).toFixed(1)).join(' ')}" fill="none" stroke="#ffd089" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
-  svg.innerHTML=s;
-  const row=$('fcRow');row.textContent='';
-  hrs.forEach((h,i)=>{if(i%3)return;const c=el('div','st'),ic=el('span','si');ic.innerHTML=wxIcon(h.desc);c.append(el('span','tm',i===0?'Now':h.h),ic,el('b','',h.t+'\u00b0'),el('span','pl',h.rain+'% rain'));row.append(c)});
-  const wet=hrs.find(h=>h.rain>=50),cold=hrs.find(h=>h.t<=2);
-  const fx=$('fcX');fx.textContent='';
-  const lab=(v,t)=>t.find(x=>v<=x[0])[1];
-  if(d.uv!=null)fx.append(el('span','chip '+(d.uv>=6?'am':'ok'),`UV ${d.uv} ${lab(d.uv,[[2,'low'],[5,'moderate'],[7,'high'],[10,'very high'],[99,'extreme']])}`));
-  if(d.aqi!=null)fx.append(el('span','chip '+(d.aqi>60?'rd':d.aqi>40?'am':'ok'),`Air ${lab(d.aqi,[[20,'good'],[40,'fair'],[60,'moderate'],[80,'poor'],[999,'very poor']])}`));
-  if(d.pollen!=null)fx.append(el('span','chip '+(d.pollen>=90?'rd':d.pollen>=20?'am':'ok'),`Pollen ${lab(d.pollen,[[19,'low'],[89,'moderate'],[9999,'high']])}`));
-  paintGarage();applyMood();
-  $('fcS').textContent=(wet?`Rain likely from ${wet.h} (${wet.rain}%)`:'No rain expected in the next 12 hours')+(cold?`. Frost risk from ${cold.h}`:'')+(d.sunset?`. Sunset ${d.sunset}`:'');
-}
 function paintInsights(){
   const tile=$('tIns'),a=chist.filter(x=>x.dir===dir);
   if(a.length<6){tile.style.display='none';return}
@@ -1799,41 +1818,12 @@ function project(g,la,lo){
   }
   return{along:pos/(cum[cum.length-1]||1),off:best};
 }
-function startTrip(r){
-  r=r||commuteUI;
-  if(!r){alert('No route yet. Wait for the commute to load.');return}
-  if(!navigator.geolocation){alert('Location is not available here.');return}
-  if(trip)stopTrip();
-  trip={r,mi:r.options[0].miles,eta:r.eta?r.eta.min:r.options[0].min,said:{},last:null,fuel:stations.length?stationsOnRoute(r.geom):[]};
-  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('dPos').innerHTML=carSide();$('drive').classList.add('open');tripUI(0,0,null,false);
-  try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>{if(trip)trip.wake=l}).catch(()=>{})}catch(e){}
-  trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
-}
 function onFix(p){
   if(!trip)return;const la=p.coords.latitude,lo=p.coords.longitude,now=Date.now();
   let spd=p.coords.speed!=null&&p.coords.speed>=0?p.coords.speed*2.23694:null;
   if(spd==null&&trip.last){const dt=(now-trip.last.t)/1000;if(dt>0)spd=miles({lat:trip.last.la,lon:trip.last.lo},{lat:la,lon:lo})/dt*3600}
   trip.last={la,lo,t:now};
   const pr=project(trip.r.geom,la,lo);tripUI(pr.along,pr.off,spd,true);
-}
-function tripUI(along,off,spd,live){
-  const t=trip,rem=Math.max(0,1-along),remMin=rem>0.02?Math.max(1,Math.round(t.eta*rem)):0;
-  $('dEta').textContent=new Date(Date.now()+remMin*60000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
-  $('dRem').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(1)} mi to go`;
-  $('dPos').style.left=(Math.min(1,along)*100)+'%';$('dPos').style.setProperty('--ws',spd>1?Math.max(.12,2/(spd/10))+'s':'0s');$('dSpd').textContent=spd==null?'--':String(Math.round(spd));
-  const inc=(t.r.incidents||[]).map(i=>({...i,a:project(t.r.geom,i.lat,i.lon).along})).filter(i=>i.a>along+0.003).sort((a,b)=>a.a-b.a)[0];
-  if(inc){const d=(inc.a-along)*t.mi,nm=inc.text.split(':')[0];$('dAhead').textContent=`${d.toFixed(1)} mi: ${nm}`;if(live&&d<=5&&!t.said[inc.text]){t.said[inc.text]=1;speak(`${nm} ahead in ${Math.round(d)} miles.`)}}else $('dAhead').textContent='Clear';
-  const f=t.fuel.filter(s=>s.along>along+0.01&&(s.along-along)*t.mi<40).sort((a,b)=>a.price-b.price)[0];
-  $('dFuel').textContent=f?`${tcase(f.b)} ${f.price.toFixed(1)}p, ${((f.along-along)*t.mi).toFixed(0)} mi`:'--';
-  const w=$('dWarn');w.textContent='';
-  if(live&&off>0.4){const a=el('a','','Off route: open Google Maps from here');a.href=`https://www.google.com/maps/dir/?api=1&destination=${t.r.b.lat},${t.r.b.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';w.append(a)}
-  if(live&&along>0.985&&!t.done){t.done=1;$('dRem').textContent='You have arrived';speak(`You have arrived, ${title()}.`)}
-}
-function stopTrip(){
-  if(!trip)return;
-  try{navigator.geolocation.clearWatch(trip.watch)}catch(e){}
-  try{trip.wake&&trip.wake.release()}catch(e){}
-  trip=null;$('drive').classList.remove('open');
 }
 $('dEnd').onclick=stopTrip;$('dTalk').onclick=()=>listen();$('cTrip').onclick=e=>{e.stopPropagation();startTrip(commuteUI)};
 
@@ -2073,7 +2063,7 @@ function routeCard(r){
   const info=el('div','sub'),band=el('div','band');c.append(info,band);
   if(r.leave)c.append(el('div','chip ok leave',`Leave ${r.leave.depart} \u2192 arrive ${r.leave.arrive}`));
 
-  const wrap=el('div','mapwrap'),map=el('div','map'),ex=el('button','expand','\u2922');
+  const wrap=el('div','mapwrap'),map=el('div','map'),ex=el('button','expand');ex.innerHTML=icon('expand');
   ex.setAttribute('aria-label','Expand map');wrap.append(map,ex);c.append(wrap);
   const chips=el('div','rchips');c.append(chips);
   const fs=el('div','fsum');c.append(fs);
@@ -2239,7 +2229,7 @@ function endBoot(sound){
 }
 if(cmd){
   booted=true;boot.remove();if(needsSetup())openSettings();setTimeout(autoLocate,1500);
-  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?"),leave:openLeave,fuel:openStationsMap,trip:()=>startTrip(commuteUI)}[cmd];
+  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?"),leave:openLeave,fuel:openStationsMap,trip:()=>startTrip(commuteUI),park:savePark,where:()=>openGarage(null),report:()=>openReport(null)}[cmd];
   if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname);
 }else{
   const lines=['Initialising core','Linking traffic feeds','Weather online','Tap to begin'];
@@ -2271,24 +2261,8 @@ function cfm(o){return new Promise(res=>{
   row.append(no,ok);c.append(row);w.append(c);document.body.append(w);document.body.classList.add('cfmo');
   if(inp)setTimeout(()=>inp.focus(),60);
 })}
-function openDetail(title,fill){$('dtT').textContent=title;const b=$('dtB');b.textContent='';fill(b);$('dsheet').classList.add('open')}
-const closeDetail=()=>$('dsheet').classList.remove('open');
 $('dtX').onclick=closeDetail;
 $('dsheet').addEventListener('click',e=>{if(e.target===$('dsheet'))closeDetail()});
-$('tNews').onclick=()=>{
-  const n=live&&live.news;if(!n){briefing();return}
-  openDetail('Headlines',b=>{
-    const sec=(h,a)=>{if(!a||!a.length)return;b.append(el('div','sec',h));a.forEach(t=>b.append(el('div','hlr',t)))};
-    sec('UK',n.uk);sec('Local',n.local);
-    const g=el('button','btn pri','Read me the briefing');g.onclick=()=>{closeDetail();briefing()};b.append(g);
-  });
-};
-$('tFc').onclick=e=>{
-  if(e.target.closest('.seg')||!fcData)return;
-  openDetail('Next hours \u00b7 '+(fcWhich==='home'?'Home':'Work'),b=>{
-    fcData.hours.forEach(h=>{const r=el('div','hrow');r.append(el('span','',`${h.h} \u00b7 ${h.desc}`),el('span','',`${h.t}\u00b0 \u00b7 ${h.rain}% rain`));b.append(r)});
-  });
-};
 window.alert=m=>{const t=$('toast'),s=String(m);t.textContent=s;t.classList.add('show','warn');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show','warn'),Math.min(7000,2500+s.length*45))};
 $('qc').onclick=()=>{log.textContent='';history=[];lastReply='';toast('Cleared')};
 (function(){let c=null,x0=0,y0=0,dx=0,go=false;
@@ -2298,6 +2272,217 @@ $('qc').onclick=()=>{log.textContent='';history=[];lastReply='';toast('Cleared')
   if(Math.abs(dx)>110){k.style.transform='translateX('+(dx>0?'110%':'-110%')+')';k.style.opacity=0;setTimeout(()=>{try{k.remove()}catch(e){}},230)}else{k.style.transform='';k.style.opacity=''}},{passive:true});
 })();
 setTimeout(()=>{if(commuteUI&&!cfg.hintSwipe&&!$('boot')){cfg.hintSwipe=1;saveCfg();toast('Tip: swipe the commute tile to flip direction')}},9000);
+// ================= v25: icons, motion, garage, parking, trip log =================
+const IC={
+ x:'<path d="M6 6l12 12M18 6L6 18"/>',refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/>',swap:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>',
+ back:'<path d="M15 5l-7 7 7 7"/>',expand:'<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',chev:'<path d="M6 9l6 6 6-6"/>',
+ play:'<path d="M8 5l11 7-11 7z" fill="currentColor" stroke="none"/>'};
+const icon=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
+const ICMAP={'\u21bb':'refresh','\u21c6':'swap','\u2715':'x','\u2190':'back','\u2922':'expand','\u25b6':'play'};
+function applyIcons(root){(root||document).querySelectorAll('button').forEach(b=>{const t=b.textContent.trim();if(ICMAP[t]&&!b.querySelector('svg'))b.innerHTML=icon(ICMAP[t])})}
+applyIcons();
+const EMPTY_CAR='<svg viewBox="0 0 120 50" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 38V30q1-3 5-4l10-9q6-5 18-5h24q10 1 20 11l17 4q5 1 5 7v4"/><path d="M16 38h8M40 38h40M96 38h10M30 18l-8 9h46l-6-11"/><circle cx="32" cy="38" r="7"/><circle cx="88" cy="38" r="7"/></svg>';
+const emptyEl=m=>{const d=el('div','empty');d.innerHTML=EMPTY_CAR;d.append(el('span','',m));return d};
+function applyBlack(){document.documentElement.dataset.black=cfg.black?'1':'';$('blk').classList.toggle('on',!!cfg.black)}
+$('blk').onclick=()=>{cfg.black=!cfg.black;saveCfg();applyBlack()};applyBlack();
+
+// collapsing header: a slim bar with the clock and commute slides in as you scroll
+function paintMini(){
+  const m=$('mini');if(!m)return;$('miniClock').textContent=$('clock').textContent;
+  const r=commuteUI,mn=r?(r.eta?r.eta.min:r.options[0].min):null,w=live&&live.weather&&live.weather[0];
+  $('miniInfo').textContent=(mn!=null?(dir==='work'?'To work ':'To home ')+mn+' min':'')+(w?(mn!=null?' \u00b7 ':'')+w.t+'\u00b0':'');
+}
+main.addEventListener('scroll',()=>$('mini').classList.toggle('show',main.scrollTop>140),{passive:true});
+// pull to refresh with a progress ring
+(function(){const ptr=$('ptr');let y0=0,pull=0,on=false;
+ main.addEventListener('touchstart',e=>{on=main.scrollTop<=0;y0=e.touches[0].clientY;pull=0},{passive:true});
+ main.addEventListener('touchmove',e=>{if(!on)return;pull=Math.max(0,e.touches[0].clientY-y0);if(pull<8)return;ptr.classList.add('show');ptr.style.transform='translate(-50%,'+Math.min(60,pull*.45)+'px)';ptr.style.setProperty('--p',Math.min(1,pull/90))},{passive:true});
+ main.addEventListener('touchend',()=>{if(on&&pull>90&&!busy){ptr.classList.add('spin');$('refresh').click();setTimeout(()=>ptr.classList.remove('spin'),1500)}ptr.classList.remove('show');ptr.style.transform='';ptr.style.setProperty('--p',0);on=false;pull=0},{passive:true});
+})();
+
+// tiles grow into their detail view
+function openDetail(title,fill,src){
+  $('dtT').textContent=title;const b=$('dtB');b.textContent='';fill(b);
+  const ds=$('dsheet'),p=ds.querySelector('.panel');ds._src=src||null;p.scrollTop=0;ds.classList.add('open');
+  if(src&&!reduceMotion()){
+    const r=src.getBoundingClientRect(),W=innerWidth,H=innerHeight;
+    p.style.transition='none';p.style.clipPath=`inset(${r.top}px ${W-r.right}px ${H-r.bottom}px ${r.left}px round 20px)`;
+    void p.offsetWidth;p.style.transition='clip-path .5s cubic-bezier(.22,1,.36,1)';p.style.clipPath='inset(0px 0px 0px 0px round 0px)';
+  }else{p.style.clipPath='';p.style.transition=''}
+}
+function closeDetail(){
+  const ds=$('dsheet'),p=ds.querySelector('.panel'),src=ds._src;
+  if(src&&!reduceMotion()&&ds.classList.contains('open')){
+    const r=src.getBoundingClientRect(),W=innerWidth,H=innerHeight;
+    p.style.transition='clip-path .4s cubic-bezier(.22,1,.36,1)';p.style.clipPath=`inset(${r.top}px ${W-r.right}px ${H-r.bottom}px ${r.left}px round 20px)`;
+    setTimeout(()=>{ds.classList.remove('open');p.style.clipPath=''},380);
+  }else ds.classList.remove('open');
+}
+$('tNews').onclick=()=>{
+  const n=live&&live.news;if(!n){briefing();return}
+  openDetail('Headlines',b=>{
+    const sec=(h,a)=>{if(!a||!a.length)return;b.append(el('div','xs',h));a.forEach(t=>b.append(el('div','hlr',t)))};
+    sec('UK',n.uk);sec('Local',n.local);
+    const g=el('button','btn pri','Read me the briefing');g.onclick=()=>{closeDetail();briefing()};b.append(g);
+  },$('tNews'));
+};
+$('tFc').onclick=e=>{
+  if(e.target.closest('.seg,#fcSvg')||!fcData)return;
+  openDetail('Next hours \u00b7 '+(fcWhich==='home'?'Home':'Work'),b=>{
+    fcData.hours.forEach(h=>{const r=el('div','hrow');r.append(el('span','',`${h.h} \u00b7 ${h.desc}`),el('span','',`${h.t}\u00b0 \u00b7 ${h.rain}% rain`));b.append(r)});
+  },$('tFc'));
+};
+
+// smoother forecast chart: curve, gradient fill, tap to read an hour
+const smoothPath=pts=>{let d='M'+pts[0][0].toFixed(1)+','+pts[0][1].toFixed(1);for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;d+=` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`}return d};
+function paintForecast(){
+  const d=fcData;if(!d)return;
+  const hrs=d.hours.slice(0,13),n=hrs.length,W=300,H=64,svg=$('fcSvg');
+  const ts=hrs.map(h=>h.t),tmin=Math.min(...ts),rg=(Math.max(...ts)-tmin)||1,x=i=>8+i*(W-16)/(n-1),y=t=>H-14-((t-tmin)/rg)*(H-32);
+  const pts=hrs.map((h,i)=>[x(i),y(h.t)]),line=smoothPath(pts);
+  let s='<defs><linearGradient id="fcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd089" stop-opacity=".38"/><stop offset="1" stop-color="#ffd089" stop-opacity="0"/></linearGradient></defs>';
+  hrs.forEach((h,i)=>{const bh=Math.max(1,h.rain/100*(H-14));s+=`<rect x="${x(i)-8}" y="${H-bh-2}" width="16" height="${bh}" rx="3" fill="#4cc9f0" opacity=".26"/>`});
+  s+=`<path d="${line} L${x(n-1)},${H} L${x(0)},${H} Z" fill="url(#fcg)"/><path d="${line}" fill="none" stroke="#ffd089" stroke-width="2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/><line id="fcCur" x1="0" y1="0" x2="0" y2="${H}" stroke="#fff" stroke-opacity=".5" stroke-width="1" vector-effect="non-scaling-stroke" style="display:none"/>`;
+  svg.innerHTML=s;
+  const summary=()=>{const wet=hrs.find(h=>h.rain>=50),cold=hrs.find(h=>h.t<=2);$('fcS').textContent=(wet?`Rain likely from ${wet.h} (${wet.rain}%)`:'No rain expected in the next 12 hours')+(cold?`. Frost risk from ${cold.h}`:'')+(d.sunset?`. Sunset ${d.sunset}`:'')};
+  svg.onclick=e=>{const r=svg.getBoundingClientRect(),i=Math.max(0,Math.min(n-1,Math.round((((e.clientX-r.left)/r.width)*W-8)/((W-16)/(n-1))))),h=hrs[i],c=svg.querySelector('#fcCur');c.setAttribute('x1',x(i));c.setAttribute('x2',x(i));c.style.display='';$('fcS').textContent=`${i===0?'Now':h.h}: ${h.t}\u00b0, ${h.rain}% rain, ${h.desc}`;clearTimeout(svg._t);svg._t=setTimeout(()=>{c.style.display='none';summary()},3500)};
+  const row=$('fcRow');row.textContent='';
+  hrs.forEach((h,i)=>{if(i%3)return;const c=el('div','st'),ic=el('span','si');ic.innerHTML=wxIcon(h.desc);c.append(el('span','tm',i===0?'Now':h.h),ic,el('b','',h.t+'\u00b0'),el('span','pl',h.rain+'% rain'));row.append(c)});
+  const fx=$('fcX');fx.textContent='';
+  const lab=(v,t)=>t.find(x=>v<=x[0])[1];
+  if(d.uv!=null)fx.append(el('span','chip '+(d.uv>=6?'am':'ok'),`UV ${d.uv} ${lab(d.uv,[[2,'low'],[5,'moderate'],[7,'high'],[10,'very high'],[99,'extreme']])}`));
+  if(d.aqi!=null)fx.append(el('span','chip '+(d.aqi>60?'rd':d.aqi>40?'am':'ok'),`Air ${lab(d.aqi,[[20,'good'],[40,'fair'],[60,'moderate'],[80,'poor'],[999,'very poor']])}`));
+  if(d.pollen!=null)fx.append(el('span','chip '+(d.pollen>=90?'rd':d.pollen>=20?'am':'ok'),`Pollen ${lab(d.pollen,[[19,'low'],[89,'moderate'],[9999,'high']])}`));
+  paintGarage();applyMood();summary();
+}
+
+// ---------- trip log, CO2, parking ----------
+let trips=[];try{trips=JSON.parse(localStorage.getItem('jarvisTrips')||'[]')}catch(e){}
+let park=null;try{park=JSON.parse(localStorage.getItem('jarvisPark')||'null')}catch(e){}
+const saveTrips=()=>{try{localStorage.setItem('jarvisTrips',JSON.stringify(trips.slice(-40)))}catch(e){}};
+const CO2_L={e10:2.2,e5:2.3,b7:2.6};
+const monthKey=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()};
+function monthTrips(off){const d=new Date();d.setMonth(d.getMonth()-(off||0));const k=monthKey(d);return trips.filter(t=>monthKey(t.ts)===k)}
+const sumT=a=>({n:a.length,mi:a.reduce((t,x)=>t+x.mi,0),cost:a.reduce((t,x)=>t+x.cost,0),co2:a.reduce((t,x)=>t+x.co2,0)});
+const shrink=(file,max)=>new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.72))};im.onerror=rej;im.src=u});
+const fixNow=()=>new Promise(res=>{if(!navigator.geolocation)return res(null);navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lon:p.coords.longitude}),()=>res(null),{enableHighAccuracy:true,timeout:10000,maximumAge:0})});
+async function savePark(){
+  toast('Saving your spot...');const p=await fixNow();
+  if(!p){toast('Could not get your location. Allow location for this app.');return false}
+  park={lat:p.lat,lon:p.lon,ts:Date.now()};try{localStorage.removeItem('jarvisParkPhoto');localStorage.setItem('jarvisPark',JSON.stringify(park))}catch(e){}
+  toast('Parking spot saved');if($('dsheet').classList.contains('open'))refreshGarage();return true;
+}
+function finishTrip(){
+  const t=trip;if(!t||t.saved)return;t.saved=true;
+  const o=t.r.options[0],min=Math.max(1,Math.round((Date.now()-t.t0)/60000)),mpg=+cfg.mpg||+cfg.mpgAuto||45;
+  const l=o.fuel!=null?o.fuel:t.mi/mpg*GAL,cost=l*effPrice().ppl/100,co2=l*CO2_L[fuelType];
+  const rec={ts:Date.now(),from:t.r.from,to:t.r.to,mi:t.mi,min,eta:t.eta,l:+l.toFixed(2),cost:+cost.toFixed(2),co2:+co2.toFixed(1),geom:thin2(t.r.geom,60)};
+  trips.push(rec);saveTrips();
+  $('dLive').style.display='none';const d=$('dDone');d.textContent='';
+  const car=el('div','tp');car.innerHTML=carSide();d.append(car,el('h2','','Arrived'),el('div','sub',`${min} min \u00b7 ${t.mi} mi \u00b7 ${min<=t.eta?'on time or early':min-t.eta+' min over the estimate'}`));
+  const st=el('div','xstat');[['Fuel',rec.l.toFixed(1)+' L'],['Cost','\u00a3'+rec.cost.toFixed(2)],['CO\u2082',rec.co2.toFixed(1)+' kg']].forEach(([k,v])=>{const c=el('div','',k);c.append(el('b','',v));st.append(c)});
+  const b=el('div','xbtns');const pk=el('button','btn','Save parking spot');pk.onclick=async()=>{if(await savePark())pk.textContent='Parking saved'};const dn=el('button','btn pri','Done');dn.onclick=stopTrip;b.append(pk,dn);
+  d.append(st,b);d.classList.add('show');
+}
+const thin2=(g,n)=>{const s=Math.max(1,Math.ceil(g.length/n));return g.filter((_,i)=>i%s===0||i===g.length-1)};
+function startTrip(r){
+  r=r||commuteUI;
+  if(!r){alert('No route yet. Wait for the commute to load.');return}
+  if(!navigator.geolocation){alert('Location is not available here.');return}
+  if(trip)stopTrip();
+  trip={r,t0:Date.now(),mi:r.options[0].miles,eta:r.eta?r.eta.min:r.options[0].min,said:{},last:null,fuel:stations.length?stationsOnRoute(r.geom):[]};
+  $('dDone').classList.remove('show');$('dLive').style.display='';
+  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('dPos').innerHTML=carSide();$('drive').classList.add('open');tripUI(0,0,null,false);
+  try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>{if(trip)trip.wake=l}).catch(()=>{})}catch(e){}
+  trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
+}
+function tripUI(along,off,spd,live){
+  const t=trip,rem=Math.max(0,1-along),remMin=rem>0.02?Math.max(1,Math.round(t.eta*rem)):0;
+  const clock=new Date(Date.now()+remMin*60000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
+  $('dEta').textContent=clock;$('dRem').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(1)} mi to go`;
+  $('tpTxt').textContent=remMin?`${remMin} min \u00b7 ${clock}`:'Arrived';
+  $('dPos').style.left=(Math.min(1,along)*100)+'%';$('dPos').style.setProperty('--ws',spd>1?Math.max(.12,2/(spd/10))+'s':'0s');$('dSpd').textContent=spd==null?'--':String(Math.round(spd));
+  const inc=(t.r.incidents||[]).map(i=>({...i,a:project(t.r.geom,i.lat,i.lon).along})).filter(i=>i.a>along+0.003).sort((a,b)=>a.a-b.a)[0];
+  if(inc){const dd=(inc.a-along)*t.mi,nm=inc.text.split(':')[0];$('dAhead').textContent=`${dd.toFixed(1)} mi: ${nm}`;if(live&&dd<=5&&!t.said[inc.text]){t.said[inc.text]=1;speak(`${nm} ahead in ${Math.round(dd)} miles.`)}}else $('dAhead').textContent='Clear';
+  const f=t.fuel.filter(s=>s.along>along+0.01&&(s.along-along)*t.mi<40).sort((a,b)=>a.price-b.price)[0];
+  $('dFuel').textContent=f?`${tcase(f.b)} ${f.price.toFixed(1)}p, ${((f.along-along)*t.mi).toFixed(0)} mi`:'--';
+  const w=$('dWarn');w.textContent='';
+  if(live&&off>0.4){const a=el('a','','Off route: open Google Maps from here');a.href=`https://www.google.com/maps/dir/?api=1&destination=${t.r.b.lat},${t.r.b.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';w.append(a)}
+  if(live&&along>0.985&&!t.done){t.done=1;speak(`You have arrived, ${title()}.`);finishTrip()}
+}
+function stopTrip(){
+  if(!trip)return;
+  try{navigator.geolocation.clearWatch(trip.watch)}catch(e){}
+  try{trip.wake&&trip.wake.release()}catch(e){}
+  trip=null;$('drive').classList.remove('open');$('tpill').classList.remove('show');
+}
+$('dMin').onclick=()=>{if(!trip)return;$('drive').classList.remove('open');$('tpill').classList.add('show')};
+$('tpill').onclick=()=>{$('tpill').classList.remove('show');$('drive').classList.add('open')};
+$('tpCar').innerHTML=carSide();
+
+// garage detail (parking, month, trips)
+function refreshGarage(){const b=$('dtB');b.textContent='';fillGarage(b)}
+function openGarage(src){openDetail((cfg.car&&cfg.car.name)||'Garage',fillGarage,src||null)}
+function fillGarage(b){
+  const ago2=ts=>{const m=Math.round((Date.now()-ts)/60000);return m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago'};
+  b.append(el('div','xs','Parking'));
+  if(park){
+    const row=el('div','sub','Saved '+ago2(park.ts)+'. Checking distance...');b.append(row);
+    fixNow().then(p=>{if(p)row.textContent=`Saved ${ago2(park.ts)}. About ${miles(p,{lat:park.lat,lon:park.lon}).toFixed(2)} miles from you.`;else row.textContent='Saved '+ago2(park.ts)+'.'});
+    const ph=localStorage.getItem('jarvisParkPhoto');if(ph){const im=el('img','pimg');im.src=ph;b.append(im)}
+    const x=el('div','xbtns'),walk=el('a','btn pri','Walk back');walk.href=`https://www.google.com/maps/dir/?api=1&destination=${park.lat},${park.lon}&travelmode=walking`;walk.target='_blank';walk.rel='noopener';
+    const upd=el('button','btn','Update to here');upd.onclick=savePark;
+    const cam=el('button','btn',ph?'New photo':'Add photo'),file=el('input');file.type='file';file.accept='image/*';file.setAttribute('capture','environment');file.hidden=true;
+    cam.onclick=()=>file.click();file.onchange=async()=>{if(file.files[0]){try{localStorage.setItem('jarvisParkPhoto',await shrink(file.files[0],640));refreshGarage()}catch(e){toast('Could not save the photo')}}};
+    const clr=el('button','btn','Clear');clr.onclick=()=>{park=null;localStorage.removeItem('jarvisPark');localStorage.removeItem('jarvisParkPhoto');refreshGarage()};
+    x.append(walk,upd,cam,file,clr);b.append(x);
+  }else{b.append(emptyEl('No parking spot saved yet.'));const x=el('div','xbtns'),p=el('button','btn pri','Park here');p.onclick=savePark;x.append(p);b.append(x)}
+  const s=sumT(monthTrips(0));
+  b.append(el('div','xs','This month'));const st=el('div','xstat');
+  [['Trips',String(s.n)],['Miles',s.mi.toFixed(0)],['CO\u2082',s.co2.toFixed(0)+' kg']].forEach(([k,v])=>{const c=el('div','',k);c.append(el('b','',v));st.append(c)});b.append(st);
+  const rb=el('button','btn','Monthly report');rb.style.marginTop='10px';rb.onclick=()=>{closeDetail();setTimeout(()=>openReport(null),420)};b.append(rb);
+  b.append(el('div','xs','Recent trips'));
+  if(!trips.length)b.append(emptyEl('Trips you drive with Start trip appear here.'));
+  trips.slice().reverse().slice(0,10).forEach(t=>{
+    const r=el('div','xrow'),d=new Date(t.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    r.append(el('span','',`${d} \u00b7 ${t.from} \u2192 ${t.to}`),el('span','',`${t.min} min \u00b7 ${t.mi} mi\n\u00a3${t.cost.toFixed(2)} \u00b7 ${t.co2.toFixed(1)} kg`));
+    r.onclick=()=>{closeDetail();setTimeout(()=>openReplay(t),420)};b.append(r);
+  });
+  b.append(el('div','xs','Fuel'));const fl=el('button','btn','Fill-up log');fl.onclick=()=>{closeDetail();openLog()};b.append(fl);
+}
+let rpCtl=null;
+function openReplay(t){
+  const g=t.geom,r={a:{lat:g[0][0],lon:g[0][1]},b:{lat:g[g.length-1][0],lon:g[g.length-1][1]},from:t.from,to:t.to,geom:g,jams:[],incidents:[],eta:{min:t.min,delay:0,sources:[]},options:[{label:'FASTEST',min:t.min,geom:g,roads:[],miles:t.mi}]};
+  $('mvTitle').textContent=`${t.from} \u2192 ${t.to}`;$('mvChips').textContent='';$('mapview').classList.add('open');
+  satToggle(()=>rpCtl);const div=$('mvMap');div.textContent='';
+  window.__closeFull=()=>{$('mapview').classList.remove('open');if(rpCtl){rpCtl.destroy();rpCtl=null}$('mvMap').textContent=''};
+  mountMap(div,r,{interactive:true,sel:0,fuel:()=>({on:false,list:[]})}).then(c=>{rpCtl=c});
+}
+function openReport(src){
+  openDetail('Monthly report',b=>{
+    const a=sumT(monthTrips(0)),p=sumT(monthTrips(1)),fs=fillStats();
+    const diff=(x,y,u)=>y?`${x>=y?'+':'\u2212'}${Math.abs(x-y).toFixed(0)}${u} vs last month`:'';
+    b.append(el('div','xs',new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'})));
+    const st=el('div','xstat');[['Trips',String(a.n)],['Miles',a.mi.toFixed(0)],['Fuel cost','\u00a3'+a.cost.toFixed(0)],['CO\u2082',a.co2.toFixed(0)+' kg'],['Real mpg',fs.mpg?fs.mpg.toFixed(1):'--'],['Fill-ups','\u00a3'+fs.spend.toFixed(0)]].forEach(([k,v])=>{const c=el('div','',k);c.append(el('b','',v));st.append(c)});b.append(st);
+    if(p.n)b.append(el('div','sub',[diff(a.mi,p.mi,' mi'),diff(a.co2,p.co2,' kg CO\u2082')].filter(Boolean).join(' \u00b7 ')));
+    const mk=monthKey(Date.now()),ch=chist.filter(x=>monthKey(x.ts)===mk&&x.dir==='work');
+    if(ch.length>=3){const avg=Math.round(ch.reduce((t,x)=>t+x.min,0)/ch.length),best=ch.reduce((m,x)=>x.min<m.min?x:m),worst=ch.reduce((m,x)=>x.min>m.min?x:m);const fd=ts=>new Date(ts).toLocaleDateString('en-GB',{weekday:'short',day:'numeric'});
+      b.append(el('div','xs','Commute to work'),el('div','hlr',`Average ${avg} min over ${ch.length} checks`),el('div','hlr',`Quickest ${best.min} min (${fd(best.ts)}), slowest ${worst.min} min (${fd(worst.ts)})`))}
+    b.append(el('div','note2','CO\u2082 and fuel are estimates from your route and fuel type.'));
+  },src||$('tIns'));
+}
+$('tCar').onclick=e=>{if(e.target.closest('.road')){const t=$('tCar');t.classList.add('drive');sfx.rev();setTimeout(()=>t.classList.remove('drive'),1400)}else openGarage($('tCar'))};
+$('tIns').onclick=()=>openReport($('tIns'));
+
+// Siri shortcuts pack
+(function(){
+  const base=()=>location.origin+location.pathname.replace(/index\.html$/,''),box=$('siriList');
+  [['briefing','Morning briefing','Hey Siri, JARVIS briefing'],['work','Drive to work','Hey Siri, drive to work'],['home','Drive home','Hey Siri, drive home'],['leave','Best time to leave','Hey Siri, when should I leave'],['trip','Start my trip','Hey Siri, start my trip'],['fuel','Cheapest fuel nearby','Hey Siri, cheap fuel'],['park','Save my parking spot','Hey Siri, I parked'],['where','Where did I park?','Hey Siri, where is my car'],['report','Monthly report','Hey Siri, my car report']].forEach(([k,t,p])=>{
+    const r=el('div','xrow'),l=el('span','',t),s=el('span','',p);const left=el('div');left.append(l,document.createElement('br'),s);
+    const b=el('button','pill','Copy link');b.onclick=async()=>{const u=base()+'?cmd='+k;try{await navigator.clipboard.writeText(u);toast('Link copied')}catch(e){alert(u)}};
+    r.append(left,b);box.append(r);
+  });
+})();
 </script>
 </body>
 </html>
