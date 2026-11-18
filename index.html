@@ -544,6 +544,22 @@ body{padding-bottom:0}
 .cside svg,#dPos svg{filter:drop-shadow(0 0 5px rgba(56,189,248,.55))}
 .road{background:linear-gradient(#0a1a2b,#06101b)}
 html{background:none}
+  /* ===== v23: Home Screen fixes ===== */
+html{background:#05070A;overscroll-behavior:none}
+body{position:fixed;inset:0;height:auto;overflow:hidden;overscroll-behavior:none;background:none}
+#main{overscroll-behavior-y:contain}
+#fx{background:radial-gradient(120% 50% at 50% 0%,var(--top,#0b2a47) 0%,transparent 62%)}
+#ptr{opacity:0;transform:translate(-50%,-160%);transition:transform .2s,opacity .2s}
+#ptr.show{opacity:1;transform:translate(-50%,0)}
+#sys{white-space:nowrap}
+/* smoother intro: opacity/transform only, no animated filters */
+#boot{will-change:opacity;animation:fadein .35s ease backwards}
+#boot svg{will-change:transform;animation:bootin .9s var(--spring) backwards}
+@keyframes bootin{from{transform:scale(.86);opacity:0}}
+#boot .b1{animation:none;stroke-dasharray:none;stroke-dashoffset:0;opacity:.6}
+#boot .bcore,#boot .dot{filter:none!important}
+#boot .b2{animation:spin 10s linear infinite}
+#boot .b4{animation:none}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -567,7 +583,6 @@ html{background:none}
 <header>
   <button class="icon" id="gear" aria-label="Settings"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   <h1>J.A.R.V.I.S.</h1>
-  <span class="spacer"></span>
   <span id="sys">SYS ONLINE</span>
 </header>
 
@@ -666,7 +681,7 @@ html{background:none}
       <label>MOT due<input type="date" id="rm_mot"></label><label>Road tax due<input type="date" id="rm_tax"></label><label>Insurance renewal<input type="date" id="rm_ins"></label><label>Next service<input type="date" id="rm_svc"></label>
     </details>
     <details class="dd"><summary>Dashboard tiles</summary><div class="note">Show or hide sections of the dashboard.</div><div class="toggles" id="tileTog"></div></details>
-    <details class="dd"><summary>Setup status</summary><div class="toggles"><button class="pill" id="hcRun">Check now</button></div><div id="hcList"></div></details>
+    <details class="dd"><summary>Setup status</summary><div class="toggles"><button class="pill" id="hcRun">Check now</button><button class="pill" id="hcReload">Reload latest</button></div><div id="hcList"></div></details>
     <details class="dd"><summary>Delay alerts</summary>
       <div class="note">Get a notification when your usual journey is running slow. On iPhone this only works from the Home Screen app. It needs the Worker's storage and schedule set up (see the setup steps).</div>
       <div class="toggles"><button class="pill" id="alEnable">Turn on alerts</button><button class="pill" id="alTest">Send test</button></div>
@@ -1646,6 +1661,7 @@ applyTiles();
 async function runHealth(){
   const box=$('hcList');box.textContent='';
   const row=(state,name,note)=>{const r=el('div','hrow '+state);r.append(el('b','',(state==='ok'?'\u2713 ':state==='no'?'\u2717 ':'\u25cb ')+name),el('span','',note||''));box.append(r)};
+  row('ok','App version',APP_VER);
   let h=null;
   try{h=await post('/health',{})}catch(e){}
   if(!getWorker())row('no','Worker URL','Add it under Connection');
@@ -1665,7 +1681,9 @@ async function runHealth(){
   row(window.Notification?(Notification.permission==='granted'?'ok':'op'):'op','Notifications',window.Notification?Notification.permission:'not supported');
   row(navigator.geolocation?'ok':'op','Location',navigator.geolocation?'allowed when you tap Use my location':'not available');
 }
+const APP_VER='v23';
 $('hcRun').onclick=runHealth;
+$('hcReload').onclick=async()=>{try{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k)}catch(e){}location.reload()};
 function localIntent(t){
   const s=t.toLowerCase(),say=m=>{add('u',t);add('j',m);speak(m)};
   if(/\b(start|begin)\b.*\b(trip|drive|journey)\b/.test(s)){say(`Starting your trip, ${title()}.`);startTrip(commuteUI);return true}
@@ -2230,8 +2248,8 @@ if(cmd){
   setTimeout(()=>endBoot(false),7000);
 }
 
-restoreCache();loadDash(false);loadFuel();
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+requestAnimationFrame(()=>setTimeout(()=>{restoreCache();loadDash(false);loadFuel()},650));
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 function paintSys(){const s=$('sys');if(!s)return;const on=navigator.onLine;s.textContent=on?'SYS ONLINE':'SYS OFFLINE';s.className=on?'':'off'}
 addEventListener('online',paintSys);addEventListener('offline',paintSys);paintSys();
 document.querySelectorAll('#sheet .panel,#lsheet .panel,#dsheet .panel').forEach(p=>{let y0=null,dy=0;
