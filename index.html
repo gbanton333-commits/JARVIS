@@ -594,6 +594,17 @@ html[data-black="1"]{background:#000;--bg:#000;--panel:#050608;--panel2:#090c10}
 #dDone h2{font-weight:200;font-size:2.6rem;margin:0}
 #dDone .tp{width:150px;margin:0 auto}#dDone .tp svg{width:100%;display:block}
 #siriList .xrow{cursor:default;align-items:center}
+  /* ===== v26: maps + layout ===== */
+#dock{padding-bottom:calc(env(safe-area-inset-bottom) * .45 + 6px)}
+.mvf{padding:10px 12px calc(env(safe-area-inset-bottom) * .5 + 10px);display:flex;flex-direction:column;gap:8px}
+#mvTools{padding-right:24px}
+#mvTools .rchip{min-height:40px}
+.etab{font-size:.8rem;padding:4px 11px;box-shadow:0 6px 18px #000b}
+#dMap{display:none;height:36vh;border-radius:18px;overflow:hidden;margin-top:10px;background:#0a1620;border:1px solid var(--line);position:relative}
+#drive .dmain{margin:2vh 0 1vh}
+#drive #dEta{font-size:3.6rem}
+#dMapT{margin-top:8px;align-self:flex-start}
+.mk-cartop{filter:drop-shadow(0 4px 8px #000c)}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -752,6 +763,7 @@ html[data-black="1"]{background:#000;--bg:#000;--panel:#050608;--panel2:#090c10}
 </div>
 <div id="drive" role="dialog" aria-label="Trip">
   <div class="dhead"><div id="dTo">Trip</div><div class="dbtn"><button class="icon" id="dMin" aria-label="Minimise trip">&#8964;</button><button class="icon" id="dEnd" aria-label="End trip">&#10005;</button></div></div>
+  <div id="dMap"></div><button class="pill" id="dMapT">Map on/off</button>
   <div id="dLive">
     <div class="dmain"><div class="dlab">ARRIVE</div><div id="dEta">--:--</div><div id="dRem">--</div></div>
     <div class="dbar"><div id="dJam"></div><i id="dPos"></i></div>
@@ -788,7 +800,7 @@ html[data-black="1"]{background:#000;--bg:#000;--panel:#050608;--panel2:#090c10}
 <div id="mapview" role="dialog" aria-label="Route map">
   <div class="mvh"><div id="mvTitle">Route</div><button class="pill" id="mvSat">Satellite</button><button class="icon" id="mvClose" aria-label="Close map">&#10005;</button></div>
   <div id="mvMap"></div>
-  <div class="mvf"><div class="rchips" id="mvChips"></div></div>
+  <div class="mvf"><div class="rchips" id="mvTools"></div><div class="rchips" id="mvChips"></div></div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
@@ -827,6 +839,8 @@ const ctx=()=>{const o={home:placeText('home'),work:placeText('work'),mpg:+cfg.m
   return o};
 const needsSetup=()=>!getWorker()||!placeText('home')||!placeText('work');
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+const EMPTY_CAR='<svg viewBox="0 0 120 50" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 38V30q1-3 5-4l10-9q6-5 18-5h24q10 1 20 11l17 4q5 1 5 7v4"/><path d="M16 38h8M40 38h40M96 38h10M30 18l-8 9h46l-6-11"/><circle cx="32" cy="38" r="7"/><circle cx="88" cy="38" r="7"/></svg>';
+function emptyEl(m){const d=el('div','empty');d.innerHTML=EMPTY_CAR;d.append(el('span','',m));return d}
 function toEnd(){setTimeout(()=>main.scrollTo({top:main.scrollHeight,behavior:'smooth'}),60)}
 function add(cls,text){
   const d=el('div','m '+cls,text);
@@ -1056,14 +1070,15 @@ async function mountStationsMap(div){
   try{map=new maplibregl.Map({container:div,style:STYLE_URL,attributionControl:false,fadeDuration:0,pixelRatio:Math.min(window.devicePixelRatio||1,2)})}catch(e){return stationsLeaflet(div)}
   map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
-  const ctl={destroy(){dead=true;try{map.remove()}catch(e){}},setSat(on){try{map.setLayoutProperty('sat','visibility',on?'visible':'none')}catch(e){}}};
+  const ctl={destroy(){dead=true;clearInterval(ctl.rt);try{map.remove()}catch(e){}}};
+  attachTools(ctl,map);
   const fallback=()=>{if(dead)return;ctl.destroy();div.textContent='';stCtl=stationsLeaflet(div)};
   const timer=setTimeout(()=>{if(!loaded)fallback()},9000);
   ctl.refresh=()=>{
     mk.splice(0).forEach(m=>m.remove());
     const {o,show,lo,hi,best}=stationPills();if(!o||dead)return;
     mk.push(new maplibregl.Marker({element:carEl(),rotationAlignment:'map'}).setLngLat([o.lon,o.lat]).addTo(map));
-    const bd=new maplibregl.LngLatBounds();bd.extend([o.lon,o.lat]);
+    const bd=new maplibregl.LngLatBounds();bd.extend([o.lon,o.lat]);ctl.fit=d=>map.fitBounds(bd,{padding:{top:70,bottom:50,left:40,right:40},maxZoom:14,duration:d==null?600:d});
     show.forEach(s=>{
       const m=new maplibregl.Marker({element:fuelPill(s,TIER_CLS[tierOf(s.price,lo,hi)],s===best)}).setLngLat([s.lo,s.la]);
       m.setPopup(new maplibregl.Popup({offset:14,closeButton:false}).setDOMContent(fuelPopup(s)));
@@ -1682,9 +1697,7 @@ function readCar(){cfg.car=Object.assign({},cfg.car,{name:$('carName').value.tri
 CAR_COL.forEach(c=>{const b=el('button');b.dataset.c=c;b.style.setProperty('--c',c);b.setAttribute('aria-label','Car colour');b.onclick=()=>{cfg.car=Object.assign({},cfg.car,{color:c});saveCfg();applyCar()};$('carCols').append(b)});
 applyCar();
 // satellite imagery toggle for the big maps
-const addSat=m=>{m.addSource('sat',{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19,attribution:'Imagery \u00a9 Esri'});m.addLayer({id:'sat',type:'raster',source:'sat',layout:{visibility:'none'}})};
-function satToggle(getCtl){let on=false;$('mvSat').classList.remove('on');window.__satToggle=()=>{on=!on;const c=getCtl();if(c&&c.setSat)c.setSat(on);$('mvSat').classList.toggle('on',on)}}
-$('mvSat').onclick=()=>{if(window.__satToggle)window.__satToggle()};
+
 
 // ---------- toast, tile toggles, setup status, voice shortcuts ----------
 let toastT=null;
@@ -1716,7 +1729,7 @@ async function runHealth(){
   row(window.Notification?(Notification.permission==='granted'?'ok':'op'):'op','Notifications',window.Notification?Notification.permission:'not supported');
   row(navigator.geolocation?'ok':'op','Location',navigator.geolocation?'allowed when you tap Use my location':'not available');
 }
-const APP_VER='v25';
+const APP_VER='v26';
 $('hcRun').onclick=runHealth;
 $('hcReload').onclick=async()=>{try{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k)}catch(e){}location.reload()};
 function localIntent(t){
@@ -1823,7 +1836,7 @@ function onFix(p){
   let spd=p.coords.speed!=null&&p.coords.speed>=0?p.coords.speed*2.23694:null;
   if(spd==null&&trip.last){const dt=(now-trip.last.t)/1000;if(dt>0)spd=miles({lat:trip.last.la,lon:trip.last.lo},{lat:la,lon:lo})/dt*3600}
   trip.last={la,lo,t:now};
-  const pr=project(trip.r.geom,la,lo);tripUI(pr.along,pr.off,spd,true);
+  const pr=project(trip.r.geom,la,lo);tripUI(pr.along,pr.off,spd,true);followTrip(la,lo,p.coords.heading!=null&&!isNaN(p.coords.heading)?p.coords.heading:routeHeading(trip.r.geom,pr.along));
 }
 $('dEnd').onclick=stopTrip;$('dTalk').onclick=()=>listen();$('cTrip').onclick=e=>{e.stopPropagation();startTrip(commuteUI)};
 
@@ -1928,9 +1941,9 @@ async function mountMap(div,r,o){
   catch(e){drawMapLeaflet(div,r);return null}
   map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
   if(o.interactive)map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
-  const ctl={want:o.sel||0,markers:[],fuelMk:[],destroy(){dead=true;cancelAnimationFrame(ctl.raf);try{map.remove()}catch(e){}}};
-  ctl.setSat=on=>{try{map.setLayoutProperty('sat','visibility',on?'visible':'none')}catch(e){}};
-  const fallback=()=>{if(dead)return;ctl.destroy();div.textContent='';drawMapLeaflet(div,r)};
+  const ctl={want:o.sel||0,markers:[],fuelMk:[],destroy(){dead=true;cancelAnimationFrame(ctl.raf);clearInterval(ctl.rt);try{map.remove()}catch(e){}}};
+  attachTools(ctl,map);
+    const fallback=()=>{if(dead)return;ctl.destroy();div.textContent='';drawMapLeaflet(div,r)};
   const timer=setTimeout(()=>{if(!loaded)fallback()},9000);
   let etaMk=null;
   ctl.refreshFuel=()=>{
@@ -1956,14 +1969,16 @@ async function mountMap(div,r,o){
     if(!etaMk){etaMk=new maplibregl.Marker({element:el('div','etab','')}).setLngLat([mid[1],mid[0]]).addTo(map)}
     etaMk.setLngLat([mid[1],mid[0]]);etaMk.getElement().textContent=timeOf(r,i)+' min';
     const bd=new maplibregl.LngLatBounds();g.forEach(p=>bd.extend([p[1],p[0]]));
-    map.fitBounds(bd,{padding:o.interactive?{top:70,bottom:50,left:40,right:40}:{top:40,bottom:40,left:34,right:34},maxZoom:15,duration:animate?700:0});
+    ctl.fit=d=>map.fitBounds(bd,{padding:o.interactive?{top:70,bottom:50,left:40,right:40}:{top:40,bottom:40,left:34,right:34},maxZoom:15,duration:d==null?700:d});ctl.fit(animate?700:0);
     ctl.refreshFuel();if(o.interactive)startPreview();
   }
   function startPreview(){
     if(reduceMotion()||!window.requestAnimationFrame||!ctl.car)return;cancelAnimationFrame(ctl.raf);
     const g=geomOf(r,ctl.want),t0=performance.now(),dur=Math.min(22000,Math.max(9000,g.length*140));
     const step=t=>{if(dead)return;const p=Math.min(1,((t-t0)%(dur+1800))/dur)*(g.length-1),i=Math.min(g.length-2,Math.floor(p)),u=p-i;
-      ctl.car.setLngLat([g[i][1]+(g[i+1][1]-g[i][1])*u,g[i][0]+(g[i+1][0]-g[i][0])*u]);ctl.car.setRotation(brg(g,i));ctl.raf=requestAnimationFrame(step)};
+      const lng=g[i][1]+(g[i+1][1]-g[i][1])*u,lat=g[i][0]+(g[i+1][0]-g[i][0])*u,b=brg(g,i);ctl.car.setLngLat([lng,lat]);ctl.car.setRotation(b);
+      if(ctl.chase){ctl.bear=ctl.bear==null?b:ctl.bear+((((b-ctl.bear+540)%360)-180)*.12);map.jumpTo({center:[lng,lat],bearing:ctl.bear,pitch:60,zoom:16.2})}
+      ctl.raf=requestAnimationFrame(step)};
     ctl.raf=requestAnimationFrame(step);
   }
   map.on('load',()=>{
@@ -2013,7 +2028,7 @@ function keepMaps(ctl,div,reload){
 
 let fullCtl=null;
 function openFull(r,sel,onSelect,syncList,chipRow,paintAll){
-  satToggle(()=>fullCtl);
+  window.__routeGetter=()=>fullCtl;satToggle(window.__routeGetter);
   const view=$('mapview');
   $('mvTitle').textContent=`${r.from} \u2192 ${r.to}`;
   view.classList.add('open');
@@ -2278,11 +2293,9 @@ const IC={
  back:'<path d="M15 5l-7 7 7 7"/>',expand:'<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',chev:'<path d="M6 9l6 6 6-6"/>',
  play:'<path d="M8 5l11 7-11 7z" fill="currentColor" stroke="none"/>'};
 const icon=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
-const ICMAP={'\u21bb':'refresh','\u21c6':'swap','\u2715':'x','\u2190':'back','\u2922':'expand','\u25b6':'play'};
+const ICMAP={'\u2304':'chev','\u21bb':'refresh','\u21c6':'swap','\u2715':'x','\u2190':'back','\u2922':'expand','\u25b6':'play'};
 function applyIcons(root){(root||document).querySelectorAll('button').forEach(b=>{const t=b.textContent.trim();if(ICMAP[t]&&!b.querySelector('svg'))b.innerHTML=icon(ICMAP[t])})}
 applyIcons();
-const EMPTY_CAR='<svg viewBox="0 0 120 50" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 38V30q1-3 5-4l10-9q6-5 18-5h24q10 1 20 11l17 4q5 1 5 7v4"/><path d="M16 38h8M40 38h40M96 38h10M30 18l-8 9h46l-6-11"/><circle cx="32" cy="38" r="7"/><circle cx="88" cy="38" r="7"/></svg>';
-const emptyEl=m=>{const d=el('div','empty');d.innerHTML=EMPTY_CAR;d.append(el('span','',m));return d};
 function applyBlack(){document.documentElement.dataset.black=cfg.black?'1':'';$('blk').classList.toggle('on',!!cfg.black)}
 $('blk').onclick=()=>{cfg.black=!cfg.black;saveCfg();applyBlack()};applyBlack();
 
@@ -2356,6 +2369,88 @@ function paintForecast(){
   paintGarage();applyMood();summary();
 }
 
+// ================= v26: map sources, live traffic, radar, 3D drive view, trip map =================
+const BASES={
+  streets:{name:'Streets',tiles:['a','b','c'].map(s=>`https://${s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png`),attr:'\u00a9 OpenStreetMap \u00a9 CARTO'},
+  sat:{name:'Satellite',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],attr:'Imagery \u00a9 Esri'},
+  topo:{name:'Terrain',tiles:['a','b','c'].map(s=>`https://${s}.tile.opentopomap.org/{z}/{x}/{y}.png`),attr:'\u00a9 OpenStreetMap, SRTM | \u00a9 OpenTopoMap'},
+  mbdark:{name:'Mapbox Dark',proxy:'mapbox-dark',needs:'mapbox',attr:'\u00a9 Mapbox \u00a9 OpenStreetMap'},
+  mbsat:{name:'Mapbox Satellite',proxy:'mapbox-sat',needs:'mapbox',attr:'\u00a9 Mapbox \u00a9 Maxar'},
+  hnight:{name:'HERE Night',proxy:'here-night',needs:'here',attr:'\u00a9 HERE'},
+  hday:{name:'HERE Day',proxy:'here-day',needs:'here',attr:'\u00a9 HERE'}
+};
+let mapFlags=null,radarCache=null;
+async function getFlags(){if(mapFlags)return mapFlags;try{mapFlags=await post('/health',{})}catch(e){mapFlags={}}return mapFlags}
+function addSat(m){
+  Object.keys(BASES).forEach(k=>{const b=BASES[k];m.addSource('b-'+k,{type:'raster',tiles:b.proxy?[getWorker()+'/tiles/'+b.proxy+'/{z}/{x}/{y}.png']:b.tiles,tileSize:256,maxzoom:b.proxy?18:19,attribution:b.attr});m.addLayer({id:'b-'+k,type:'raster',source:'b-'+k,layout:{visibility:'none'}})});
+  m.addSource('traffic',{type:'raster',tiles:[getWorker()+'/tiles/flow/{z}/{x}/{y}.png'],tileSize:256,maxzoom:18,attribution:'Traffic \u00a9 TomTom'});
+  m.addLayer({id:'traffic',type:'raster',source:'traffic',paint:{'raster-opacity':.85},layout:{visibility:'none'}});
+}
+async function radarFrames(){
+  if(radarCache&&Date.now()-radarCache.t<300000)return radarCache.f;
+  const d=await (await fetch('https://api.rainviewer.com/public/weather-maps.json')).json();
+  const f=((d.radar&&d.radar.past)||[]).slice(-6).map(x=>d.host+x.path+'/256/{z}/{x}/{y}/2/1_1.png');radarCache={t:Date.now(),f};return f;
+}
+function attachTools(ctl,map){
+  ctl.base='';
+  ctl.setBase=id=>{ctl.base=id;Object.keys(BASES).forEach(k=>{try{map.setLayoutProperty('b-'+k,'visibility',k===id?'visible':'none')}catch(e){}})};
+  ctl.setTraffic=on=>{ctl.traffic=on;try{map.setLayoutProperty('traffic','visibility',on?'visible':'none')}catch(e){}};
+  ctl.setPitch=on=>{ctl.pitched=on;try{map.easeTo({pitch:on?58:0,duration:600})}catch(e){}};
+  ctl.setChase=on=>{ctl.chase=on;ctl.bear=null;if(!on){try{map.easeTo({pitch:0,bearing:0,duration:500});ctl.fit&&ctl.fit()}catch(e){}}};
+  ctl.setRadar=async on=>{
+    ctl.radar=on;clearInterval(ctl.rt);const ids=ctl.radarIds||[];
+    if(!on){ids.forEach(id=>{try{map.setLayoutProperty(id,'visibility','none')}catch(e){}});return}
+    let f=[];try{f=await radarFrames()}catch(e){}
+    if(!f.length){toast('Rain radar is unavailable right now');ctl.radar=false;return}
+    if(!ctl.radarIds){ctl.radarIds=[];const before=map.getLayer('alts-hit')?'alts-hit':undefined;f.forEach((u,i)=>{map.addSource('rv'+i,{type:'raster',tiles:[u],tileSize:256,maxzoom:7,attribution:'Radar \u00a9 RainViewer'});map.addLayer({id:'rv'+i,type:'raster',source:'rv'+i,paint:{'raster-opacity':.65,'raster-fade-duration':0},layout:{visibility:'none'}},before);ctl.radarIds.push('rv'+i)})}
+    let i=0;const step=()=>{ctl.radarIds.forEach((id,k)=>{try{map.setLayoutProperty(id,'visibility',k===i?'visible':'none')}catch(e){}});i=(i+1)%ctl.radarIds.length};step();ctl.rt=setInterval(step,750);
+  };
+}
+// the pill row under the big map: map source, live layers, 3D, drive view
+async function buildTools(getCtl){
+  const box=$('mvTools');box.textContent='';const fl=await getFlags(),st={base:'',traffic:true,radar:false,pitch:false,chase:false};
+  const c=()=>getCtl();
+  const pill=(t,fn,on)=>{const b=el('button','rchip'+(on?' on':''),t);b.onclick=()=>fn(b);box.append(b);return b};
+  const bases=[['','Dark']].concat(Object.keys(BASES).filter(k=>!BASES[k].needs||fl[BASES[k].needs]).map(k=>[k,BASES[k].name])),btns=[];
+  bases.forEach(([k,n])=>btns.push(pill(n,()=>{st.base=k;btns.forEach((b,i)=>b.classList.toggle('on',bases[i][0]===k));const x=c();if(x&&x.setBase)x.setBase(k)},k==='')));
+  const tog=(label,key,fn,on)=>pill(label,b=>{st[key]=!st[key];b.classList.toggle('on',st[key]);const x=c();if(x&&x[fn])x[fn](st[key])},on);
+  tog('Live traffic','traffic','setTraffic',true);tog('Rain radar','radar','setRadar',false);tog('3D','pitch','setPitch',false);
+  if(c()&&'chase' in {chase:1}&&window.__routeMap)tog('Drive view','chase','setChase',false);
+  pill('Recenter',()=>{const x=c();if(x&&x.fit)x.fit(500)});
+  const x=c();if(x&&x.setTraffic)setTimeout(()=>{const y=c();if(y&&y.setTraffic)y.setTraffic(true)},900);   // traffic on by default once the map has loaded
+}
+function satToggle(getCtl){window.__routeMap=getCtl===window.__routeGetter;buildTools(getCtl)}
+$('mvSat').style.display='none';
+
+// live navigation map inside the trip screen
+let tmap=null;
+const routeHeading=(g,a)=>{const i=Math.max(0,Math.min(g.length-2,Math.round(a*(g.length-1))));return brg(g,i)};
+async function mountTripMap(r){
+  const ok=await loadMapLib(),div=$('dMap');
+  if(!ok||!webgl()||!trip||cfg.tripMap===false){div.style.display='none';return}
+  div.style.display='';div.textContent='';
+  const g=r.geom,map=new maplibregl.Map({container:div,style:STYLE_URL,attributionControl:false,interactive:false,fadeDuration:0,pixelRatio:Math.min(window.devicePixelRatio||1,2),center:[g[0][1],g[0][0]],zoom:15.5,pitch:58,bearing:routeHeading(g,0)});
+  const t={map,ready:false,dead:false};tmap=t;
+  map.on('load',()=>{
+    if(t.dead)return;
+    try{
+      addSat(map);map.setLayoutProperty('traffic','visibility','visible');
+      map.addSource('tr',{type:'geojson',data:feat(lnglat(g))});
+      map.addLayer({id:'tr-glow',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':ACC(),'line-width':14,'line-opacity':.25,'line-blur':6}});
+      map.addLayer({id:'tr-line',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':ACC(),'line-width':5}});
+      t.car=new maplibregl.Marker({element:carEl(),rotationAlignment:'map',pitchAlignment:'map'}).setLngLat([g[0][1],g[0][0]]).addTo(map);
+      t.ready=true;
+    }catch(e){}
+  });
+}
+function followTrip(la,lo,hdg){
+  const t=tmap;if(!t||!t.ready)return;
+  t.car.setLngLat([lo,la]);t.car.setRotation(hdg||0);
+  try{t.map.easeTo({center:[lo,la],bearing:hdg||0,pitch:58,zoom:16,duration:900,easing:x=>x})}catch(e){}
+}
+function destroyTripMap(){if(tmap){tmap.dead=true;try{tmap.map.remove()}catch(e){}tmap=null}$('dMap').style.display='none'}
+$('dMapT').onclick=()=>{cfg.tripMap=cfg.tripMap===false;saveCfg();if(cfg.tripMap===false)destroyTripMap();else if(trip)mountTripMap(trip.r);toast(cfg.tripMap===false?'Trip map hidden':'Trip map on')};
+
 // ---------- trip log, CO2, parking ----------
 let trips=[];try{trips=JSON.parse(localStorage.getItem('jarvisTrips')||'[]')}catch(e){}
 let park=null;try{park=JSON.parse(localStorage.getItem('jarvisPark')||'null')}catch(e){}
@@ -2392,7 +2487,7 @@ function startTrip(r){
   if(trip)stopTrip();
   trip={r,t0:Date.now(),mi:r.options[0].miles,eta:r.eta?r.eta.min:r.options[0].min,said:{},last:null,fuel:stations.length?stationsOnRoute(r.geom):[]};
   $('dDone').classList.remove('show');$('dLive').style.display='';
-  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('dPos').innerHTML=carSide();$('drive').classList.add('open');tripUI(0,0,null,false);
+  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('dPos').innerHTML=carSide();$('drive').classList.add('open');tripUI(0,0,null,false);mountTripMap(r);
   try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>{if(trip)trip.wake=l}).catch(()=>{})}catch(e){}
   trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
 }
@@ -2414,7 +2509,7 @@ function stopTrip(){
   if(!trip)return;
   try{navigator.geolocation.clearWatch(trip.watch)}catch(e){}
   try{trip.wake&&trip.wake.release()}catch(e){}
-  trip=null;$('drive').classList.remove('open');$('tpill').classList.remove('show');
+  trip=null;destroyTripMap();$('drive').classList.remove('open');$('tpill').classList.remove('show');
 }
 $('dMin').onclick=()=>{if(!trip)return;$('drive').classList.remove('open');$('tpill').classList.add('show')};
 $('tpill').onclick=()=>{$('tpill').classList.remove('show');$('drive').classList.add('open')};
@@ -2454,7 +2549,7 @@ let rpCtl=null;
 function openReplay(t){
   const g=t.geom,r={a:{lat:g[0][0],lon:g[0][1]},b:{lat:g[g.length-1][0],lon:g[g.length-1][1]},from:t.from,to:t.to,geom:g,jams:[],incidents:[],eta:{min:t.min,delay:0,sources:[]},options:[{label:'FASTEST',min:t.min,geom:g,roads:[],miles:t.mi}]};
   $('mvTitle').textContent=`${t.from} \u2192 ${t.to}`;$('mvChips').textContent='';$('mapview').classList.add('open');
-  satToggle(()=>rpCtl);const div=$('mvMap');div.textContent='';
+  window.__routeGetter=()=>rpCtl;satToggle(window.__routeGetter);const div=$('mvMap');div.textContent='';
   window.__closeFull=()=>{$('mapview').classList.remove('open');if(rpCtl){rpCtl.destroy();rpCtl=null}$('mvMap').textContent=''};
   mountMap(div,r,{interactive:true,sel:0,fuel:()=>({on:false,list:[]})}).then(c=>{rpCtl=c});
 }
