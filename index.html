@@ -605,6 +605,30 @@ html[data-black="1"]{background:#000;--bg:#000;--panel:#050608;--panel2:#090c10}
 #drive #dEta{font-size:3.6rem}
 #dMapT{margin-top:8px;align-self:flex-start}
 .mk-cartop{filter:drop-shadow(0 4px 8px #000c)}
+  /* ===== v27: trip co-pilot + button fixes ===== */
+button.btn{background:#ffffff0a;border:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer}
+input[hidden]{display:none!important}
+.xrow span:last-child{white-space:pre-line}
+#drive{overflow-y:auto;-webkit-overflow-scrolling:touch}
+#dPos{left:clamp(29px,var(--pp,0%),calc(100% - 29px))!important}
+#dMapWrap{position:relative;margin-top:10px}
+#dMapWrap.off{height:40px}
+#dMapWrap.off #dMap{display:none}
+#dMap{display:block;height:30vh;margin-top:0;font-size:.8rem;color:var(--dim)}
+#dMapT{position:absolute;top:8px;right:8px;z-index:3;min-height:34px;padding:0 12px;font-size:.68rem;background:#06121fd9;margin:0}
+#dMapWrap.off #dMapT{top:0}
+#drive #dEta{font-size:3rem}
+#drive .dmain{margin:1.5vh 0 .5vh}
+#dSpdBox.over{border-color:var(--bad)}#dSpdBox.over b{color:var(--bad)}
+#dFeed{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.fcard{border:1px solid var(--line);border-left:3px solid var(--ok);background:#ffffff07;border-radius:14px;padding:10px 12px}
+.fcard.am{border-left-color:var(--warn)}.fcard.rd{border-left-color:var(--bad)}
+.fcard .ftag{font:600 .6rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.fcard b{display:block;font-weight:500;font-size:.98rem;margin-top:2px;line-height:1.3}
+.fcard .s{display:block;font-size:.78rem;color:var(--dim);margin-top:2px;line-height:1.35}
+.dfoot{position:sticky;bottom:0;padding-top:12px;background:linear-gradient(transparent,var(--bg) 28%)}
+.dopts{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.dopts .pill{min-height:38px}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -763,15 +787,16 @@ html[data-black="1"]{background:#000;--bg:#000;--panel:#050608;--panel2:#090c10}
 </div>
 <div id="drive" role="dialog" aria-label="Trip">
   <div class="dhead"><div id="dTo">Trip</div><div class="dbtn"><button class="icon" id="dMin" aria-label="Minimise trip">&#8964;</button><button class="icon" id="dEnd" aria-label="End trip">&#10005;</button></div></div>
-  <div id="dMap"></div><button class="pill" id="dMapT">Map on/off</button>
+  <div id="dMapWrap"><div id="dMap"></div><button class="pill" id="dMapT">Hide map</button></div>
   <div id="dLive">
     <div class="dmain"><div class="dlab">ARRIVE</div><div id="dEta">--:--</div><div id="dRem">--</div></div>
     <div class="dbar"><div id="dJam"></div><i id="dPos"></i></div>
-    <div class="dgrid"><div><span>Speed</span><b id="dSpd">--</b><em>mph</em></div><div><span>Ahead</span><b id="dAhead">Clear</b></div><div><span>Fuel ahead</span><b id="dFuel">--</b></div></div>
+    <div class="dgrid"><div id="dSpdBox"><span>Speed</span><b id="dSpd">--</b><em id="dLim">mph</em></div><div><span>Fuel use</span><b id="dMpg">--</b><em id="dMpgN">mpg right now</em></div><div><span>Trip so far</span><b id="dCost">--</b><em id="dCo2"></em></div></div>
+    <div id="dFeed"></div>
     <div id="dWarn"></div>
   </div>
   <div id="dDone"></div>
-  <div class="dfoot"><button class="btn pri" id="dTalk">Tap to talk</button></div>
+  <div class="dfoot"><div class="dopts"><button class="pill" id="dLow">Low fuel</button><button class="pill" id="dVox">Voice alerts</button><button class="pill" id="dSpA">Speed alerts</button></div><button class="btn pri" id="dTalk">Tap to talk</button></div>
 </div>
 <div id="lsheet" role="dialog" aria-label="Fill-up log">
   <div class="panel">
@@ -1729,7 +1754,7 @@ async function runHealth(){
   row(window.Notification?(Notification.permission==='granted'?'ok':'op'):'op','Notifications',window.Notification?Notification.permission:'not supported');
   row(navigator.geolocation?'ok':'op','Location',navigator.geolocation?'allowed when you tap Use my location':'not available');
 }
-const APP_VER='v26';
+const APP_VER='v27';
 $('hcRun').onclick=runHealth;
 $('hcReload').onclick=async()=>{try{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k)}catch(e){}location.reload()};
 function localIntent(t){
@@ -2425,31 +2450,155 @@ $('mvSat').style.display='none';
 // live navigation map inside the trip screen
 let tmap=null;
 const routeHeading=(g,a)=>{const i=Math.max(0,Math.min(g.length-2,Math.round(a*(g.length-1))));return brg(g,i)};
+
+// ================= v27: trip co-pilot (what a satnav does not tell you) =================
+const LPK=[[30,7.5],[50,5.6],[80,5.0],[100,5.5],[112,6.1],[130,7.6]];
+function lpk(kmh){if(kmh<=LPK[0][0])return LPK[0][1];for(let i=1;i<LPK.length;i++)if(kmh<=LPK[i][0]){const a=LPK[i-1],b=LPK[i];return a[1]+(b[1]-a[1])*(kmh-a[0])/(b[0]-a[0])}return LPK[LPK.length-1][1]}
+const mpgK=()=>{const m=+cfg.mpg||+cfg.mpgAuto||0;return m>10&&m<120?(282.48/m)/5.9:1};
+const nowMpg=mph=>282.48/(lpk(mph*1.609)*mpgK());
+function wxHazard(it){
+  if(!it)return null;const d=String(it.desc||'');let h=null;const set=(k,sev)=>{if(!h||(sev==='rd'&&h.sev!=='rd'))h={k,sev}};
+  if(it.code>=95||/thunder/.test(d))set('Thunderstorm','rd');
+  if(/snow/.test(d)||(it.t<=1&&(it.rain>=30||/fog/.test(d))))set('Ice or snow risk','rd');
+  if(it.mm>=2||/heavy/.test(d))set('Heavy rain','rd');
+  else if(it.rain>=60&&it.mm>=0.3)set('Rain','am');
+  if((it.vis!=null&&it.vis<1000)||/fog/.test(d))set('Fog','am');
+  if(it.gust>=45)set('Strong gusts '+Math.round(it.gust)+' mph','am');
+  return h;
+}
+const limitAt=a=>{const t=trip,L=t&&t.r.limits;if(!L||!L.length)return null;const i=Math.round(a*(t.r.geom.length-1)),m=L.find(l=>i>=l[0]&&i<=l[1]);return m?m[2]:null};
+function say2(key,msg){const t=trip;if(!t||t.said[key]||cfg.tripVoice===false||Date.now()-(t.lastSay||0)<15000)return;t.said[key]=1;t.lastSay=Date.now();speak(msg)}
+function fuelAdvice(a){
+  const t=trip;if(!t.fuel.length)return[];
+  const ahead=t.fuel.filter(s=>s.along>a+0.01&&(s.along-a)*t.mi<45);if(!ahead.length)return[];
+  const md=med(t.fuel.map(s=>s.price)),fill=Math.min(tank(),45)*0.75;
+  const rows=ahead.map(s=>{const d=(s.along-a)*t.mi,detour=Math.max(1,s.off*3.4),save=(md-s.price)*fill/100;return{s,d,detour,save,net:save-detour*0.1,md,fill}});
+  return t.lowFuel?rows.sort((x,y)=>x.d-y.d).slice(0,3):[rows.sort((x,y)=>y.net-x.net)[0]];
+}
+function feedItems(a){
+  const t=trip,g=t.r.geom,mi=t.mi,out=[],A=i=>i/Math.max(1,g.length-1);
+  (t.r.incidents||[]).forEach(i=>{if(i._a==null)i._a=project(g,i.lat,i.lon).along;if(i._a>a+0.003){const d=(i._a-a)*mi,p=i.text.split(':');out.push({dist:d,tag:'Roadworks and incidents',title:`${d.toFixed(1)} mi: ${p[0]}`,sub:p.slice(1).join(':').trim()||'On your route',sev:'am',key:'inc:'+i.text,say:`${p[0]} ahead in ${Math.max(1,Math.round(d))} miles.`,at:5})}});
+  (t.r.jams||[]).forEach(j=>{const a0=A(j[0]),a1=A(j[1]);if(a1>a+0.003){const inside=a0<=a,d=Math.max(0,(a0-a)*mi),len=(a1-Math.max(a0,a))*mi,heavy=j[2]>=3,extra=Math.round(len*(heavy?2.8:0.8));
+    out.push({dist:d,tag:'Traffic',title:inside?`In slow traffic, clears in ${len.toFixed(1)} mi`:`Slow traffic in ${d.toFixed(1)} mi`,sub:`${len.toFixed(1)} mi of ${heavy?'heavy':'moderate'} congestion`+(extra>=1?`, about ${extra} min extra`:''),sev:heavy?'rd':'am',key:'jam:'+j[0],say:inside?null:`Slow traffic in ${Math.max(1,Math.round(d))} miles.`,at:6})}});
+  const hz=(t.wx||[]).map(w=>({w,h:wxHazard(w.item)})).filter(x=>x.h&&x.w.f>a);
+  if(hz.length){const x=hz.sort((p,q)=>(q.h.sev==='rd')-(p.h.sev==='rd')||p.w.f-q.w.f)[0],d=(x.w.f-a)*mi,m=Math.max(1,Math.round(x.w.min));
+    out.push({dist:d,tag:'Weather when you get there',title:`${x.h.k} in ${Math.max(1,Math.round(d))} mi`,sub:`In about ${m} min \u00b7 ${x.w.item.t}\u00b0, ${x.w.item.rain}% chance of rain`,sev:x.h.sev,key:'wx:'+x.h.k,say:`${x.h.k} ahead, in about ${m} minutes.`,at:60})}
+  else if(t.wx&&t.wx.length)out.push({dist:999,tag:'Weather when you get there',title:'Clear along the rest of your route',sub:'Checked for the time you will pass each stretch',sev:'ok'});
+  fuelAdvice(a).forEach((x,i)=>{const s=x.s,under=x.md-s.price;
+    out.push({dist:x.d+(i?.01*i:0),tag:t.lowFuel?'Nearest fuel':'Fuel stop worth it',title:`${tcase(s.b)} ${s.price.toFixed(1)}p in ${x.d.toFixed(0)} mi`,sub:(under>=1?`${under.toFixed(1)}p under typical, saves about \u00a3${x.save.toFixed(2)} on ${Math.round(x.fill)} L`:'about the typical price')+` \u00b7 ${Math.round(x.detour)} min detour`,sev:'ok',key:t.lowFuel&&i===0?'fuel:'+s.pc:null,say:t.lowFuel&&i===0?`Nearest fuel is ${tcase(s.b)}, in ${Math.round(x.d)} miles.`:null,at:99})});
+  if(t.deltaMsg&&Date.now()-t.deltaAt<600000)out.push({dist:.001,tag:'Delay update',title:t.deltaMsg,sub:'From the latest traffic check',sev:'am',key:'delta'+t.deltaAt});
+  return out.sort((x,y)=>x.dist-y.dist);
+}
+function renderFeed(a,live){
+  const t=trip,items=feedItems(a),box=$('dFeed');box.textContent='';
+  if(!items.length)items.push({tag:'All clear',title:'Nothing to report ahead',sub:'I will warn you about weather, traffic and roadworks',sev:'ok'});
+  items.slice(0,5).forEach(it=>{const c=el('div','fcard '+(it.sev||'ok'));c.append(el('div','ftag',it.tag),el('b','',it.title),el('span','s',it.sub));box.append(c);
+    if(live&&it.say&&it.key&&it.dist<=(it.at||5)*1)say2(it.key,it.say)});
+}
+function startTrip(r){
+  r=r||commuteUI;
+  if(!r){alert('No route yet. Wait for the commute to load.');return}
+  if(!navigator.geolocation){alert('Location is not available here.');return}
+  if(trip)stopTrip();
+  trip={r,t0:Date.now(),mi:r.options[0].miles,eta:r.eta?r.eta.min:r.options[0].min,said:{},last:null,along:0,dir:r===commuteUI?dir:null,wx:[],lowFuel:false,fuel:stations.length?stationsOnRoute(r.geom):[]};
+  $('dDone').classList.remove('show');$('dLive').style.display='';
+  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('dPos').innerHTML=carSide();$('drive').classList.add('open');paintOpts();tripUI(0,0,null,false);mountTripMap(r);
+  try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>{if(trip)trip.wake=l}).catch(()=>{})}catch(e){}
+  trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
+  refreshWx();trip.timers=[setInterval(refreshWx,600000),setInterval(refreshTrip,300000)];
+}
+async function refreshWx(){
+  const t=trip;if(!t||!getWorker())return;
+  const g=t.r.geom,a=t.along||0,fr=[.12,.25,.4,.55,.7,.85,.97].filter(f=>f>a+.02);if(!fr.length)return;
+  const pts=fr.map(f=>{const p=g[Math.round(f*(g.length-1))];return{lat:p[0],lon:p[1],min:t.eta*(f-a)}});
+  try{const d=await post('/tripwx',{points:pts});if(trip===t){t.wx=(d.items||[]).map((it,i)=>({f:fr[i],min:pts[i].min,item:it})).filter(x=>x.item);renderFeed(t.along,false)}}catch(e){}
+}
+const sameRoute=(a,b)=>Math.abs(a.length-b.length)<=4&&Math.abs(a[0][0]-b[0][0])<.004&&Math.abs(a[a.length-1][0]-b[b.length-1][0])<.004;
+async function refreshTrip(){   // re-check traffic ahead every few minutes
+  const t=trip;if(!t||!t.dir||t.busy)return;t.busy=true;
+  try{const d=await post('/commute',{dir:t.dir,...ctx()}),r=d.route;
+    if(trip===t&&r&&r.geom&&sameRoute(r.geom,t.r.geom)){
+      const was=t.r.eta?t.r.eta.delay:0;t.r.jams=r.jams;t.r.incidents=r.incidents;if(r.limits)t.r.limits=r.limits;
+      if(r.eta){const grow=r.eta.delay-was;if(grow>=3){t.deltaMsg=`Delay has grown by ${grow} min`;t.deltaAt=Date.now();say2('d'+Date.now(),`The delay has grown by ${grow} minutes.`)}else if(grow<=-3){t.deltaMsg=`Traffic easing: ${-grow} min quicker`;t.deltaAt=Date.now()}t.r.eta=r.eta;t.eta=r.eta.min}
+      jamBar($('dJam'),t.r);renderFeed(t.along,false);
+    }}catch(e){}
+  t.busy=false;
+}
+function tripUI(along,off,spd,live){
+  const t=trip;t.along=along;const rem=Math.max(0,1-along),remMin=rem>0.02?Math.max(1,Math.round(t.eta*rem)):0;
+  const clock=new Date(Date.now()+remMin*60000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
+  $('dEta').textContent=clock;$('dRem').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(1)} mi to go`;
+  $('tpTxt').textContent=remMin?`${remMin} min \u00b7 ${clock}`:'Arrived';
+  $('dPos').style.setProperty('--pp',(Math.min(1,along)*100)+'%');$('dPos').style.setProperty('--ws',spd>1?Math.max(.12,2/(spd/10))+'s':'0s');
+  $('dSpd').textContent=spd==null?'--':String(Math.round(spd));
+  const lim=limitAt(along);$('dLim').textContent=lim?'limit '+lim+' mph':'mph';
+  const over=!!(lim&&spd!=null&&spd>lim+3);$('dSpdBox').classList.toggle('over',over);
+  if(live&&over&&cfg.speedAlert===true&&Date.now()-(t.lastSpd||0)>90000){t.lastSpd=Date.now();toast(`Limit ${lim}, you are doing ${Math.round(spd)}`);if(spd>lim+6&&cfg.tripVoice!==false)speak(`The limit is ${lim}.`)}
+  if(spd!=null&&spd>5){const ratio=lpk(112.7)/lpk(spd*1.609);$('dMpg').textContent=nowMpg(spd).toFixed(0);$('dMpgN').textContent=spd>=75&&ratio<.92?`easing to 70 saves ~${Math.round((1-ratio)*100)}%`:'mpg right now'}else{$('dMpg').textContent='--';$('dMpgN').textContent='mpg right now'}
+  const l=(t.r.options[0].fuel!=null?t.r.options[0].fuel:t.mi/(+cfg.mpg||+cfg.mpgAuto||45)*GAL)*Math.min(1,along);
+  $('dCost').textContent='\u00a3'+(l*effPrice().ppl/100).toFixed(2);$('dCo2').textContent=(l*CO2_L[fuelType]).toFixed(1)+' kg CO\u2082';
+  if(!t.lastFeed||Date.now()-t.lastFeed>1500||!live){t.lastFeed=Date.now();renderFeed(along,live)}
+  const w=$('dWarn');w.textContent='';
+  if(live&&off>0.4){const a=el('a','','Off route: open Google Maps from here');a.href=`https://www.google.com/maps/dir/?api=1&destination=${t.r.b.lat},${t.r.b.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';w.append(a)}
+  if(live&&along>0.985&&!t.done){t.done=1;speak(`You have arrived, ${title()}.`);finishTrip()}
+}
+function stopTrip(){
+  if(!trip)return;
+  try{navigator.geolocation.clearWatch(trip.watch)}catch(e){}
+  try{trip.wake&&trip.wake.release()}catch(e){}
+  (trip.timers||[]).forEach(clearInterval);
+  trip=null;destroyTripMap();$('drive').classList.remove('open');$('tpill').classList.remove('show');
+}
+function paintOpts(){$('dLow').classList.toggle('on',!!(trip&&trip.lowFuel));$('dVox').classList.toggle('on',cfg.tripVoice!==false);$('dSpA').classList.toggle('on',cfg.speedAlert===true)}
+$('dLow').onclick=()=>{if(!trip)return;trip.lowFuel=!trip.lowFuel;paintOpts();renderFeed(trip.along,true);toast(trip.lowFuel?'Showing the nearest fuel ahead':'Back to the best-value fuel stop')};
+$('dVox').onclick=()=>{cfg.tripVoice=cfg.tripVoice===false;saveCfg();paintOpts();toast(cfg.tripVoice===false?'Voice alerts off':'Voice alerts on')};
+$('dSpA').onclick=()=>{cfg.speedAlert=cfg.speedAlert!==true;saveCfg();paintOpts();toast(cfg.speedAlert?'Speed alerts on (limits are estimates)':'Speed alerts off')};
+
+// trip map: MapLibre first, Leaflet if that cannot load, always something on screen
+function leafletTrip(div,r){
+  if(!window.L)return null;
+  try{
+    const m=L.map(div,{zoomControl:false,attributionControl:false,dragging:false,touchZoom:false});
+    L.tileLayer('https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{maxZoom:19}).addTo(m);
+    L.polyline(r.geom,{color:ACC(),weight:5}).addTo(m);
+    const car=L.marker(r.geom[0],{icon:L.divIcon({className:'',html:'<div class="mk-cartop"><div class="cartop"></div></div>',iconSize:[34,67],iconAnchor:[17,33]})}).addTo(m);
+    m.setView(r.geom[0],15);setTimeout(()=>m.invalidateSize(),100);return{leaf:true,m,car};
+  }catch(e){return null}
+}
 async function mountTripMap(r){
-  const ok=await loadMapLib(),div=$('dMap');
-  if(!ok||!webgl()||!trip||cfg.tripMap===false){div.style.display='none';return}
-  div.style.display='';div.textContent='';
-  const g=r.geom,map=new maplibregl.Map({container:div,style:STYLE_URL,attributionControl:false,interactive:false,fadeDuration:0,pixelRatio:Math.min(window.devicePixelRatio||1,2),center:[g[0][1],g[0][0]],zoom:15.5,pitch:58,bearing:routeHeading(g,0)});
-  const t={map,ready:false,dead:false};tmap=t;
-  map.on('load',()=>{
-    if(t.dead)return;
+  const div=$('dMap'),wrap=$('dMapWrap');
+  if(cfg.tripMap===false){wrap.classList.add('off');$('dMapT').textContent='Show map';return}
+  wrap.classList.remove('off');$('dMapT').textContent='Hide map';div.textContent='Loading map...';
+  let ok=false;try{ok=(await loadMapLib())&&webgl()}catch(e){}
+  if(!trip)return;div.textContent='';
+  if(ok){
     try{
-      addSat(map);map.setLayoutProperty('traffic','visibility','visible');
-      map.addSource('tr',{type:'geojson',data:feat(lnglat(g))});
-      map.addLayer({id:'tr-glow',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':ACC(),'line-width':14,'line-opacity':.25,'line-blur':6}});
-      map.addLayer({id:'tr-line',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':ACC(),'line-width':5}});
-      t.car=new maplibregl.Marker({element:carEl(),rotationAlignment:'map',pitchAlignment:'map'}).setLngLat([g[0][1],g[0][0]]).addTo(map);
-      t.ready=true;
-    }catch(e){}
-  });
+      const g=r.geom,map=new maplibregl.Map({container:div,style:STYLE_URL,attributionControl:false,interactive:false,fadeDuration:0,pixelRatio:Math.min(window.devicePixelRatio||1,2),center:[g[0][1],g[0][0]],zoom:15.5,pitch:58,bearing:routeHeading(g,0)});
+      const t={map,ready:false,dead:false};tmap=t;
+      map.on('load',()=>{
+        if(t.dead)return;
+        try{
+          addSat(map);map.setLayoutProperty('traffic','visibility','visible');
+          map.addSource('tr',{type:'geojson',data:feat(lnglat(g))});
+          map.addLayer({id:'tr-glow',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':ACC(),'line-width':14,'line-opacity':.25,'line-blur':6}});
+          map.addLayer({id:'tr-line',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':ACC(),'line-width':5}});
+          t.car=new maplibregl.Marker({element:carEl(),rotationAlignment:'map',pitchAlignment:'map'}).setLngLat([g[0][1],g[0][0]]).addTo(map);t.ready=true;
+        }catch(e){}
+      });
+      return;
+    }catch(e){div.textContent=''}
+  }
+  const lf=leafletTrip(div,r);if(lf)tmap=lf;else div.textContent='Map unavailable here. The co-pilot below still works.';
 }
 function followTrip(la,lo,hdg){
-  const t=tmap;if(!t||!t.ready)return;
+  const t=tmap;if(!t)return;
+  if(t.leaf){t.car.setLatLng([la,lo]);t.m.setView([la,lo],16);return}
+  if(!t.ready)return;
   t.car.setLngLat([lo,la]);t.car.setRotation(hdg||0);
   try{t.map.easeTo({center:[lo,la],bearing:hdg||0,pitch:58,zoom:16,duration:900,easing:x=>x})}catch(e){}
 }
-function destroyTripMap(){if(tmap){tmap.dead=true;try{tmap.map.remove()}catch(e){}tmap=null}$('dMap').style.display='none'}
-$('dMapT').onclick=()=>{cfg.tripMap=cfg.tripMap===false;saveCfg();if(cfg.tripMap===false)destroyTripMap();else if(trip)mountTripMap(trip.r);toast(cfg.tripMap===false?'Trip map hidden':'Trip map on')};
+function destroyTripMap(){if(tmap){tmap.dead=true;try{(tmap.leaf?tmap.m:tmap.map).remove()}catch(e){}tmap=null}$('dMap').textContent=''}
+$('dMapT').onclick=()=>{cfg.tripMap=cfg.tripMap===false;saveCfg();if(cfg.tripMap===false){destroyTripMap();$('dMapWrap').classList.add('off');$('dMapT').textContent='Show map'}else if(trip)mountTripMap(trip.r)};
 
 // ---------- trip log, CO2, parking ----------
 let trips=[];try{trips=JSON.parse(localStorage.getItem('jarvisTrips')||'[]')}catch(e){}
@@ -2480,37 +2629,6 @@ function finishTrip(){
   d.append(st,b);d.classList.add('show');
 }
 const thin2=(g,n)=>{const s=Math.max(1,Math.ceil(g.length/n));return g.filter((_,i)=>i%s===0||i===g.length-1)};
-function startTrip(r){
-  r=r||commuteUI;
-  if(!r){alert('No route yet. Wait for the commute to load.');return}
-  if(!navigator.geolocation){alert('Location is not available here.');return}
-  if(trip)stopTrip();
-  trip={r,t0:Date.now(),mi:r.options[0].miles,eta:r.eta?r.eta.min:r.options[0].min,said:{},last:null,fuel:stations.length?stationsOnRoute(r.geom):[]};
-  $('dDone').classList.remove('show');$('dLive').style.display='';
-  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('dPos').innerHTML=carSide();$('drive').classList.add('open');tripUI(0,0,null,false);mountTripMap(r);
-  try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>{if(trip)trip.wake=l}).catch(()=>{})}catch(e){}
-  trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
-}
-function tripUI(along,off,spd,live){
-  const t=trip,rem=Math.max(0,1-along),remMin=rem>0.02?Math.max(1,Math.round(t.eta*rem)):0;
-  const clock=new Date(Date.now()+remMin*60000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
-  $('dEta').textContent=clock;$('dRem').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(1)} mi to go`;
-  $('tpTxt').textContent=remMin?`${remMin} min \u00b7 ${clock}`:'Arrived';
-  $('dPos').style.left=(Math.min(1,along)*100)+'%';$('dPos').style.setProperty('--ws',spd>1?Math.max(.12,2/(spd/10))+'s':'0s');$('dSpd').textContent=spd==null?'--':String(Math.round(spd));
-  const inc=(t.r.incidents||[]).map(i=>({...i,a:project(t.r.geom,i.lat,i.lon).along})).filter(i=>i.a>along+0.003).sort((a,b)=>a.a-b.a)[0];
-  if(inc){const dd=(inc.a-along)*t.mi,nm=inc.text.split(':')[0];$('dAhead').textContent=`${dd.toFixed(1)} mi: ${nm}`;if(live&&dd<=5&&!t.said[inc.text]){t.said[inc.text]=1;speak(`${nm} ahead in ${Math.round(dd)} miles.`)}}else $('dAhead').textContent='Clear';
-  const f=t.fuel.filter(s=>s.along>along+0.01&&(s.along-along)*t.mi<40).sort((a,b)=>a.price-b.price)[0];
-  $('dFuel').textContent=f?`${tcase(f.b)} ${f.price.toFixed(1)}p, ${((f.along-along)*t.mi).toFixed(0)} mi`:'--';
-  const w=$('dWarn');w.textContent='';
-  if(live&&off>0.4){const a=el('a','','Off route: open Google Maps from here');a.href=`https://www.google.com/maps/dir/?api=1&destination=${t.r.b.lat},${t.r.b.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';w.append(a)}
-  if(live&&along>0.985&&!t.done){t.done=1;speak(`You have arrived, ${title()}.`);finishTrip()}
-}
-function stopTrip(){
-  if(!trip)return;
-  try{navigator.geolocation.clearWatch(trip.watch)}catch(e){}
-  try{trip.wake&&trip.wake.release()}catch(e){}
-  trip=null;destroyTripMap();$('drive').classList.remove('open');$('tpill').classList.remove('show');
-}
 $('dMin').onclick=()=>{if(!trip)return;$('drive').classList.remove('open');$('tpill').classList.add('show')};
 $('tpill').onclick=()=>{$('tpill').classList.remove('show');$('drive').classList.add('open')};
 $('tpCar').innerHTML=carSide();
