@@ -1,5 +1,5 @@
-// JARVIS service worker v26: always fetches the latest app, works offline, shows alerts.
-const C = 'jarvis-v26', F = ['./', 'index.html', 'manifest.json'];
+// JARVIS service worker v27: always fetches the latest app, works offline, shows alerts.
+const C = 'jarvis-v27', F = ['./', 'index.html', 'manifest.json'];
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(C).then(c => c.addAll(F.map(u => new Request(u, { cache: 'reload' })))).catch(() => {})); });
 self.addEventListener('activate', e => e.waitUntil((async () => {
   for (const k of await caches.keys()) if (k !== C) await caches.delete(k);
