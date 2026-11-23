@@ -629,6 +629,49 @@ input[hidden]{display:none!important}
 .dfoot{position:sticky;bottom:0;padding-top:12px;background:linear-gradient(transparent,var(--bg) 28%)}
 .dopts{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .dopts .pill{min-height:38px}
+  /* ===== v28: trip screen fits one screen, no scrolling ===== */
+#drive{overflow:hidden;gap:8px;padding:calc(env(safe-area-inset-top) + 6px) 12px calc(env(safe-area-inset-bottom) * .5 + 10px)}
+#drive .dhead{flex:0 0 auto;min-height:40px}
+#drive #dTo{font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56vw}
+#drive .dhead .icon{width:40px;height:40px}
+#drive #dLive{display:flex;flex-direction:column;flex:1;min-height:0;gap:8px}
+#drive #dMapWrap{flex:1;min-height:170px;margin:0;border-radius:18px;overflow:hidden;background:linear-gradient(160deg,#0c1d2f,#06101b);border:1px solid var(--line);position:relative}
+#drive #dMapWrap.off{height:auto}
+#drive #dMap{position:absolute;inset:0;height:auto;margin:0;border:0;border-radius:0;display:block}
+#drive #dMapWrap.off #dMap{display:none}
+#drive #dMapT{top:8px;right:8px;min-height:30px;padding:0 10px;font-size:.62rem}
+#drive #dMapWrap.off #dMapT{top:8px}
+.dbx{position:absolute;z-index:3;background:#06121fcc;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+#dEtaBox{left:8px;top:8px}
+#dEtaBox .dlab{font-size:.56rem;letter-spacing:.2em}
+#drive #dEta{display:block;font-size:2.1rem;font-weight:300;line-height:1.05}
+#drive #dRem{font-size:.72rem;color:var(--dim)}
+#dSpdBox{left:8px;bottom:8px;display:flex;align-items:center;gap:10px;padding:6px 12px}
+#dSpdBox b{font-size:2.4rem;font-weight:300;line-height:1;margin:0}
+#dSpdBox em{display:block;font-size:.62rem;color:var(--dim);font-style:normal;letter-spacing:.1em}
+#dLimSign{display:none;width:38px;height:38px;border-radius:50%;background:#fff;color:#111;border:4px solid #d4262c;font:700 .95rem/30px var(--mono);text-align:center;flex:0 0 auto}
+#dSpdBox.over{border-color:var(--bad)}#dSpdBox.over b{color:var(--bad)}
+#dTalk{position:absolute;z-index:4;right:10px;bottom:10px;width:68px;height:68px;border-radius:50%;padding:0;min-height:0;border:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--glow),color-mix(in srgb,var(--glow) 60%,#fff));color:#02101c;box-shadow:0 8px 26px var(--ga),0 0 0 6px color-mix(in srgb,var(--glow) 18%,transparent)}
+#dTalk svg{width:30px;height:30px}
+#dTalk.live{animation:pulse 1s ease-in-out infinite}
+#drive .dbar{flex:0 0 auto;margin:24px 4px 2px}
+#drive .dgrid2{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#drive .dgrid2>div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 12px;min-width:0}
+#drive .dgrid2 span{display:block;font:600 .58rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#drive .dgrid2 b{display:block;font-size:1.2rem;font-weight:500;line-height:1.2;margin-top:2px}
+#drive .dgrid2 em{display:block;font-size:.66rem;color:var(--dim);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dFeed{flex:0 0 auto;margin:0;gap:6px;position:relative}
+#drive .fcard{padding:7px 10px 7px 12px;border-radius:12px}
+#drive .fcard .ftag{display:inline;font-size:.54rem;margin-right:6px}
+#drive .fcard b{display:inline;font-size:.92rem;margin:0}
+#drive .fcard .s{font-size:.72rem;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dMore{position:absolute;right:0;top:-18px;font:600 .62rem var(--mono);color:var(--glow);background:none;border:0;padding:2px 6px;min-height:0}
+#dWarn{flex:0 0 auto;margin:0;font-size:.78rem;line-height:1.2}#dWarn:empty{display:none}
+#drive .dfoot{position:static;padding:0;background:none;margin:0;flex:0 0 auto}
+#drive .dopts{margin:0;gap:6px;flex-wrap:nowrap}
+#drive .dopts .pill{flex:1;min-height:38px;padding:0 6px;font-size:.66rem;gap:5px;white-space:nowrap}
+#drive .dopts svg{width:15px;height:15px}
+@media (max-height:700px){#drive #dEta{font-size:1.7rem}#dSpdBox b{font-size:2rem}#drive #dMapWrap{min-height:130px}#dTalk{width:58px;height:58px}}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -787,16 +830,21 @@ input[hidden]{display:none!important}
 </div>
 <div id="drive" role="dialog" aria-label="Trip">
   <div class="dhead"><div id="dTo">Trip</div><div class="dbtn"><button class="icon" id="dMin" aria-label="Minimise trip">&#8964;</button><button class="icon" id="dEnd" aria-label="End trip">&#10005;</button></div></div>
-  <div id="dMapWrap"><div id="dMap"></div><button class="pill" id="dMapT">Hide map</button></div>
   <div id="dLive">
-    <div class="dmain"><div class="dlab">ARRIVE</div><div id="dEta">--:--</div><div id="dRem">--</div></div>
+    <div id="dMapWrap">
+      <div id="dMap"></div>
+      <div class="dbx" id="dEtaBox"><span class="dlab">ARRIVE</span><b id="dEta">--:--</b><em id="dRem">--</em></div>
+      <div class="dbx" id="dSpdBox"><i id="dLimSign"></i><div><b id="dSpd">--</b><em id="dLim">mph</em></div></div>
+      <button class="pill" id="dMapT">Hide map</button>
+      <button id="dTalk" aria-label="Tap to talk"></button>
+    </div>
     <div class="dbar"><div id="dJam"></div><i id="dPos"></i></div>
-    <div class="dgrid"><div id="dSpdBox"><span>Speed</span><b id="dSpd">--</b><em id="dLim">mph</em></div><div><span>Fuel use</span><b id="dMpg">--</b><em id="dMpgN">mpg right now</em></div><div><span>Trip so far</span><b id="dCost">--</b><em id="dCo2"></em></div></div>
-    <div id="dFeed"></div>
+    <div class="dgrid2"><div><span>Fuel use</span><b id="dMpg">--</b><em id="dMpgN">mpg right now</em></div><div><span>Trip so far</span><b id="dCost">--</b><em id="dCo2"></em></div></div>
     <div id="dWarn"></div>
+    <div id="dFeed"></div>
+    <div class="dfoot"><div class="dopts"><button class="pill" id="dLow">Low fuel</button><button class="pill" id="dVox">Voice</button><button class="pill" id="dSpA">Speed</button></div></div>
   </div>
   <div id="dDone"></div>
-  <div class="dfoot"><div class="dopts"><button class="pill" id="dLow">Low fuel</button><button class="pill" id="dVox">Voice alerts</button><button class="pill" id="dSpA">Speed alerts</button></div><button class="btn pri" id="dTalk">Tap to talk</button></div>
 </div>
 <div id="lsheet" role="dialog" aria-label="Fill-up log">
   <div class="panel">
@@ -872,7 +920,7 @@ function add(cls,text){
   if(cls==='j'){const b=el('button','spk');b.innerHTML=icon('play');b.setAttribute('aria-label','Hear this reply');b.onclick=()=>speak(text);d.append(b)}
   log.appendChild(d);toEnd();
 }
-function setState(s,msg){hud.className=s;statusEl.textContent=msg||IDLE}
+function setState(s,msg){hud.className=s;statusEl.textContent=msg||IDLE;const m=$('dTalk');if(m)m.classList.toggle('live',s==='listening'||s==='speaking')}
 function paintHF(){$('hf').classList.toggle('on',handsFree);}
 $('hf').onclick=()=>{handsFree=!handsFree;localStorage.setItem('hf',handsFree?'1':'0');paintHF()};
 const sheet=$('sheet');
@@ -1754,7 +1802,7 @@ async function runHealth(){
   row(window.Notification?(Notification.permission==='granted'?'ok':'op'):'op','Notifications',window.Notification?Notification.permission:'not supported');
   row(navigator.geolocation?'ok':'op','Location',navigator.geolocation?'allowed when you tap Use my location':'not available');
 }
-const APP_VER='v27';
+const APP_VER='v28';
 $('hcRun').onclick=runHealth;
 $('hcReload').onclick=async()=>{try{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k)}catch(e){}location.reload()};
 function localIntent(t){
@@ -2316,11 +2364,12 @@ setTimeout(()=>{if(commuteUI&&!cfg.hintSwipe&&!$('boot')){cfg.hintSwipe=1;saveCf
 const IC={
  x:'<path d="M6 6l12 12M18 6L6 18"/>',refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/>',swap:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>',
  back:'<path d="M15 5l-7 7 7 7"/>',expand:'<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',chev:'<path d="M6 9l6 6 6-6"/>',
- play:'<path d="M8 5l11 7-11 7z" fill="currentColor" stroke="none"/>'};
+ play:'<path d="M8 5l11 7-11 7z" fill="currentColor" stroke="none"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'};
 const icon=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
 const ICMAP={'\u2304':'chev','\u21bb':'refresh','\u21c6':'swap','\u2715':'x','\u2190':'back','\u2922':'expand','\u25b6':'play'};
 function applyIcons(root){(root||document).querySelectorAll('button').forEach(b=>{const t=b.textContent.trim();if(ICMAP[t]&&!b.querySelector('svg'))b.innerHTML=icon(ICMAP[t])})}
 applyIcons();
+$('dTalk').innerHTML=icon('mic');
 function applyBlack(){document.documentElement.dataset.black=cfg.black?'1':'';$('blk').classList.toggle('on',!!cfg.black)}
 $('blk').onclick=()=>{cfg.black=!cfg.black;saveCfg();applyBlack()};applyBlack();
 
@@ -2490,10 +2539,13 @@ function feedItems(a){
   return out.sort((x,y)=>x.dist-y.dist);
 }
 function renderFeed(a,live){
-  const t=trip,items=feedItems(a),box=$('dFeed');box.textContent='';
+  const t=trip,all=feedItems(a),box=$('dFeed');box.textContent='';
+  const rank={rd:0,am:1,ok:2},items=all.slice().sort((x,y)=>(rank[x.sev||'ok']-rank[y.sev||'ok'])||(x.dist-y.dist));
   if(!items.length)items.push({tag:'All clear',title:'Nothing to report ahead',sub:'I will warn you about weather, traffic and roadworks',sev:'ok'});
-  items.slice(0,5).forEach(it=>{const c=el('div','fcard '+(it.sev||'ok'));c.append(el('div','ftag',it.tag),el('b','',it.title),el('span','s',it.sub));box.append(c);
-    if(live&&it.say&&it.key&&it.dist<=(it.at||5)*1)say2(it.key,it.say)});
+  const off=(t.feedOff||0)%items.length,view=items.slice(off,off+2).concat(items.slice(0,Math.max(0,off+2-items.length))).slice(0,2);
+  view.forEach(it=>{const c=el('div','fcard '+(it.sev||'ok'));const line=el('div');line.append(el('span','ftag',it.tag),el('b','',it.title));c.append(line,el('span','s',it.sub));box.append(c)});
+  if(items.length>2){const m=el('button','',`+${items.length-2} more`);m.id='dMore';m.onclick=()=>{t.feedOff=(t.feedOff||0)+2;renderFeed(t.along,false)};box.append(m)}
+  all.forEach(it=>{if(live&&it.say&&it.key&&it.dist<=(it.at||5))say2(it.key,it.say)});
 }
 function startTrip(r){
   r=r||commuteUI;
@@ -2531,7 +2583,7 @@ function tripUI(along,off,spd,live){
   $('tpTxt').textContent=remMin?`${remMin} min \u00b7 ${clock}`:'Arrived';
   $('dPos').style.setProperty('--pp',(Math.min(1,along)*100)+'%');$('dPos').style.setProperty('--ws',spd>1?Math.max(.12,2/(spd/10))+'s':'0s');
   $('dSpd').textContent=spd==null?'--':String(Math.round(spd));
-  const lim=limitAt(along);$('dLim').textContent=lim?'limit '+lim+' mph':'mph';
+  const lim=limitAt(along);$('dLim').textContent='mph';const sg=$('dLimSign');sg.textContent=lim||'';sg.style.display=lim?'block':'none';
   const over=!!(lim&&spd!=null&&spd>lim+3);$('dSpdBox').classList.toggle('over',over);
   if(live&&over&&cfg.speedAlert===true&&Date.now()-(t.lastSpd||0)>90000){t.lastSpd=Date.now();toast(`Limit ${lim}, you are doing ${Math.round(spd)}`);if(spd>lim+6&&cfg.tripVoice!==false)speak(`The limit is ${lim}.`)}
   if(spd!=null&&spd>5){const ratio=lpk(112.7)/lpk(spd*1.609);$('dMpg').textContent=nowMpg(spd).toFixed(0);$('dMpgN').textContent=spd>=75&&ratio<.92?`easing to 70 saves ~${Math.round((1-ratio)*100)}%`:'mpg right now'}else{$('dMpg').textContent='--';$('dMpgN').textContent='mpg right now'}
