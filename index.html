@@ -629,49 +629,96 @@ input[hidden]{display:none!important}
 .dfoot{position:sticky;bottom:0;padding-top:12px;background:linear-gradient(transparent,var(--bg) 28%)}
 .dopts{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .dopts .pill{min-height:38px}
-  /* ===== v28: trip screen fits one screen, no scrolling ===== */
-#drive{overflow:hidden;gap:8px;padding:calc(env(safe-area-inset-top) + 6px) 12px calc(env(safe-area-inset-bottom) * .5 + 10px)}
-#drive .dhead{flex:0 0 auto;min-height:40px}
-#drive #dTo{font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56vw}
-#drive .dhead .icon{width:40px;height:40px}
+  /* ===== v29: glanceable co-pilot (portrait + landscape, no scrolling, no map) ===== */
+#drive{overflow:hidden;gap:8px;padding:calc(env(safe-area-inset-top) + 4px) 12px calc(env(safe-area-inset-bottom) * .5 + 8px);background:#05070A}
+#drive.night{background:#000;--panel:#07090c;--panel2:#07090c;filter:brightness(.82)}
+#drive .dhead{flex:0 0 auto;min-height:38px}
+#drive #dTo{font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+#drive .dhead .icon{width:38px;height:38px}
+#dEnd.hold::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:3px solid var(--bad);animation:holdring .7s linear forwards}
+#dEnd{position:relative}
+@keyframes holdring{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 #drive #dLive{display:flex;flex-direction:column;flex:1;min-height:0;gap:8px}
-#drive #dMapWrap{flex:1;min-height:170px;margin:0;border-radius:18px;overflow:hidden;background:linear-gradient(160deg,#0c1d2f,#06101b);border:1px solid var(--line);position:relative}
-#drive #dMapWrap.off{height:auto}
-#drive #dMap{position:absolute;inset:0;height:auto;margin:0;border:0;border-radius:0;display:block}
-#drive #dMapWrap.off #dMap{display:none}
-#drive #dMapT{top:8px;right:8px;min-height:30px;padding:0 10px;font-size:.62rem}
-#drive #dMapWrap.off #dMapT{top:8px}
-.dbx{position:absolute;z-index:3;background:#06121fcc;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-#dEtaBox{left:8px;top:8px}
-#dEtaBox .dlab{font-size:.56rem;letter-spacing:.2em}
-#drive #dEta{display:block;font-size:2.1rem;font-weight:300;line-height:1.05}
-#drive #dRem{font-size:.72rem;color:var(--dim)}
-#dSpdBox{left:8px;bottom:8px;display:flex;align-items:center;gap:10px;padding:6px 12px}
-#dSpdBox b{font-size:2.4rem;font-weight:300;line-height:1;margin:0}
-#dSpdBox em{display:block;font-size:.62rem;color:var(--dim);font-style:normal;letter-spacing:.1em}
-#dLimSign{display:none;width:38px;height:38px;border-radius:50%;background:#fff;color:#111;border:4px solid #d4262c;font:700 .95rem/30px var(--mono);text-align:center;flex:0 0 auto}
-#dSpdBox.over{border-color:var(--bad)}#dSpdBox.over b{color:var(--bad)}
-#dTalk{position:absolute;z-index:4;right:10px;bottom:10px;width:68px;height:68px;border-radius:50%;padding:0;min-height:0;border:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--glow),color-mix(in srgb,var(--glow) 60%,#fff));color:#02101c;box-shadow:0 8px 26px var(--ga),0 0 0 6px color-mix(in srgb,var(--glow) 18%,transparent)}
-#dTalk svg{width:30px;height:30px}
-#dTalk.live{animation:pulse 1s ease-in-out infinite}
-#drive .dbar{flex:0 0 auto;margin:24px 4px 2px}
-#drive .dgrid2{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#drive .dgrid2>div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 12px;min-width:0}
-#drive .dgrid2 span{display:block;font:600 .58rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
-#drive .dgrid2 b{display:block;font-size:1.2rem;font-weight:500;line-height:1.2;margin-top:2px}
-#drive .dgrid2 em{display:block;font-size:.66rem;color:var(--dim);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#dFeed{flex:0 0 auto;margin:0;gap:6px;position:relative}
-#drive .fcard{padding:7px 10px 7px 12px;border-radius:12px}
-#drive .fcard .ftag{display:inline;font-size:.54rem;margin-right:6px}
-#drive .fcard b{display:inline;font-size:.92rem;margin:0}
-#drive .fcard .s{font-size:.72rem;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#dMore{position:absolute;right:0;top:-18px;font:600 .62rem var(--mono);color:var(--glow);background:none;border:0;padding:2px 6px;min-height:0}
-#dWarn{flex:0 0 auto;margin:0;font-size:.78rem;line-height:1.2}#dWarn:empty{display:none}
-#drive .dfoot{position:static;padding:0;background:none;margin:0;flex:0 0 auto}
-#drive .dopts{margin:0;gap:6px;flex-wrap:nowrap}
-#drive .dopts .pill{flex:1;min-height:38px;padding:0 6px;font-size:.66rem;gap:5px;white-space:nowrap}
-#drive .dopts svg{width:15px;height:15px}
-@media (max-height:700px){#drive #dEta{font-size:1.7rem}#dSpdBox b{font-size:2rem}#drive #dMapWrap{min-height:130px}#dTalk{width:58px;height:58px}}
+/* next up banner */
+#dNext{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:18px;border:1px solid var(--line);border-left:5px solid var(--ok);background:linear-gradient(160deg,#ffffff0a,#ffffff03)}
+#dNext.am{border-left-color:var(--warn);background:linear-gradient(160deg,#f59e0b1c,#ffffff03)}
+#dNext.rd{border-left-color:var(--bad);background:linear-gradient(160deg,#ff6b6b24,#ffffff03);animation:nudge 2.4s ease-in-out infinite}
+@keyframes nudge{50%{box-shadow:0 0 0 4px #ff6b6b22}}
+#dNext .nk{display:flex;align-items:baseline;gap:4px;min-width:84px}
+#nxD{font-size:3rem;font-weight:300;line-height:1;font-variant-numeric:tabular-nums}
+#nxU{font:600 .8rem var(--mono);color:var(--dim)}
+#dNext .nt{min-width:0}
+#dNext em{display:block;font:600 .58rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-style:normal}
+#nxT{display:block;font-size:1.1rem;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nxS{display:block;font-size:.76rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* columns */
+#dCols{flex:1;min-height:0;display:grid;grid-template-columns:1.05fr 1fr;gap:8px}
+#dSide{display:grid;grid-template-rows:auto auto auto 1fr;gap:8px;min-height:0}
+.tl{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:8px 12px;min-width:0;position:relative}
+.tl>span{display:block;font:600 .56rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.tl>b{display:block;font-weight:300;font-variant-numeric:tabular-nums;line-height:1.05}
+.tl>em{display:block;font-size:.7rem;color:var(--dim);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tEta #dEta{font-size:2.5rem}
+#dPlan{font-size:.7rem;font-style:normal;color:var(--ok)}#dPlan.am{color:var(--warn)}#dPlan.rd{color:var(--bad)}
+#tSpd{display:flex;align-items:center;justify-content:center;padding:4px}
+#spRing{width:100%;max-width:150px;height:auto;display:block}
+#spBg{fill:none;stroke:#ffffff14;stroke-width:9;stroke-linecap:round}
+#spFg{fill:none;stroke:var(--glow);stroke-width:9;stroke-linecap:round;transition:stroke-dasharray .6s,stroke .3s}
+#tSpd.over #spFg{stroke:var(--bad)}#tSpd.hot #spFg{stroke:var(--warn)}
+#spLim{stroke:#fff;stroke-width:3;stroke-linecap:round}
+#spNum{position:absolute;left:0;right:0;top:50%;transform:translateY(-52%);text-align:center;pointer-events:none}
+#spNum b{display:block;font-size:2.7rem;font-weight:300;line-height:1}
+#spNum em{font:.6rem var(--mono);color:var(--dim);font-style:normal;letter-spacing:.14em}
+#tSpd.over #dSpd{color:var(--bad)}
+#dLimSign{display:none;position:absolute;right:8px;bottom:8px;width:34px;height:34px;border-radius:50%;background:#fff;color:#111;border:4px solid #d4262c;font:700 .82rem/26px var(--mono);text-align:center}
+#tFuel #dMpg{font-size:1.9rem}
+#dEff{height:6px;border-radius:9px;background:#ffffff12;overflow:hidden;margin-top:5px}
+#dEff i{display:block;height:100%;width:50%;background:var(--ok);border-radius:9px;transition:width .5s,background .3s}
+#dCost{font-size:.72rem;color:var(--dim)}
+#tCond #dCond{font-size:1.5rem}
+/* the horizon: the road ahead as a ribbon */
+#hz{position:relative;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#0d1b2c,#070d16);overflow:hidden;min-height:0}
+#hzRoad{position:absolute;left:34%;width:26%;top:0;bottom:0;background:linear-gradient(90deg,#1b2a3a,#233446,#1b2a3a);border-left:2px solid #5ee6a855;border-right:2px solid #5ee6a855}
+#hzRoad::after{content:"";position:absolute;left:calc(50% - 1.5px);width:3px;top:0;bottom:0;background:repeating-linear-gradient(180deg,#ffffff66 0 14px,transparent 14px 32px);background-size:3px 32px;animation:lane var(--ls,1.2s) linear infinite}
+@keyframes lane{to{background-position:0 32px}}
+.hzs{position:absolute;left:34%;width:26%;bottom:calc(58px + var(--a) * (100% - 78px));height:calc((var(--b) - var(--a)) * (100% - 78px));min-height:6px;opacity:.88}
+.hzs.j2{background:#f59e0b99}.hzs.j3{background:#ff6b6bb3}
+.hzs.w{left:60%;width:9%;opacity:.55;border-radius:0 8px 8px 0}.hzs.w.rain{background:#4cc9f0}.hzs.w.ice{background:#dff0ff}.hzs.w.fog{background:#9aa8b2}.hzs.w.wind{background:#b6a6ff}
+.hzl{position:absolute;left:62%;right:6px;bottom:calc(58px + var(--p) * (100% - 78px));transform:translateY(50%);display:flex;align-items:center;gap:5px;font-size:.78rem;line-height:1.1;white-space:nowrap;color:var(--ink)}
+.hzl span{overflow:hidden;text-overflow:ellipsis}
+.hzl svg{flex:0 0 auto}.hzl.am{color:var(--warn)}.hzl.rd{color:var(--bad)}.hzl.ok{color:var(--ok)}.hzl small{display:block;color:var(--dim);font-size:.64rem}
+.hzl.lim{left:4px;right:68%;justify-content:flex-end}
+.hzl.lim i{width:26px;height:26px;border-radius:50%;background:#fff;color:#111;border:3px solid #d4262c;font:700 .62rem/20px var(--mono);text-align:center;font-style:normal}
+#hzCar{position:absolute;left:calc(47% - 14px);bottom:6px;width:28px;height:52px;filter:drop-shadow(0 3px 6px #000c)}
+#hzCar .cartop{width:100%;height:100%}
+#hzWin{position:absolute;left:8px;top:6px;font:600 .58rem var(--mono);letter-spacing:.12em;color:var(--dim)}
+/* controls */
+#dBottom{flex:0 0 auto;display:flex;align-items:center;gap:10px}
+#dBottom .dopts{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0}
+#dBottom .dopts .pill{min-height:34px;padding:0 6px;font-size:.64rem;white-space:nowrap}
+#dTalk{position:static;width:76px;height:76px;flex:0 0 auto;border-radius:50%;padding:0;min-height:0;border:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--glow),color-mix(in srgb,var(--glow) 60%,#fff));color:#02101c;box-shadow:0 8px 26px var(--ga),0 0 0 6px color-mix(in srgb,var(--glow) 18%,transparent)}
+#dTalk svg{width:32px;height:32px}
+#dWarn{flex:0 0 auto;margin:0;font-size:.78rem}#dWarn:empty{display:none}
+@media (max-height:720px){#nxD{font-size:2.4rem}#tEta #dEta{font-size:2rem}#spNum b{font-size:2.2rem}#dTalk{width:64px;height:64px}.tl{padding:6px 10px}}
+/* landscape: three columns, ribbon runs left to right */
+@media (orientation:landscape){
+  #drive #dLive{display:grid;grid-template-columns:34% 1fr 22%;grid-template-rows:auto 1fr;gap:8px}
+  #dNext{grid-column:1/-1}
+  #dCols{display:contents}
+  #dSide{grid-column:1;grid-row:2;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  #hz{grid-column:2;grid-row:2}
+  #dBottom{grid-column:3;grid-row:2;flex-direction:column-reverse;justify-content:space-between;align-items:stretch}
+  #dBottom .dopts{grid-template-columns:1fr}
+  #dTalk{align-self:center}
+  #hzRoad{left:0;right:0;top:36%;bottom:auto;width:auto;height:26%;background:linear-gradient(180deg,#1b2a3a,#233446,#1b2a3a);border:0;border-top:2px solid #5ee6a855;border-bottom:2px solid #5ee6a855}
+  #hzRoad::after{left:0;right:0;top:calc(50% - 1.5px);bottom:auto;width:auto;height:3px;background:repeating-linear-gradient(90deg,#ffffff66 0 14px,transparent 14px 32px);background-size:32px 3px;animation-name:lanel}
+  @keyframes lanel{to{background-position:32px 0}}
+  .hzs{left:calc(58px + var(--a) * (100% - 78px));width:calc((var(--b) - var(--a)) * (100% - 78px));bottom:auto;top:36%;height:26%;min-width:6px;min-height:0}
+  .hzs.w{left:calc(58px + var(--a) * (100% - 78px));top:62%;height:9%;width:calc((var(--b) - var(--a)) * (100% - 78px));border-radius:0 0 8px 8px}
+  .hzl{left:calc(58px + var(--p) * (100% - 78px));right:auto;bottom:auto;top:10%;transform:translateX(-12px);flex-direction:column;align-items:flex-start;white-space:normal;max-width:110px}
+  .hzl.lim{left:calc(58px + var(--p) * (100% - 78px));top:72%;right:auto}
+  #hzCar{left:6px;bottom:auto;top:calc(49% - 14px);width:52px;height:28px;transform:rotate(90deg);transform-origin:center}
+}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -828,21 +875,21 @@ input[hidden]{display:none!important}
     <button class="btn pri" id="sSave">Save</button>
   </div>
 </div>
-<div id="drive" role="dialog" aria-label="Trip">
-  <div class="dhead"><div id="dTo">Trip</div><div class="dbtn"><button class="icon" id="dMin" aria-label="Minimise trip">&#8964;</button><button class="icon" id="dEnd" aria-label="End trip">&#10005;</button></div></div>
+<div id="drive" role="dialog" aria-label="Trip co-pilot">
+  <div class="dhead"><div id="dTo">Trip</div><div class="dbtn"><button class="icon" id="dMin" aria-label="Minimise trip">&#8964;</button><button class="icon" id="dEnd" aria-label="Hold to end trip">&#10005;</button></div></div>
   <div id="dLive">
-    <div id="dMapWrap">
-      <div id="dMap"></div>
-      <div class="dbx" id="dEtaBox"><span class="dlab">ARRIVE</span><b id="dEta">--:--</b><em id="dRem">--</em></div>
-      <div class="dbx" id="dSpdBox"><i id="dLimSign"></i><div><b id="dSpd">--</b><em id="dLim">mph</em></div></div>
-      <button class="pill" id="dMapT">Hide map</button>
-      <button id="dTalk" aria-label="Tap to talk"></button>
+    <div id="dNext" class="ok"><div class="nk"><b id="nxD">OK</b><span id="nxU"></span></div><div class="nt"><em>All clear</em><strong id="nxT">Clear ahead</strong><span id="nxS"></span></div></div>
+    <div id="dCols">
+      <div id="hz"><div id="hzRoad"></div><div id="hzItems"></div><div id="hzCar"></div><div id="hzWin"></div></div>
+      <div id="dSide">
+        <div class="tl" id="tEta"><span>Arrive</span><b id="dEta">--:--</b><em id="dRem">--</em><i id="dPlan"></i></div>
+        <div class="tl" id="tSpd"><svg id="spRing" viewBox="0 0 120 120"><path id="spBg" d="M24.64 95.36 A50 50 0 1 1 95.36 95.36"/><path id="spFg" d="M24.64 95.36 A50 50 0 1 1 95.36 95.36" stroke-dasharray="0 236"/><line id="spLim" x1="0" y1="0" x2="0" y2="0"/></svg><div id="spNum"><b id="dSpd">--</b><em>MPH</em></div><i id="dLimSign"></i></div>
+        <div class="tl" id="tFuel"><span>Fuel use</span><b id="dMpg">-- mpg</b><em id="dMpgN">right now</em><div id="dEff"><i></i></div><div id="dCost"></div></div>
+        <div class="tl" id="tCond"><span>Weather ahead</span><b id="dCond">--</b><em id="dCondN">checking</em></div>
+      </div>
     </div>
-    <div class="dbar"><div id="dJam"></div><i id="dPos"></i></div>
-    <div class="dgrid2"><div><span>Fuel use</span><b id="dMpg">--</b><em id="dMpgN">mpg right now</em></div><div><span>Trip so far</span><b id="dCost">--</b><em id="dCo2"></em></div></div>
     <div id="dWarn"></div>
-    <div id="dFeed"></div>
-    <div class="dfoot"><div class="dopts"><button class="pill" id="dLow">Low fuel</button><button class="pill" id="dVox">Voice</button><button class="pill" id="dSpA">Speed</button></div></div>
+    <div id="dBottom"><div class="dopts"><button class="pill" id="dLow">Low fuel</button><button class="pill" id="dVox">Voice</button><button class="pill" id="dSpA">Speed</button><button class="pill" id="dRange">Range 20 mi</button></div><button id="dTalk" aria-label="Tap to talk"></button></div>
   </div>
   <div id="dDone"></div>
 </div>
@@ -1802,7 +1849,7 @@ async function runHealth(){
   row(window.Notification?(Notification.permission==='granted'?'ok':'op'):'op','Notifications',window.Notification?Notification.permission:'not supported');
   row(navigator.geolocation?'ok':'op','Location',navigator.geolocation?'allowed when you tap Use my location':'not available');
 }
-const APP_VER='v28';
+const APP_VER='v29';
 $('hcRun').onclick=runHealth;
 $('hcReload').onclick=async()=>{try{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k)}catch(e){}location.reload()};
 function localIntent(t){
@@ -2500,19 +2547,21 @@ $('mvSat').style.display='none';
 let tmap=null;
 const routeHeading=(g,a)=>{const i=Math.max(0,Math.min(g.length-2,Math.round(a*(g.length-1))));return brg(g,i)};
 
-// ================= v27: trip co-pilot (what a satnav does not tell you) =================
+// ================= v29: glanceable co-pilot (no map: ribbon, banner, tiles) =================
 const LPK=[[30,7.5],[50,5.6],[80,5.0],[100,5.5],[112,6.1],[130,7.6]];
 function lpk(kmh){if(kmh<=LPK[0][0])return LPK[0][1];for(let i=1;i<LPK.length;i++)if(kmh<=LPK[i][0]){const a=LPK[i-1],b=LPK[i];return a[1]+(b[1]-a[1])*(kmh-a[0])/(b[0]-a[0])}return LPK[LPK.length-1][1]}
 const mpgK=()=>{const m=+cfg.mpg||+cfg.mpgAuto||0;return m>10&&m<120?(282.48/m)/5.9:1};
 const nowMpg=mph=>282.48/(lpk(mph*1.609)*mpgK());
+const ZI={inc:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',jam:'<path d="M3 17h18M5 17l1.4-5h11.2L19 17M7 17v2M17 17v2"/>',fuel:'<path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M4 21h12M15 9h2.5a1.5 1.5 0 0 1 1.5 1.5V17a1.5 1.5 0 0 0 3 0V9L19 6"/>',end:'<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',rain:'<path d="M7 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 6.5a4.25 4.25 0 0 1 .5 8.5H7z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',ice:'<path d="M12 2v20M4 7l16 10M20 7L4 17"/>',fog:'<path d="M4 8h16M3 12h18M5 16h14"/>',wind:'<path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/>'};
+const zi=(k,s)=>`<svg viewBox="0 0 24 24" width="${s||16}" height="${s||16}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ZI[k]}</svg>`;
 function wxHazard(it){
-  if(!it)return null;const d=String(it.desc||'');let h=null;const set=(k,sev)=>{if(!h||(sev==='rd'&&h.sev!=='rd'))h={k,sev}};
-  if(it.code>=95||/thunder/.test(d))set('Thunderstorm','rd');
-  if(/snow/.test(d)||(it.t<=1&&(it.rain>=30||/fog/.test(d))))set('Ice or snow risk','rd');
-  if(it.mm>=2||/heavy/.test(d))set('Heavy rain','rd');
-  else if(it.rain>=60&&it.mm>=0.3)set('Rain','am');
-  if((it.vis!=null&&it.vis<1000)||/fog/.test(d))set('Fog','am');
-  if(it.gust>=45)set('Strong gusts '+Math.round(it.gust)+' mph','am');
+  if(!it)return null;const d=String(it.desc||'');let h=null;const set=(k,sev,ic)=>{if(!h||(sev==='rd'&&h.sev!=='rd'))h={k,sev,ic}};
+  if(it.code>=95||/thunder/.test(d))set('Thunderstorm','rd','rain');
+  if(/snow/.test(d)||(it.t<=1&&(it.rain>=30||/fog/.test(d))))set('Ice or snow risk','rd','ice');
+  if(it.mm>=2||/heavy/.test(d))set('Heavy rain','rd','rain');
+  else if(it.rain>=60&&it.mm>=0.3)set('Rain','am','rain');
+  if((it.vis!=null&&it.vis<1000)||/fog/.test(d))set('Fog','am','fog');
+  if(it.gust>=45)set('Gusts '+Math.round(it.gust)+' mph','am','wind');
   return h;
 }
 const limitAt=a=>{const t=trip,L=t&&t.r.limits;if(!L||!L.length)return null;const i=Math.round(a*(t.r.geom.length-1)),m=L.find(l=>i>=l[0]&&i<=l[1]);return m?m[2]:null};
@@ -2524,72 +2573,92 @@ function fuelAdvice(a){
   const rows=ahead.map(s=>{const d=(s.along-a)*t.mi,detour=Math.max(1,s.off*3.4),save=(md-s.price)*fill/100;return{s,d,detour,save,net:save-detour*0.1,md,fill}});
   return t.lowFuel?rows.sort((x,y)=>x.d-y.d).slice(0,3):[rows.sort((x,y)=>y.net-x.net)[0]];
 }
-function feedItems(a){
-  const t=trip,g=t.r.geom,mi=t.mi,out=[],A=i=>i/Math.max(1,g.length-1);
-  (t.r.incidents||[]).forEach(i=>{if(i._a==null)i._a=project(g,i.lat,i.lon).along;if(i._a>a+0.003){const d=(i._a-a)*mi,p=i.text.split(':');out.push({dist:d,tag:'Roadworks and incidents',title:`${d.toFixed(1)} mi: ${p[0]}`,sub:p.slice(1).join(':').trim()||'On your route',sev:'am',key:'inc:'+i.text,say:`${p[0]} ahead in ${Math.max(1,Math.round(d))} miles.`,at:5})}});
-  (t.r.jams||[]).forEach(j=>{const a0=A(j[0]),a1=A(j[1]);if(a1>a+0.003){const inside=a0<=a,d=Math.max(0,(a0-a)*mi),len=(a1-Math.max(a0,a))*mi,heavy=j[2]>=3,extra=Math.round(len*(heavy?2.8:0.8));
-    out.push({dist:d,tag:'Traffic',title:inside?`In slow traffic, clears in ${len.toFixed(1)} mi`:`Slow traffic in ${d.toFixed(1)} mi`,sub:`${len.toFixed(1)} mi of ${heavy?'heavy':'moderate'} congestion`+(extra>=1?`, about ${extra} min extra`:''),sev:heavy?'rd':'am',key:'jam:'+j[0],say:inside?null:`Slow traffic in ${Math.max(1,Math.round(d))} miles.`,at:6})}});
-  const hz=(t.wx||[]).map(w=>({w,h:wxHazard(w.item)})).filter(x=>x.h&&x.w.f>a);
-  if(hz.length){const x=hz.sort((p,q)=>(q.h.sev==='rd')-(p.h.sev==='rd')||p.w.f-q.w.f)[0],d=(x.w.f-a)*mi,m=Math.max(1,Math.round(x.w.min));
-    out.push({dist:d,tag:'Weather when you get there',title:`${x.h.k} in ${Math.max(1,Math.round(d))} mi`,sub:`In about ${m} min \u00b7 ${x.w.item.t}\u00b0, ${x.w.item.rain}% chance of rain`,sev:x.h.sev,key:'wx:'+x.h.k,say:`${x.h.k} ahead, in about ${m} minutes.`,at:60})}
-  else if(t.wx&&t.wx.length)out.push({dist:999,tag:'Weather when you get there',title:'Clear along the rest of your route',sub:'Checked for the time you will pass each stretch',sev:'ok'});
+// everything ahead of you, with distance, severity and where it sits on the ribbon
+function trail(a){
+  const t=trip,g=t.r.geom,mi=t.mi,n=Math.max(1,g.length-1),out=[],A=i=>i/n,ahead=x=>(x-a)*mi;
+  (t.r.incidents||[]).forEach(i=>{if(i._a==null)i._a=project(g,i.lat,i.lon).along;if(i._a>a+0.003){const d=ahead(i._a),p=i.text.split(':');out.push({kind:'inc',ic:'inc',d,a0:i._a,a1:i._a,sev:'am',tag:'Incident',short:p[0].replace(/ on .*/,''),title:p[0],sub:p.slice(1).join(':').trim()||'On your route',key:'inc:'+i.text,say:`${p[0]} ahead in ${Math.max(1,Math.round(d))} miles.`,at:5})}});
+  (t.r.jams||[]).forEach(j=>{const a0=A(j[0]),a1=A(j[1]);if(a1>a+0.003){const inside=a0<=a,d=Math.max(0,ahead(a0)),len=ahead(a1)-Math.max(0,ahead(a0)),heavy=j[2]>=3,extra=Math.round(len*(heavy?2.8:0.8));
+    out.push({kind:'jam',ic:'jam',d,a0:Math.max(a0,a),a1,mag:heavy?3:2,sev:heavy?'rd':'am',tag:'Traffic',short:'Slow'+(extra>=1?' +'+extra+'m':''),title:inside?`In slow traffic, clears in ${len.toFixed(1)} mi`:`Slow traffic ahead`,sub:`${len.toFixed(1)} mi of ${heavy?'heavy':'moderate'} congestion`+(extra>=1?`, about ${extra} min extra`:''),key:'jam:'+j[0],say:inside?null:`Slow traffic in ${Math.max(1,Math.round(d))} miles.`,at:6})}});
+  (t.wx||[]).forEach(w=>{const h=wxHazard(w.item);if(h&&w.f>a){const a0=Math.max(a,w.f-.07),a1=Math.min(1,w.f+.07),d=ahead(a0),m=Math.max(1,Math.round(w.min));
+    out.push({kind:'wx',ic:h.ic,d,a0,a1,band:h.ic==='ice'?'ice':h.ic==='fog'?'fog':h.ic==='wind'?'wind':'rain',sev:h.sev,tag:'Weather there',short:h.k,title:h.k,sub:`In about ${m} min \u00b7 ${w.item.t}\u00b0, ${w.item.rain}% rain`,key:'wx:'+h.k,say:`${h.k} ahead, in about ${m} minutes.`,at:60})}});
   fuelAdvice(a).forEach((x,i)=>{const s=x.s,under=x.md-s.price;
-    out.push({dist:x.d+(i?.01*i:0),tag:t.lowFuel?'Nearest fuel':'Fuel stop worth it',title:`${tcase(s.b)} ${s.price.toFixed(1)}p in ${x.d.toFixed(0)} mi`,sub:(under>=1?`${under.toFixed(1)}p under typical, saves about \u00a3${x.save.toFixed(2)} on ${Math.round(x.fill)} L`:'about the typical price')+` \u00b7 ${Math.round(x.detour)} min detour`,sev:'ok',key:t.lowFuel&&i===0?'fuel:'+s.pc:null,say:t.lowFuel&&i===0?`Nearest fuel is ${tcase(s.b)}, in ${Math.round(x.d)} miles.`:null,at:99})});
-  if(t.deltaMsg&&Date.now()-t.deltaAt<600000)out.push({dist:.001,tag:'Delay update',title:t.deltaMsg,sub:'From the latest traffic check',sev:'am',key:'delta'+t.deltaAt});
-  return out.sort((x,y)=>x.dist-y.dist);
+    out.push({kind:'fuel',ic:'fuel',d:x.d,a0:s.along,a1:s.along,sev:'ok',tag:t.lowFuel?'Nearest fuel':'Fuel worth stopping for',short:`${s.price.toFixed(0)}p`,title:`${tcase(s.b)} ${s.price.toFixed(1)}p`,sub:(under>=1?`${under.toFixed(1)}p under typical, saves about \u00a3${x.save.toFixed(2)}`:'about the typical price')+` \u00b7 ${Math.round(x.detour)} min detour`,key:t.lowFuel&&i===0?'fuel:'+s.pc:null,say:t.lowFuel&&i===0?`Nearest fuel is ${tcase(s.b)}, in ${Math.round(x.d)} miles.`:null,at:99})});
+  let last=null;(t.r.limits||[]).forEach(l=>{const al=A(l[0]);if(al>a+0.004&&l[2]!==last&&out.filter(o=>o.kind==='lim').length<4)out.push({kind:'lim',d:ahead(al),a0:al,a1:al,sev:'ok',lim:l[2]});last=l[2]});
+  if(t.deltaMsg&&Date.now()-t.deltaAt<600000)out.push({kind:'delta',d:0,sev:'am',tag:'Delay update',short:'',title:t.deltaMsg,sub:'From the latest traffic check',key:'delta'+t.deltaAt});
+  out.push({kind:'end',ic:'end',d:Math.max(0,(1-a)*mi),a0:1,a1:1,sev:'ok',short:'',tag:'Destination'});
+  return out.sort((x,y)=>x.d-y.d);
 }
-function renderFeed(a,live){
-  const t=trip,all=feedItems(a),box=$('dFeed');box.textContent='';
-  const rank={rd:0,am:1,ok:2},items=all.slice().sort((x,y)=>(rank[x.sev||'ok']-rank[y.sev||'ok'])||(x.dist-y.dist));
-  if(!items.length)items.push({tag:'All clear',title:'Nothing to report ahead',sub:'I will warn you about weather, traffic and roadworks',sev:'ok'});
-  const off=(t.feedOff||0)%items.length,view=items.slice(off,off+2).concat(items.slice(0,Math.max(0,off+2-items.length))).slice(0,2);
-  view.forEach(it=>{const c=el('div','fcard '+(it.sev||'ok'));const line=el('div');line.append(el('span','ftag',it.tag),el('b','',it.title));c.append(line,el('span','s',it.sub));box.append(c)});
-  if(items.length>2){const m=el('button','',`+${items.length-2} more`);m.id='dMore';m.onclick=()=>{t.feedOff=(t.feedOff||0)+2;renderFeed(t.along,false)};box.append(m)}
-  all.forEach(it=>{if(live&&it.say&&it.key&&it.dist<=(it.at||5))say2(it.key,it.say)});
+const winMiles=()=>{const t=trip,rem=(1-t.along)*t.mi;return Math.max(3,Math.min(t.win||20,Math.max(rem,3)))};
+function nextUp(items){
+  const rank={rd:0,am:1,ok:2},real=items.filter(x=>!['lim','end'].includes(x.kind));
+  return real.filter(x=>x.sev!=='ok'&&x.d<=(x.sev==='rd'?40:15)).sort((x,y)=>rank[x.sev]-rank[y.sev]||x.d-y.d)[0]||(trip.lowFuel?real.find(x=>x.kind==='fuel'):null)||real.filter(x=>x.kind==='fuel'&&x.d<=25)[0]||null;
+}
+function renderTiles(items,a){
+  const nx=nextUp(items),b=$('dNext');b.className=nx?nx.sev:'ok';
+  if(nx){$('nxD').textContent=nx.d<0.1?'<0.1':nx.d.toFixed(nx.d<10?1:0);$('nxU').textContent='mi';$('nxT').textContent=nx.title;$('nxS').textContent=nx.sub;b.querySelector('em').textContent=nx.tag}
+  else{$('nxD').textContent='OK';$('nxU').textContent='';$('nxT').textContent='Clear ahead';$('nxS').textContent='Nothing to report on the road, weather or traffic';b.querySelector('em').textContent='All clear'}
+}
+function renderHorizon(items,a){
+  const t=trip,W=winMiles(),box=$('hzItems');box.textContent='';$('hzWin').textContent=`NEXT ${Math.round(W)} MI`;
+  const land=window.matchMedia&&window.matchMedia('(orientation:landscape)').matches,hz=$('hz'),L=(land?hz.clientWidth:hz.clientHeight)||(land?360:420),gap=land?118:34,usable=Math.max(1,L-78);
+  const pos=d=>Math.min(1,Math.max(0,d/W));
+  items.filter(x=>x.d<=W&&['jam','wx'].includes(x.kind)).forEach(x=>{const s=el('div','hzs '+(x.kind==='jam'?'j'+x.mag:'w '+x.band));s.style.setProperty('--a',pos((x.a0-a)*t.mi));s.style.setProperty('--b',Math.max(pos((x.a1-a)*t.mi),pos((x.a0-a)*t.mi)+.03));box.append(s)});
+  const rank={rd:0,am:1,ok:2},cand=items.filter(x=>x.d<=W&&!['lim','delta'].includes(x.kind)).sort((x,y)=>(x.kind==='end'?-1:0)-(y.kind==='end'?-1:0)||rank[x.sev]-rank[y.sev]||x.d-y.d),placed=[];
+  cand.forEach(x=>{const y=pos(x.d)*usable;if(placed.every(p=>Math.abs(p-y)>=gap)){placed.push(y);const l=el('div','hzl '+x.sev);l.style.setProperty('--p',pos(x.d));l.innerHTML=zi(x.ic,15);const sp=el('span','',x.kind==='end'?'':x.short);const sm=el('small','',(x.d<10?x.d.toFixed(1):Math.round(x.d))+' mi');const wrap=el('span');wrap.append(sp.textContent?sp:document.createTextNode(''),sm);l.append(wrap);box.append(l)}});
+  items.filter(x=>x.kind==='lim'&&x.d<=W).forEach(x=>{const l=el('div','hzl lim');l.style.setProperty('--p',pos(x.d));const i=el('i','',String(x.lim));l.append(i);box.append(l)});
+}
+function renderSpeed(spd,along){
+  const lim=limitAt(along),S=Math.min(100,spd||0),R=50,L=2*Math.PI*R*.75,ang=135+270*(lim||0)/100,rad=Math.PI/180;
+  $('spFg').setAttribute('stroke-dasharray',`${(S/100*L).toFixed(1)} ${L.toFixed(1)}`);
+  const sl=$('spLim');if(lim){sl.setAttribute('x1',60+42*Math.cos(ang*rad));sl.setAttribute('y1',60+42*Math.sin(ang*rad));sl.setAttribute('x2',60+58*Math.cos(ang*rad));sl.setAttribute('y2',60+58*Math.sin(ang*rad));sl.style.display=''}else sl.style.display='none';
+  const over=!!(lim&&spd!=null&&spd>lim+3);$('tSpd').classList.toggle('over',over);$('tSpd').classList.toggle('hot',!over&&spd>=76);
+  const sg=$('dLimSign');sg.textContent=lim||'';sg.style.display=lim?'block':'none';$('dSpd').textContent=spd==null?'--':String(Math.round(spd));
+  return{lim,over};
 }
 function startTrip(r){
   r=r||commuteUI;
   if(!r){alert('No route yet. Wait for the commute to load.');return}
   if(!navigator.geolocation){alert('Location is not available here.');return}
   if(trip)stopTrip();
-  trip={r,t0:Date.now(),mi:r.options[0].miles,eta:r.eta?r.eta.min:r.options[0].min,said:{},last:null,along:0,dir:r===commuteUI?dir:null,wx:[],lowFuel:false,fuel:stations.length?stationsOnRoute(r.geom):[]};
+  const eta=r.eta?r.eta.min:r.options[0].min;
+  trip={r,t0:Date.now(),mi:r.options[0].miles,eta,eta0:eta,said:{},last:null,along:0,win:20,dir:r===commuteUI?dir:null,wx:[],lowFuel:false,fuel:stations.length?stationsOnRoute(r.geom):[]};
   $('dDone').classList.remove('show');$('dLive').style.display='';
-  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;jamBar($('dJam'),r);$('dPos').innerHTML=carSide();$('drive').classList.add('open');paintOpts();tripUI(0,0,null,false);mountTripMap(r);
+  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;$('drive').classList.toggle('night',document.body.dataset.tod==='night');$('drive').classList.add('open');paintOpts();tripUI(0,0,null,false);
   try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>{if(trip)trip.wake=l}).catch(()=>{})}catch(e){}
   trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
   refreshWx();trip.timers=[setInterval(refreshWx,600000),setInterval(refreshTrip,300000)];
 }
+const redraw=(live)=>{const t=trip;if(!t)return;const items=trail(t.along);renderTiles(items,t.along);renderHorizon(items,t.along);items.forEach(it=>{if(live&&it.say&&it.key&&it.d<=(it.at||5))say2(it.key,it.say)})};
 async function refreshWx(){
   const t=trip;if(!t||!getWorker())return;
   const g=t.r.geom,a=t.along||0,fr=[.12,.25,.4,.55,.7,.85,.97].filter(f=>f>a+.02);if(!fr.length)return;
   const pts=fr.map(f=>{const p=g[Math.round(f*(g.length-1))];return{lat:p[0],lon:p[1],min:t.eta*(f-a)}});
-  try{const d=await post('/tripwx',{points:pts});if(trip===t){t.wx=(d.items||[]).map((it,i)=>({f:fr[i],min:pts[i].min,item:it})).filter(x=>x.item);renderFeed(t.along,false)}}catch(e){}
+  try{const d=await post('/tripwx',{points:pts});if(trip===t){t.wx=(d.items||[]).map((it,i)=>({f:fr[i],min:pts[i].min,item:it})).filter(x=>x.item);redraw(false)}}catch(e){}
 }
 const sameRoute=(a,b)=>Math.abs(a.length-b.length)<=4&&Math.abs(a[0][0]-b[0][0])<.004&&Math.abs(a[a.length-1][0]-b[b.length-1][0])<.004;
-async function refreshTrip(){   // re-check traffic ahead every few minutes
+async function refreshTrip(){
   const t=trip;if(!t||!t.dir||t.busy)return;t.busy=true;
   try{const d=await post('/commute',{dir:t.dir,...ctx()}),r=d.route;
     if(trip===t&&r&&r.geom&&sameRoute(r.geom,t.r.geom)){
       const was=t.r.eta?t.r.eta.delay:0;t.r.jams=r.jams;t.r.incidents=r.incidents;if(r.limits)t.r.limits=r.limits;
       if(r.eta){const grow=r.eta.delay-was;if(grow>=3){t.deltaMsg=`Delay has grown by ${grow} min`;t.deltaAt=Date.now();say2('d'+Date.now(),`The delay has grown by ${grow} minutes.`)}else if(grow<=-3){t.deltaMsg=`Traffic easing: ${-grow} min quicker`;t.deltaAt=Date.now()}t.r.eta=r.eta;t.eta=r.eta.min}
-      jamBar($('dJam'),t.r);renderFeed(t.along,false);
+      redraw(false);
     }}catch(e){}
   t.busy=false;
 }
 function tripUI(along,off,spd,live){
   const t=trip;t.along=along;const rem=Math.max(0,1-along),remMin=rem>0.02?Math.max(1,Math.round(t.eta*rem)):0;
-  const clock=new Date(Date.now()+remMin*60000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
-  $('dEta').textContent=clock;$('dRem').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(1)} mi to go`;
-  $('tpTxt').textContent=remMin?`${remMin} min \u00b7 ${clock}`:'Arrived';
-  $('dPos').style.setProperty('--pp',(Math.min(1,along)*100)+'%');$('dPos').style.setProperty('--ws',spd>1?Math.max(.12,2/(spd/10))+'s':'0s');
-  $('dSpd').textContent=spd==null?'--':String(Math.round(spd));
-  const lim=limitAt(along);$('dLim').textContent='mph';const sg=$('dLimSign');sg.textContent=lim||'';sg.style.display=lim?'block':'none';
-  const over=!!(lim&&spd!=null&&spd>lim+3);$('dSpdBox').classList.toggle('over',over);
-  if(live&&over&&cfg.speedAlert===true&&Date.now()-(t.lastSpd||0)>90000){t.lastSpd=Date.now();toast(`Limit ${lim}, you are doing ${Math.round(spd)}`);if(spd>lim+6&&cfg.tripVoice!==false)speak(`The limit is ${lim}.`)}
-  if(spd!=null&&spd>5){const ratio=lpk(112.7)/lpk(spd*1.609);$('dMpg').textContent=nowMpg(spd).toFixed(0);$('dMpgN').textContent=spd>=75&&ratio<.92?`easing to 70 saves ~${Math.round((1-ratio)*100)}%`:'mpg right now'}else{$('dMpg').textContent='--';$('dMpgN').textContent='mpg right now'}
+  const arrive=new Date(Date.now()+remMin*60000),clock=arrive.toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
+  $('dEta').textContent=clock;$('dRem').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(1)} mi`;$('tpTxt').textContent=remMin?`${remMin} min \u00b7 ${clock}`:'Arrived';
+  const dl=Math.round((arrive.getTime()-(t.t0+t.eta0*60000))/60000),pl=$('dPlan');pl.textContent=Math.abs(dl)<=1?'on plan':dl>0?`+${dl} min vs plan`:`${-dl} min ahead of plan`;pl.className=Math.abs(dl)<=1?'':dl>0?(dl>=5?'rd':'am'):'';
+  $('hzRoad').style.setProperty('--ls',spd>1?Math.max(.15,3.2/(spd/10))+'s':'9s');
+  const sp=renderSpeed(spd,along);
+  if(live&&sp.over&&cfg.speedAlert===true&&Date.now()-(t.lastSpd||0)>90000){t.lastSpd=Date.now();toast(`Limit ${sp.lim}, you are doing ${Math.round(spd)}`);if(spd>sp.lim+6&&cfg.tripVoice!==false)speak(`The limit is ${sp.lim}.`)}
+  if(spd!=null&&spd>5){const ratio=lpk(112.7)/lpk(spd*1.609),score=Math.max(5,Math.min(100,100*lpk(80)/lpk(spd*1.609)));$('dMpg').textContent=nowMpg(spd).toFixed(0)+' mpg';$('dMpgN').textContent=spd>=75&&ratio<.92?`ease to 70: save ~${Math.round((1-ratio)*100)}%`:score>=90?'efficient speed':'right now';const e=$('dEff').firstElementChild;e.style.width=score+'%';e.style.background=score>=85?'var(--ok)':score>=65?'var(--warn)':'var(--bad)'}else{$('dMpg').textContent='-- mpg';$('dMpgN').textContent='right now';$('dEff').firstElementChild.style.width='0%'}
   const l=(t.r.options[0].fuel!=null?t.r.options[0].fuel:t.mi/(+cfg.mpg||+cfg.mpgAuto||45)*GAL)*Math.min(1,along);
-  $('dCost').textContent='\u00a3'+(l*effPrice().ppl/100).toFixed(2);$('dCo2').textContent=(l*CO2_L[fuelType]).toFixed(1)+' kg CO\u2082';
-  if(!t.lastFeed||Date.now()-t.lastFeed>1500||!live){t.lastFeed=Date.now();renderFeed(along,live)}
+  $('dCost').textContent=`\u00a3${(l*effPrice().ppl/100).toFixed(2)} \u00b7 ${(l*CO2_L[fuelType]).toFixed(1)} kg CO\u2082 so far`;
+  const w0=(t.wx||[])[0],hz=w0&&wxHazard(w0.item);$('dCond').textContent=w0?`${w0.item.t}\u00b0`:'--';$('dCondN').textContent=hz?hz.k:w0?(w0.item.rain>=40?`${w0.item.rain}% rain`:'dry'):'checking';$('tCond').style.borderColor=hz&&hz.sev==='rd'?'var(--bad)':'';
+  if(!t.lastDraw||Date.now()-t.lastDraw>1200||!live){t.lastDraw=Date.now();redraw(live)}
   const w=$('dWarn');w.textContent='';
   if(live&&off>0.4){const a=el('a','','Off route: open Google Maps from here');a.href=`https://www.google.com/maps/dir/?api=1&destination=${t.r.b.lat},${t.r.b.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';w.append(a)}
   if(live&&along>0.985&&!t.done){t.done=1;speak(`You have arrived, ${title()}.`);finishTrip()}
@@ -2599,58 +2668,17 @@ function stopTrip(){
   try{navigator.geolocation.clearWatch(trip.watch)}catch(e){}
   try{trip.wake&&trip.wake.release()}catch(e){}
   (trip.timers||[]).forEach(clearInterval);
-  trip=null;destroyTripMap();$('drive').classList.remove('open');$('tpill').classList.remove('show');
+  trip=null;$('drive').classList.remove('open');$('tpill').classList.remove('show');
 }
-function paintOpts(){$('dLow').classList.toggle('on',!!(trip&&trip.lowFuel));$('dVox').classList.toggle('on',cfg.tripVoice!==false);$('dSpA').classList.toggle('on',cfg.speedAlert===true)}
-$('dLow').onclick=()=>{if(!trip)return;trip.lowFuel=!trip.lowFuel;paintOpts();renderFeed(trip.along,true);toast(trip.lowFuel?'Showing the nearest fuel ahead':'Back to the best-value fuel stop')};
+const followTrip=()=>{},destroyTripMap=()=>{},mountTripMap=()=>{};
+function paintOpts(){$('dLow').classList.toggle('on',!!(trip&&trip.lowFuel));$('dVox').classList.toggle('on',cfg.tripVoice!==false);$('dSpA').classList.toggle('on',cfg.speedAlert===true);$('dRange').textContent=`Range ${trip?trip.win:20} mi`}
+$('dLow').onclick=()=>{if(!trip)return;trip.lowFuel=!trip.lowFuel;paintOpts();redraw(true);toast(trip.lowFuel?'Showing the nearest fuel ahead':'Back to the best-value fuel stop')};
 $('dVox').onclick=()=>{cfg.tripVoice=cfg.tripVoice===false;saveCfg();paintOpts();toast(cfg.tripVoice===false?'Voice alerts off':'Voice alerts on')};
 $('dSpA').onclick=()=>{cfg.speedAlert=cfg.speedAlert!==true;saveCfg();paintOpts();toast(cfg.speedAlert?'Speed alerts on (limits are estimates)':'Speed alerts off')};
-
-// trip map: MapLibre first, Leaflet if that cannot load, always something on screen
-function leafletTrip(div,r){
-  if(!window.L)return null;
-  try{
-    const m=L.map(div,{zoomControl:false,attributionControl:false,dragging:false,touchZoom:false});
-    L.tileLayer('https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{maxZoom:19}).addTo(m);
-    L.polyline(r.geom,{color:ACC(),weight:5}).addTo(m);
-    const car=L.marker(r.geom[0],{icon:L.divIcon({className:'',html:'<div class="mk-cartop"><div class="cartop"></div></div>',iconSize:[34,67],iconAnchor:[17,33]})}).addTo(m);
-    m.setView(r.geom[0],15);setTimeout(()=>m.invalidateSize(),100);return{leaf:true,m,car};
-  }catch(e){return null}
-}
-async function mountTripMap(r){
-  const div=$('dMap'),wrap=$('dMapWrap');
-  if(cfg.tripMap===false){wrap.classList.add('off');$('dMapT').textContent='Show map';return}
-  wrap.classList.remove('off');$('dMapT').textContent='Hide map';div.textContent='Loading map...';
-  let ok=false;try{ok=(await loadMapLib())&&webgl()}catch(e){}
-  if(!trip)return;div.textContent='';
-  if(ok){
-    try{
-      const g=r.geom,map=new maplibregl.Map({container:div,style:STYLE_URL,attributionControl:false,interactive:false,fadeDuration:0,pixelRatio:Math.min(window.devicePixelRatio||1,2),center:[g[0][1],g[0][0]],zoom:15.5,pitch:58,bearing:routeHeading(g,0)});
-      const t={map,ready:false,dead:false};tmap=t;
-      map.on('load',()=>{
-        if(t.dead)return;
-        try{
-          addSat(map);map.setLayoutProperty('traffic','visibility','visible');
-          map.addSource('tr',{type:'geojson',data:feat(lnglat(g))});
-          map.addLayer({id:'tr-glow',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':ACC(),'line-width':14,'line-opacity':.25,'line-blur':6}});
-          map.addLayer({id:'tr-line',type:'line',source:'tr',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':ACC(),'line-width':5}});
-          t.car=new maplibregl.Marker({element:carEl(),rotationAlignment:'map',pitchAlignment:'map'}).setLngLat([g[0][1],g[0][0]]).addTo(map);t.ready=true;
-        }catch(e){}
-      });
-      return;
-    }catch(e){div.textContent=''}
-  }
-  const lf=leafletTrip(div,r);if(lf)tmap=lf;else div.textContent='Map unavailable here. The co-pilot below still works.';
-}
-function followTrip(la,lo,hdg){
-  const t=tmap;if(!t)return;
-  if(t.leaf){t.car.setLatLng([la,lo]);t.m.setView([la,lo],16);return}
-  if(!t.ready)return;
-  t.car.setLngLat([lo,la]);t.car.setRotation(hdg||0);
-  try{t.map.easeTo({center:[lo,la],bearing:hdg||0,pitch:58,zoom:16,duration:900,easing:x=>x})}catch(e){}
-}
-function destroyTripMap(){if(tmap){tmap.dead=true;try{(tmap.leaf?tmap.m:tmap.map).remove()}catch(e){}tmap=null}$('dMap').textContent=''}
-$('dMapT').onclick=()=>{cfg.tripMap=cfg.tripMap===false;saveCfg();if(cfg.tripMap===false){destroyTripMap();$('dMapWrap').classList.add('off');$('dMapT').textContent='Show map'}else if(trip)mountTripMap(trip.r)};
+$('dRange').onclick=()=>{if(!trip)return;trip.win=trip.win===10?20:trip.win===20?40:10;paintOpts();redraw(false)};
+// end the trip with a deliberate press so a bump in the holder cannot end it
+(function(){const b=$('dEnd');let tm=null;const start=e=>{e.preventDefault&&e.preventDefault();b.classList.add('hold');tm=setTimeout(()=>{b.classList.remove('hold');stopTrip()},700)},stop=()=>{clearTimeout(tm);b.classList.remove('hold')};
+ b.addEventListener('pointerdown',start);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop));b.onclick=()=>toast('Hold to end the trip')})();
 
 // ---------- trip log, CO2, parking ----------
 let trips=[];try{trips=JSON.parse(localStorage.getItem('jarvisTrips')||'[]')}catch(e){}
