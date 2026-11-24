@@ -629,95 +629,105 @@ input[hidden]{display:none!important}
 .dfoot{position:sticky;bottom:0;padding-top:12px;background:linear-gradient(transparent,var(--bg) 28%)}
 .dopts{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .dopts .pill{min-height:38px}
-  /* ===== v29: glanceable co-pilot (portrait + landscape, no scrolling, no map) ===== */
+  /* ===== v30: co-pilot hub: next-up banner, road-ahead ribbon with overview rail, tiles, controls ===== */
 #drive{overflow:hidden;gap:8px;padding:calc(env(safe-area-inset-top) + 4px) 12px calc(env(safe-area-inset-bottom) * .5 + 8px);background:#05070A}
 #drive.night{background:#000;--panel:#07090c;--panel2:#07090c;filter:brightness(.82)}
-#drive .dhead{flex:0 0 auto;min-height:38px}
-#drive #dTo{font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+#drive .dhead{flex:0 0 auto;min-height:38px;gap:8px}
+#drive #dTo{font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
 #drive .dhead .icon{width:38px;height:38px}
-#dEnd.hold::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:3px solid var(--bad);animation:holdring .7s linear forwards}
+#dGps{width:9px;height:9px;border-radius:50%;background:var(--warn);flex:0 0 auto;box-shadow:0 0 8px currentColor;color:var(--warn)}
+#dGps.ok{background:var(--ok);color:var(--ok)}#dGps.bad{background:var(--bad);color:var(--bad)}
 #dEnd{position:relative}
+#dEnd.hold::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:3px solid var(--bad);animation:holdring .7s linear forwards}
 @keyframes holdring{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
-#drive #dLive{display:flex;flex-direction:column;flex:1;min-height:0;gap:8px}
-/* next up banner */
-#dNext{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:18px;border:1px solid var(--line);border-left:5px solid var(--ok);background:linear-gradient(160deg,#ffffff0a,#ffffff03)}
+#drive #dLive{display:flex;flex-direction:column;flex:1;min-height:0;gap:8px;position:relative}
+/* next-up banner */
+#dNext{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:9px 14px 9px 12px;border-radius:18px;border:1px solid var(--line);border-left:5px solid var(--ok);background:linear-gradient(160deg,#ffffff0a,#ffffff03)}
 #dNext.am{border-left-color:var(--warn);background:linear-gradient(160deg,#f59e0b1c,#ffffff03)}
-#dNext.rd{border-left-color:var(--bad);background:linear-gradient(160deg,#ff6b6b24,#ffffff03);animation:nudge 2.4s ease-in-out infinite}
+#dNext.rd{border-left-color:var(--bad);background:linear-gradient(160deg,#ff6b6b26,#ffffff03);animation:nudge 2.4s ease-in-out infinite}
 @keyframes nudge{50%{box-shadow:0 0 0 4px #ff6b6b22}}
-#dNext .nk{display:flex;align-items:baseline;gap:4px;min-width:84px}
-#nxD{font-size:3rem;font-weight:300;line-height:1;font-variant-numeric:tabular-nums}
-#nxU{font:600 .8rem var(--mono);color:var(--dim)}
-#dNext .nt{min-width:0}
-#dNext em{display:block;font:600 .58rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-style:normal}
-#nxT{display:block;font-size:1.1rem;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#nxS{display:block;font-size:.76rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* columns */
-#dCols{flex:1;min-height:0;display:grid;grid-template-columns:1.05fr 1fr;gap:8px}
-#dSide{display:grid;grid-template-rows:auto auto auto 1fr;gap:8px;min-height:0}
-.tl{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:8px 12px;min-width:0;position:relative}
-.tl>span{display:block;font:600 .56rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
-.tl>b{display:block;font-weight:300;font-variant-numeric:tabular-nums;line-height:1.05}
-.tl>em{display:block;font-size:.7rem;color:var(--dim);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#tEta #dEta{font-size:2.5rem}
-#dPlan{font-size:.7rem;font-style:normal;color:var(--ok)}#dPlan.am{color:var(--warn)}#dPlan.rd{color:var(--bad)}
-#tSpd{display:flex;align-items:center;justify-content:center;padding:4px}
-#spRing{width:100%;max-width:150px;height:auto;display:block}
-#spBg{fill:none;stroke:#ffffff14;stroke-width:9;stroke-linecap:round}
-#spFg{fill:none;stroke:var(--glow);stroke-width:9;stroke-linecap:round;transition:stroke-dasharray .6s,stroke .3s}
-#tSpd.over #spFg{stroke:var(--bad)}#tSpd.hot #spFg{stroke:var(--warn)}
-#spLim{stroke:#fff;stroke-width:3;stroke-linecap:round}
-#spNum{position:absolute;left:0;right:0;top:50%;transform:translateY(-52%);text-align:center;pointer-events:none}
-#spNum b{display:block;font-size:2.7rem;font-weight:300;line-height:1}
-#spNum em{font:.6rem var(--mono);color:var(--dim);font-style:normal;letter-spacing:.14em}
-#tSpd.over #dSpd{color:var(--bad)}
-#dLimSign{display:none;position:absolute;right:8px;bottom:8px;width:34px;height:34px;border-radius:50%;background:#fff;color:#111;border:4px solid #d4262c;font:700 .82rem/26px var(--mono);text-align:center}
-#tFuel #dMpg{font-size:1.9rem}
-#dEff{height:6px;border-radius:9px;background:#ffffff12;overflow:hidden;margin-top:5px}
-#dEff i{display:block;height:100%;width:50%;background:var(--ok);border-radius:9px;transition:width .5s,background .3s}
-#dCost{font-size:.72rem;color:var(--dim)}
-#tCond #dCond{font-size:1.5rem}
-/* the horizon: the road ahead as a ribbon */
-#hz{position:relative;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#0d1b2c,#070d16);overflow:hidden;min-height:0}
-#hzRoad{position:absolute;left:34%;width:26%;top:0;bottom:0;background:linear-gradient(90deg,#1b2a3a,#233446,#1b2a3a);border-left:2px solid #5ee6a855;border-right:2px solid #5ee6a855}
-#hzRoad::after{content:"";position:absolute;left:calc(50% - 1.5px);width:3px;top:0;bottom:0;background:repeating-linear-gradient(180deg,#ffffff66 0 14px,transparent 14px 32px);background-size:3px 32px;animation:lane var(--ls,1.2s) linear infinite}
+#nxIc{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#ffffff10;color:var(--ok);flex:0 0 auto}
+#dNext.am #nxIc{color:var(--warn)}#dNext.rd #nxIc{color:var(--bad)}
+#nxIc svg{width:22px;height:22px}
+#dNext .nk{display:flex;align-items:baseline;gap:3px;min-width:78px}
+#nxD{font-size:2.7rem;font-weight:300;line-height:1;font-variant-numeric:tabular-nums}
+#nxU{font:600 .76rem var(--mono);color:var(--dim)}
+#dNext .nt{min-width:0;flex:1}
+#dNext em{display:block;font:600 .56rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-style:normal}
+#nxT{display:block;font-size:1.05rem;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nxS{display:block;font-size:.74rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nxW{font:600 .74rem var(--mono);color:var(--dim);text-align:right;flex:0 0 auto}
+/* hub: overview rail + ribbon */
+#dMain{flex:1;min-height:0;display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px}
+#dRail{position:relative;border-radius:8px}
+#railBar{position:absolute;left:5px;width:4px;top:6px;bottom:6px;border-radius:4px;background:linear-gradient(180deg,#5ee6a855,#5ee6a822)}
+#railWin{position:absolute;left:1px;width:12px;border:1.5px solid var(--glow);border-radius:6px;background:#38bdf814;transition:top .8s linear,height .8s linear}
+#railItems i{position:absolute;left:3px;width:8px;height:8px;border-radius:50%;background:var(--ok);transition:top .8s linear}
+#railItems i.am{background:var(--warn)}#railItems i.rd{background:var(--bad)}
+#railYou{position:absolute;left:0;width:14px;height:14px;border-radius:50%;background:var(--glow);border:2px solid #fff;box-shadow:0 0 10px var(--glow);transition:top .8s linear}
+#dRibbon{position:relative;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#0d1b2c,#070d16);overflow:hidden;min-height:0}
+#rbLane{position:absolute;left:68px;width:70px;top:0;bottom:0;background:linear-gradient(90deg,#16232f,#223445,#16232f);border-left:2px solid #5ee6a844;border-right:2px solid #5ee6a844}
+#rbLane::after{content:"";position:absolute;left:calc(50% - 1.5px);width:3px;top:0;bottom:0;background:repeating-linear-gradient(180deg,#ffffff66 0 14px,transparent 14px 32px);background-size:3px 32px;animation:lane var(--ls,9s) linear infinite}
 @keyframes lane{to{background-position:0 32px}}
-.hzs{position:absolute;left:34%;width:26%;bottom:calc(58px + var(--a) * (100% - 78px));height:calc((var(--b) - var(--a)) * (100% - 78px));min-height:6px;opacity:.88}
-.hzs.j2{background:#f59e0b99}.hzs.j3{background:#ff6b6bb3}
-.hzs.w{left:60%;width:9%;opacity:.55;border-radius:0 8px 8px 0}.hzs.w.rain{background:#4cc9f0}.hzs.w.ice{background:#dff0ff}.hzs.w.fog{background:#9aa8b2}.hzs.w.wind{background:#b6a6ff}
-.hzl{position:absolute;left:62%;right:6px;bottom:calc(58px + var(--p) * (100% - 78px));transform:translateY(50%);display:flex;align-items:center;gap:5px;font-size:.78rem;line-height:1.1;white-space:nowrap;color:var(--ink)}
-.hzl span{overflow:hidden;text-overflow:ellipsis}
-.hzl svg{flex:0 0 auto}.hzl.am{color:var(--warn)}.hzl.rd{color:var(--bad)}.hzl.ok{color:var(--ok)}.hzl small{display:block;color:var(--dim);font-size:.64rem}
-.hzl.lim{left:4px;right:68%;justify-content:flex-end}
-.hzl.lim i{width:26px;height:26px;border-radius:50%;background:#fff;color:#111;border:3px solid #d4262c;font:700 .62rem/20px var(--mono);text-align:center;font-style:normal}
-#hzCar{position:absolute;left:calc(47% - 14px);bottom:6px;width:28px;height:52px;filter:drop-shadow(0 3px 6px #000c)}
-#hzCar .cartop{width:100%;height:100%}
-#hzWin{position:absolute;left:8px;top:6px;font:600 .58rem var(--mono);letter-spacing:.12em;color:var(--dim)}
-/* controls */
-#dBottom{flex:0 0 auto;display:flex;align-items:center;gap:10px}
-#dBottom .dopts{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0}
-#dBottom .dopts .pill{min-height:34px;padding:0 6px;font-size:.64rem;white-space:nowrap}
-#dTalk{position:static;width:76px;height:76px;flex:0 0 auto;border-radius:50%;padding:0;min-height:0;border:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--glow),color-mix(in srgb,var(--glow) 60%,#fff));color:#02101c;box-shadow:0 8px 26px var(--ga),0 0 0 6px color-mix(in srgb,var(--glow) 18%,transparent)}
-#dTalk svg{width:32px;height:32px}
+#rbCards{position:absolute;inset:0}
+#rbCards>*{position:absolute;top:0;transition:transform .9s linear,height .9s linear,opacity .35s;opacity:0;will-change:transform}
+#rbCards>.in{opacity:1}
+.rbt{left:8px;width:56px;height:30px;font:600 .66rem var(--mono);color:var(--dim);line-height:1.15}
+.rbt small{display:block;font-weight:400;opacity:.8}
+.rbt::after{content:"";position:absolute;right:-6px;top:6px;width:8px;height:1px;background:var(--dim)}
+.rbs{left:70px;width:66px;opacity:0;border-radius:6px}
+.rbs.in{opacity:.9}.rbs.j2{background:#f59e0b99}.rbs.j3{background:#ff6b6bb3}
+.rbs.w{left:120px;width:16px;border-radius:0 6px 6px 0}.rbs.w.in{opacity:.6}.rbs.w.rain{background:#4cc9f0}.rbs.w.ice{background:#dff0ff}.rbs.w.fog{background:#9aa8b2}.rbs.w.wind{background:#b6a6ff}
+.rbm{left:91px;width:26px;height:26px;margin-top:-13px;border-radius:50%;background:#0b141f;border:2px solid var(--ok);color:var(--ok);display:grid;place-items:center}
+.rbm.am{border-color:var(--warn);color:var(--warn)}.rbm.rd{border-color:var(--bad);color:var(--bad)}
+.rbm svg{width:14px;height:14px}
+.rbm.lim{left:44px;width:22px;height:22px;margin-top:-11px;background:#fff;color:#111;border:3px solid #d4262c;font:700 .54rem/16px var(--mono);display:block;text-align:center}
+.rbc{left:150px;right:8px;height:44px;margin-top:-22px;display:flex;align-items:center;gap:8px;padding:0 10px;border-radius:12px;background:#ffffff0b;border:1px solid var(--line);border-left:3px solid var(--ok)}
+.rbc.am{border-left-color:var(--warn)}.rbc.rd{border-left-color:var(--bad)}
+.rbc .tx{min-width:0;flex:1}
+.rbc b{display:block;font-size:.84rem;font-weight:500;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbc small{display:block;font-size:.66rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbc .rt{flex:0 0 auto;text-align:right;font:600 .78rem var(--mono);line-height:1.15}.rbc .rt small{font-weight:400}
+#rbYou{position:absolute;left:68px;width:70px;bottom:6px;display:flex;flex-direction:column;align-items:center;gap:1px;z-index:2}
+#rbCar{width:30px;height:56px;filter:drop-shadow(0 3px 8px #000c)}#rbCar .cartop{width:100%;height:100%}
+#rbYou span{font:700 .52rem var(--mono);letter-spacing:.2em;color:var(--glow)}
+#rbWin,#rbAll{position:absolute;top:6px;z-index:3;min-height:30px;padding:0 10px;font-size:.62rem;background:#06121fd9}
+#rbWin{right:8px}#rbAll{right:70px}
+/* tiles */
+#dTiles{flex:0 0 auto;display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:8px}
+.tl{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:8px 11px;min-width:0;position:relative;cursor:default}
+.tl>span{display:block;font:600 .54rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.tl>b{display:block;font-weight:300;font-variant-numeric:tabular-nums;line-height:1.05;font-size:1.9rem}
+.tl>em{display:block;font-size:.66rem;color:var(--dim);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dPlan{display:block;font-size:.66rem;font-style:normal;color:var(--ok);white-space:nowrap}#dPlan.am{color:var(--warn)}#dPlan.rd{color:var(--bad)}
+#spBar,#dEff{height:6px;border-radius:9px;background:#ffffff12;overflow:hidden;margin-top:5px}
+#spBar i,#dEff i{display:block;height:100%;width:0;border-radius:9px;background:var(--glow);transition:width .6s,background .3s}
+#dtSpd.over #dSpd{color:var(--bad)}#dtSpd.over #spBar i{background:var(--bad)}#dtSpd.hot #spBar i{background:var(--warn)}
+#dLimSign{display:none;position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:50%;background:#fff;color:#111;border:4px solid #d4262c;font:700 .7rem/22px var(--mono);text-align:center;text-decoration:none}
+#dtFuel{cursor:pointer}
+#dtFuel>b{font-size:1.5rem;padding-top:3px}
 #dWarn{flex:0 0 auto;margin:0;font-size:.78rem}#dWarn:empty{display:none}
-@media (max-height:720px){#nxD{font-size:2.4rem}#tEta #dEta{font-size:2rem}#spNum b{font-size:2.2rem}#dTalk{width:64px;height:64px}.tl{padding:6px 10px}}
-/* landscape: three columns, ribbon runs left to right */
+/* controls: mic in the middle, chips either side */
+#dBottom{flex:0 0 auto;display:grid;grid-template-columns:1fr 84px 1fr;align-items:center;gap:10px}
+#dBottom .dside{display:grid;gap:6px}
+#dBottom .pill{min-height:38px;padding:0 6px;font-size:.66rem;white-space:nowrap}
+#dTalk{position:static;width:80px;height:80px;border-radius:50%;padding:0;min-height:0;border:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--glow),color-mix(in srgb,var(--glow) 60%,#fff));color:#02101c;box-shadow:0 8px 26px var(--ga),0 0 0 6px color-mix(in srgb,var(--glow) 18%,transparent)}
+#dTalk svg{width:34px;height:34px}
+/* all-ahead list */
+#dAll{position:absolute;inset:0;z-index:6;background:#05070Af4;border-radius:18px;padding:12px;display:none;flex-direction:column;gap:6px;overflow:hidden}
+#dAll.show{display:flex}
+#dAll h3{margin:0 0 4px;font:600 .62rem var(--mono);letter-spacing:.18em;color:var(--dim);text-transform:uppercase}
+.alr{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:12px;background:#ffffff08}
+.alr.am{border-left-color:var(--warn)}.alr.rd{border-left-color:var(--bad)}
+.alr .tx{flex:1;min-width:0}.alr b{display:block;font-size:.9rem;font-weight:500}.alr small{display:block;font-size:.7rem;color:var(--dim)}
+.alr .rt{font:600 .8rem var(--mono);text-align:right}
+@media (max-height:720px){#nxD{font-size:2.2rem}#dtFuel>b,.tl>b{font-size:1.6rem}#dTalk{width:68px;height:68px}#dBottom{grid-template-columns:1fr 74px 1fr}.rbc{height:40px;margin-top:-20px}}
+/* landscape: banner, tiles and controls on the left, the ribbon on the right */
 @media (orientation:landscape){
-  #drive #dLive{display:grid;grid-template-columns:34% 1fr 22%;grid-template-rows:auto 1fr;gap:8px}
-  #dNext{grid-column:1/-1}
-  #dCols{display:contents}
-  #dSide{grid-column:1;grid-row:2;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
-  #hz{grid-column:2;grid-row:2}
-  #dBottom{grid-column:3;grid-row:2;flex-direction:column-reverse;justify-content:space-between;align-items:stretch}
-  #dBottom .dopts{grid-template-columns:1fr}
-  #dTalk{align-self:center}
-  #hzRoad{left:0;right:0;top:36%;bottom:auto;width:auto;height:26%;background:linear-gradient(180deg,#1b2a3a,#233446,#1b2a3a);border:0;border-top:2px solid #5ee6a855;border-bottom:2px solid #5ee6a855}
-  #hzRoad::after{left:0;right:0;top:calc(50% - 1.5px);bottom:auto;width:auto;height:3px;background:repeating-linear-gradient(90deg,#ffffff66 0 14px,transparent 14px 32px);background-size:32px 3px;animation-name:lanel}
-  @keyframes lanel{to{background-position:32px 0}}
-  .hzs{left:calc(58px + var(--a) * (100% - 78px));width:calc((var(--b) - var(--a)) * (100% - 78px));bottom:auto;top:36%;height:26%;min-width:6px;min-height:0}
-  .hzs.w{left:calc(58px + var(--a) * (100% - 78px));top:62%;height:9%;width:calc((var(--b) - var(--a)) * (100% - 78px));border-radius:0 0 8px 8px}
-  .hzl{left:calc(58px + var(--p) * (100% - 78px));right:auto;bottom:auto;top:10%;transform:translateX(-12px);flex-direction:column;align-items:flex-start;white-space:normal;max-width:110px}
-  .hzl.lim{left:calc(58px + var(--p) * (100% - 78px));top:72%;right:auto}
-  #hzCar{left:6px;bottom:auto;top:calc(49% - 14px);width:52px;height:28px;transform:rotate(90deg);transform-origin:center}
+  #drive #dLive{display:grid;grid-template-columns:minmax(0,46%) minmax(0,1fr);grid-template-rows:auto auto auto 1fr;grid-template-areas:"nx mn" "tl mn" "wn mn" "bt mn";gap:8px}
+  #dNext{grid-area:nx}#dMain{grid-area:mn}#dTiles{grid-area:tl}#dWarn{grid-area:wn}#dBottom{grid-area:bt;align-self:end}
+  #nxD{font-size:2.2rem}#dTalk{width:68px;height:68px}#dBottom{grid-template-columns:1fr 74px 1fr}
+  .tl>b{font-size:1.5rem}
 }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -876,20 +886,21 @@ input[hidden]{display:none!important}
   </div>
 </div>
 <div id="drive" role="dialog" aria-label="Trip co-pilot">
-  <div class="dhead"><div id="dTo">Trip</div><div class="dbtn"><button class="icon" id="dMin" aria-label="Minimise trip">&#8964;</button><button class="icon" id="dEnd" aria-label="Hold to end trip">&#10005;</button></div></div>
+  <div class="dhead"><div id="dTo">Trip</div><i id="dGps" aria-label="GPS signal"></i><div class="dbtn"><button class="icon" id="dMin" aria-label="Minimise trip">&#8964;</button><button class="icon" id="dEnd" aria-label="Hold to end trip">&#10005;</button></div></div>
   <div id="dLive">
-    <div id="dNext" class="ok"><div class="nk"><b id="nxD">OK</b><span id="nxU"></span></div><div class="nt"><em>All clear</em><strong id="nxT">Clear ahead</strong><span id="nxS"></span></div></div>
-    <div id="dCols">
-      <div id="hz"><div id="hzRoad"></div><div id="hzItems"></div><div id="hzCar"></div><div id="hzWin"></div></div>
-      <div id="dSide">
-        <div class="tl" id="tEta"><span>Arrive</span><b id="dEta">--:--</b><em id="dRem">--</em><i id="dPlan"></i></div>
-        <div class="tl" id="tSpd"><svg id="spRing" viewBox="0 0 120 120"><path id="spBg" d="M24.64 95.36 A50 50 0 1 1 95.36 95.36"/><path id="spFg" d="M24.64 95.36 A50 50 0 1 1 95.36 95.36" stroke-dasharray="0 236"/><line id="spLim" x1="0" y1="0" x2="0" y2="0"/></svg><div id="spNum"><b id="dSpd">--</b><em>MPH</em></div><i id="dLimSign"></i></div>
-        <div class="tl" id="tFuel"><span>Fuel use</span><b id="dMpg">-- mpg</b><em id="dMpgN">right now</em><div id="dEff"><i></i></div><div id="dCost"></div></div>
-        <div class="tl" id="tCond"><span>Weather ahead</span><b id="dCond">--</b><em id="dCondN">checking</em></div>
-      </div>
+    <div id="dNext" class="ok"><span id="nxIc"></span><div class="nk"><b id="nxD">OK</b><span id="nxU"></span></div><div class="nt"><em id="nxTag">All clear</em><strong id="nxT">Clear ahead</strong><span id="nxS"></span></div><div id="nxW"></div></div>
+    <div id="dMain">
+      <div id="dRail"><div id="railBar"></div><div id="railWin"></div><div id="railItems"></div><i id="railYou"></i></div>
+      <div id="dRibbon"><div id="rbLane"></div><div id="rbCards"></div><div id="rbYou"><div id="rbCar"></div><span>YOU</span></div><button class="pill" id="rbAll">List</button><button class="pill" id="rbWin">20 mi</button></div>
+    </div>
+    <div id="dTiles">
+      <div class="tl" id="dtEta"><span>Arrive</span><b id="dEta">--:--</b><em id="dRem"></em><i id="dPlan"></i></div>
+      <div class="tl" id="dtSpd"><span>Speed</span><b id="dSpd">--</b><em id="dLim">mph</em><div id="spBar"><i></i></div><u id="dLimSign"></u></div>
+      <div class="tl" id="dtFuel"><span id="dfTag">Fuel use</span><b id="dMpg">-- mpg</b><em id="dMpgN">right now</em><div id="dEff"><i></i></div></div>
     </div>
     <div id="dWarn"></div>
-    <div id="dBottom"><div class="dopts"><button class="pill" id="dLow">Low fuel</button><button class="pill" id="dVox">Voice</button><button class="pill" id="dSpA">Speed</button><button class="pill" id="dRange">Range 20 mi</button></div><button id="dTalk" aria-label="Tap to talk"></button></div>
+    <div id="dBottom"><div class="dside"><button class="pill" id="dLow">Low fuel</button><button class="pill" id="dVox">Voice</button></div><button id="dTalk" aria-label="Tap to talk"></button><div class="dside"><button class="pill" id="dSpA">Speed alerts</button></div></div>
+    <div id="dAll"></div>
   </div>
   <div id="dDone"></div>
 </div>
@@ -1849,7 +1860,7 @@ async function runHealth(){
   row(window.Notification?(Notification.permission==='granted'?'ok':'op'):'op','Notifications',window.Notification?Notification.permission:'not supported');
   row(navigator.geolocation?'ok':'op','Location',navigator.geolocation?'allowed when you tap Use my location':'not available');
 }
-const APP_VER='v29';
+const APP_VER='v30';
 $('hcRun').onclick=runHealth;
 $('hcReload').onclick=async()=>{try{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k)}catch(e){}location.reload()};
 function localIntent(t){
@@ -2364,7 +2375,7 @@ function endBoot(sound){
 }
 if(cmd){
   booted=true;boot.remove();if(needsSetup())openSettings();setTimeout(autoLocate,1500);
-  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?"),leave:openLeave,fuel:openStationsMap,trip:()=>startTrip(commuteUI),park:savePark,where:()=>openGarage(null),report:()=>openReport(null)}[cmd];
+  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?"),leave:openLeave,fuel:openStationsMap,trip:()=>startTrip(commuteUI),park:savePark,demo:()=>startTrip(commuteUI,{demo:true}),where:()=>openGarage(null),report:()=>openReport(null)}[cmd];
   if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname);
 }else{
   const lines=['Initialising core','Linking traffic feeds','Weather online','Tap to begin'];
@@ -2547,13 +2558,13 @@ $('mvSat').style.display='none';
 let tmap=null;
 const routeHeading=(g,a)=>{const i=Math.max(0,Math.min(g.length-2,Math.round(a*(g.length-1))));return brg(g,i)};
 
-// ================= v29: glanceable co-pilot (no map: ribbon, banner, tiles) =================
+// ================= v30: co-pilot hub =================
 const LPK=[[30,7.5],[50,5.6],[80,5.0],[100,5.5],[112,6.1],[130,7.6]];
 function lpk(kmh){if(kmh<=LPK[0][0])return LPK[0][1];for(let i=1;i<LPK.length;i++)if(kmh<=LPK[i][0]){const a=LPK[i-1],b=LPK[i];return a[1]+(b[1]-a[1])*(kmh-a[0])/(b[0]-a[0])}return LPK[LPK.length-1][1]}
 const mpgK=()=>{const m=+cfg.mpg||+cfg.mpgAuto||0;return m>10&&m<120?(282.48/m)/5.9:1};
 const nowMpg=mph=>282.48/(lpk(mph*1.609)*mpgK());
-const ZI={inc:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',jam:'<path d="M3 17h18M5 17l1.4-5h11.2L19 17M7 17v2M17 17v2"/>',fuel:'<path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M4 21h12M15 9h2.5a1.5 1.5 0 0 1 1.5 1.5V17a1.5 1.5 0 0 0 3 0V9L19 6"/>',end:'<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',rain:'<path d="M7 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 6.5a4.25 4.25 0 0 1 .5 8.5H7z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',ice:'<path d="M12 2v20M4 7l16 10M20 7L4 17"/>',fog:'<path d="M4 8h16M3 12h18M5 16h14"/>',wind:'<path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/>'};
-const zi=(k,s)=>`<svg viewBox="0 0 24 24" width="${s||16}" height="${s||16}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ZI[k]}</svg>`;
+const ZI={inc:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',jam:'<path d="M3 17h18M5 17l1.4-5h11.2L19 17M7 17v2M17 17v2"/>',fuel:'<path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M4 21h12M15 9h2.5a1.5 1.5 0 0 1 1.5 1.5V17a1.5 1.5 0 0 0 3 0V9L19 6"/>',end:'<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',rain:'<path d="M7 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 6.5a4.25 4.25 0 0 1 .5 8.5H7z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',ice:'<path d="M12 2v20M4 7l16 10M20 7L4 17"/>',fog:'<path d="M4 8h16M3 12h18M5 16h14"/>',wind:'<path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/>',ok:'<path d="M5 13l4 4L19 7"/>',delta:'<path d="M12 6v6l4 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/>'};
+const zi=(k,s)=>`<svg viewBox="0 0 24 24" width="${s||16}" height="${s||16}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ZI[k]||ZI.ok}</svg>`;
 function wxHazard(it){
   if(!it)return null;const d=String(it.desc||'');let h=null;const set=(k,sev,ic)=>{if(!h||(sev==='rd'&&h.sev!=='rd'))h={k,sev,ic}};
   if(it.code>=95||/thunder/.test(d))set('Thunderstorm','rd','rain');
@@ -2573,62 +2584,76 @@ function fuelAdvice(a){
   const rows=ahead.map(s=>{const d=(s.along-a)*t.mi,detour=Math.max(1,s.off*3.4),save=(md-s.price)*fill/100;return{s,d,detour,save,net:save-detour*0.1,md,fill}});
   return t.lowFuel?rows.sort((x,y)=>x.d-y.d).slice(0,3):[rows.sort((x,y)=>y.net-x.net)[0]];
 }
-// everything ahead of you, with distance, severity and where it sits on the ribbon
+// everything ahead of you: distance, time to reach, severity, and where it sits along the route
 function trail(a){
   const t=trip,g=t.r.geom,mi=t.mi,n=Math.max(1,g.length-1),out=[],A=i=>i/n,ahead=x=>(x-a)*mi;
-  (t.r.incidents||[]).forEach(i=>{if(i._a==null)i._a=project(g,i.lat,i.lon).along;if(i._a>a+0.003){const d=ahead(i._a),p=i.text.split(':');out.push({kind:'inc',ic:'inc',d,a0:i._a,a1:i._a,sev:'am',tag:'Incident',short:p[0].replace(/ on .*/,''),title:p[0],sub:p.slice(1).join(':').trim()||'On your route',key:'inc:'+i.text,say:`${p[0]} ahead in ${Math.max(1,Math.round(d))} miles.`,at:5})}});
+  (t.r.incidents||[]).forEach(i=>{if(i._a==null)i._a=project(g,i.lat,i.lon).along;if(i._a>a+0.003){const d=ahead(i._a),p=i.text.split(':');out.push({kind:'inc',ic:'inc',key:'inc:'+i.text,d,a0:i._a,a1:i._a,sev:'am',tag:'Incident',title:p[0],sub:p.slice(1).join(':').trim()||'On your route',say:`${p[0]} ahead in ${Math.max(1,Math.round(d))} miles.`,at:5})}});
   (t.r.jams||[]).forEach(j=>{const a0=A(j[0]),a1=A(j[1]);if(a1>a+0.003){const inside=a0<=a,d=Math.max(0,ahead(a0)),len=ahead(a1)-Math.max(0,ahead(a0)),heavy=j[2]>=3,extra=Math.round(len*(heavy?2.8:0.8));
-    out.push({kind:'jam',ic:'jam',d,a0:Math.max(a0,a),a1,mag:heavy?3:2,sev:heavy?'rd':'am',tag:'Traffic',short:'Slow'+(extra>=1?' +'+extra+'m':''),title:inside?`In slow traffic, clears in ${len.toFixed(1)} mi`:`Slow traffic ahead`,sub:`${len.toFixed(1)} mi of ${heavy?'heavy':'moderate'} congestion`+(extra>=1?`, about ${extra} min extra`:''),key:'jam:'+j[0],say:inside?null:`Slow traffic in ${Math.max(1,Math.round(d))} miles.`,at:6})}});
+    out.push({kind:'jam',ic:'jam',key:'jam:'+j[0],d,a0:Math.max(a0,a),a1,mag:heavy?3:2,sev:heavy?'rd':'am',tag:'Traffic',title:inside?'In slow traffic':'Slow traffic',sub:`${len.toFixed(1)} mi ${heavy?'heavy':'moderate'}`+(extra>=1?`, +${extra} min`:''),say:inside?null:`Slow traffic in ${Math.max(1,Math.round(d))} miles.`,at:6})}});
   (t.wx||[]).forEach(w=>{const h=wxHazard(w.item);if(h&&w.f>a){const a0=Math.max(a,w.f-.07),a1=Math.min(1,w.f+.07),d=ahead(a0),m=Math.max(1,Math.round(w.min));
-    out.push({kind:'wx',ic:h.ic,d,a0,a1,band:h.ic==='ice'?'ice':h.ic==='fog'?'fog':h.ic==='wind'?'wind':'rain',sev:h.sev,tag:'Weather there',short:h.k,title:h.k,sub:`In about ${m} min \u00b7 ${w.item.t}\u00b0, ${w.item.rain}% rain`,key:'wx:'+h.k,say:`${h.k} ahead, in about ${m} minutes.`,at:60})}});
+    out.push({kind:'wx',ic:h.ic,key:'wx:'+h.k+':'+Math.round(w.f*100),d,a0,a1,band:h.ic==='ice'?'ice':h.ic==='fog'?'fog':h.ic==='wind'?'wind':'rain',sev:h.sev,tag:'Weather there',title:h.k,sub:`${w.item.t}\u00b0, ${w.item.rain}% rain`,say:`${h.k} ahead, in about ${m} minutes.`,at:60})}});
   fuelAdvice(a).forEach((x,i)=>{const s=x.s,under=x.md-s.price;
-    out.push({kind:'fuel',ic:'fuel',d:x.d,a0:s.along,a1:s.along,sev:'ok',tag:t.lowFuel?'Nearest fuel':'Fuel worth stopping for',short:`${s.price.toFixed(0)}p`,title:`${tcase(s.b)} ${s.price.toFixed(1)}p`,sub:(under>=1?`${under.toFixed(1)}p under typical, saves about \u00a3${x.save.toFixed(2)}`:'about the typical price')+` \u00b7 ${Math.round(x.detour)} min detour`,key:t.lowFuel&&i===0?'fuel:'+s.pc:null,say:t.lowFuel&&i===0?`Nearest fuel is ${tcase(s.b)}, in ${Math.round(x.d)} miles.`:null,at:99})});
-  let last=null;(t.r.limits||[]).forEach(l=>{const al=A(l[0]);if(al>a+0.004&&l[2]!==last&&out.filter(o=>o.kind==='lim').length<4)out.push({kind:'lim',d:ahead(al),a0:al,a1:al,sev:'ok',lim:l[2]});last=l[2]});
-  if(t.deltaMsg&&Date.now()-t.deltaAt<600000)out.push({kind:'delta',d:0,sev:'am',tag:'Delay update',short:'',title:t.deltaMsg,sub:'From the latest traffic check',key:'delta'+t.deltaAt});
-  out.push({kind:'end',ic:'end',d:Math.max(0,(1-a)*mi),a0:1,a1:1,sev:'ok',short:'',tag:'Destination'});
+    out.push({kind:'fuel',ic:'fuel',key:'fuel:'+s.b+s.pc,d:x.d,a0:s.along,a1:s.along,sev:'ok',tag:t.lowFuel?'Nearest fuel':'Fuel worth stopping for',title:`${tcase(s.b)} ${s.price.toFixed(1)}p`,sub:(under>=1?`${under.toFixed(1)}p under typical, saves \u00a3${x.save.toFixed(2)}`:'typical price')+` \u00b7 ${Math.round(x.detour)} min detour`,say:t.lowFuel&&i===0?`Nearest fuel is ${tcase(s.b)}, in ${Math.round(x.d)} miles.`:null,at:99})});
+  let last=null,ln=0;(t.r.limits||[]).forEach((l,i)=>{const al=A(l[0]);if(al>a+0.004&&l[2]!==last&&ln<4){ln++;out.push({kind:'lim',key:'lim:'+i,d:ahead(al),a0:al,a1:al,sev:'ok',lim:l[2]})}last=l[2]});
+  if(t.deltaMsg&&Date.now()-t.deltaAt<600000)out.push({kind:'delta',ic:'delta',key:'delta'+t.deltaAt,d:0,a0:a,a1:a,sev:'am',tag:'Delay update',title:t.deltaMsg,sub:'From the latest traffic check'});
+  out.push({kind:'end',ic:'end',key:'end',d:Math.max(0,(1-a)*mi),a0:1,a1:1,sev:'ok',tag:'Destination',title:'Destination',sub:'Arrive '+$('dEta').textContent});
   return out.sort((x,y)=>x.d-y.d);
 }
+const paceMin=()=>trip.eta/Math.max(1,trip.mi);
+const fmtD=d=>d<0.1?'<0.1':d<10?d.toFixed(1):String(Math.round(d));
 const winMiles=()=>{const t=trip,rem=(1-t.along)*t.mi;return Math.max(3,Math.min(t.win||20,Math.max(rem,3)))};
 function nextUp(items){
   const rank={rd:0,am:1,ok:2},real=items.filter(x=>!['lim','end'].includes(x.kind));
   return real.filter(x=>x.sev!=='ok'&&x.d<=(x.sev==='rd'?40:15)).sort((x,y)=>rank[x.sev]-rank[y.sev]||x.d-y.d)[0]||(trip.lowFuel?real.find(x=>x.kind==='fuel'):null)||real.filter(x=>x.kind==='fuel'&&x.d<=25)[0]||null;
 }
-function renderTiles(items,a){
+function renderBanner(items){
   const nx=nextUp(items),b=$('dNext');b.className=nx?nx.sev:'ok';
-  if(nx){$('nxD').textContent=nx.d<0.1?'<0.1':nx.d.toFixed(nx.d<10?1:0);$('nxU').textContent='mi';$('nxT').textContent=nx.title;$('nxS').textContent=nx.sub;b.querySelector('em').textContent=nx.tag}
-  else{$('nxD').textContent='OK';$('nxU').textContent='';$('nxT').textContent='Clear ahead';$('nxS').textContent='Nothing to report on the road, weather or traffic';b.querySelector('em').textContent='All clear'}
+  if(nx){$('nxIc').innerHTML=zi(nx.ic,22);$('nxD').textContent=fmtD(nx.d);$('nxU').textContent='mi';$('nxT').textContent=nx.title;$('nxS').textContent=nx.sub;$('nxTag').textContent=nx.tag;$('nxW').textContent=nx.d*paceMin()<1?'now':'in '+Math.round(nx.d*paceMin())+' min'}
+  else{$('nxIc').innerHTML=zi('ok',22);$('nxD').textContent='OK';$('nxU').textContent='';$('nxT').textContent='Clear ahead';$('nxS').textContent='Nothing to report on the road, weather or traffic';$('nxTag').textContent='All clear';$('nxW').textContent=''}
 }
-function renderHorizon(items,a){
-  const t=trip,W=winMiles(),box=$('hzItems');box.textContent='';$('hzWin').textContent=`NEXT ${Math.round(W)} MI`;
-  const land=window.matchMedia&&window.matchMedia('(orientation:landscape)').matches,hz=$('hz'),L=(land?hz.clientWidth:hz.clientHeight)||(land?360:420),gap=land?118:34,usable=Math.max(1,L-78);
-  const pos=d=>Math.min(1,Math.max(0,d/W));
-  items.filter(x=>x.d<=W&&['jam','wx'].includes(x.kind)).forEach(x=>{const s=el('div','hzs '+(x.kind==='jam'?'j'+x.mag:'w '+x.band));s.style.setProperty('--a',pos((x.a0-a)*t.mi));s.style.setProperty('--b',Math.max(pos((x.a1-a)*t.mi),pos((x.a0-a)*t.mi)+.03));box.append(s)});
-  const rank={rd:0,am:1,ok:2},cand=items.filter(x=>x.d<=W&&!['lim','delta'].includes(x.kind)).sort((x,y)=>(x.kind==='end'?-1:0)-(y.kind==='end'?-1:0)||rank[x.sev]-rank[y.sev]||x.d-y.d),placed=[];
-  cand.forEach(x=>{const y=pos(x.d)*usable;if(placed.every(p=>Math.abs(p-y)>=gap)){placed.push(y);const l=el('div','hzl '+x.sev);l.style.setProperty('--p',pos(x.d));l.innerHTML=zi(x.ic,15);const sp=el('span','',x.kind==='end'?'':x.short);const sm=el('small','',(x.d<10?x.d.toFixed(1):Math.round(x.d))+' mi');const wrap=el('span');wrap.append(sp.textContent?sp:document.createTextNode(''),sm);l.append(wrap);box.append(l)}});
-  items.filter(x=>x.kind==='lim'&&x.d<=W).forEach(x=>{const l=el('div','hzl lim');l.style.setProperty('--p',pos(x.d));const i=el('i','',String(x.lim));l.append(i);box.append(l)});
+const RB=new Map();
+function renderRibbon(items,a){
+  const t=trip,W=winMiles(),host=$('rbCards'),H=$('dRibbon').clientHeight||430,top=40,bot=84,usable=Math.max(80,H-top-bot),Y=d=>top+usable-(Math.min(Math.max(d,0),W)/W)*usable,pace=paceMin();
+  $('rbWin').textContent=Math.round(W)+' mi';RB.forEach(e=>e.seen=false);
+  const get=(key,cls,make)=>{let e=RB.get(key);if(!e){const node=make();node.className=cls;node.style.transition='none';host.append(node);e={el:node,fresh:true};RB.set(key,e)}e.seen=true;e.el.dataset.cls=cls;return e};
+  const put=(e,y,h)=>{const s=e.el.style;s.transform=`translateY(${y.toFixed(1)}px)`;if(h!=null)s.height=h.toFixed(1)+'px';if(e.fresh){void e.el.offsetHeight;s.transition='';e.el.classList.add('in');e.fresh=false}};
+  const step=W<=12?2:W<=25?5:10;
+  for(let v=step;v<W-step*0.4;v+=step){const e=get('t'+v,'rbt',()=>{const d=document.createElement('div');d.innerHTML=`${v} mi<small>${Math.round(v*pace)} min</small>`;return d});put(e,Y(v)-12)}
+  items.filter(x=>x.d<=W&&['jam','wx'].includes(x.kind)).forEach(x=>{const y0=Y((x.a1-a)*t.mi),y1=Y(Math.max(0,(x.a0-a)*t.mi)),e=get('s:'+x.key,'rbs '+(x.kind==='jam'?'j'+x.mag:'w '+x.band),()=>document.createElement('div'));put(e,y0,Math.max(6,y1-y0))});
+  items.filter(x=>x.kind==='lim'&&x.d<=W).forEach(x=>{const e=get('m:'+x.key,'rbm lim',()=>{const d=document.createElement('div');d.textContent=x.lim;return d});put(e,Y(x.d))});
+  const rank={rd:0,am:1,ok:2},cand=items.filter(x=>x.d<=W&&!['lim'].includes(x.kind)).sort((x,y)=>rank[x.sev]-rank[y.sev]||(x.kind==='end'?-1:0)-(y.kind==='end'?-1:0)||x.d-y.d),placed=[];let hidden=0;
+  cand.forEach(x=>{const y=Y(x.d);if(placed.every(p=>Math.abs(p-y)>=48)){placed.push(y);
+    const m=get('m:'+x.key,'rbm '+x.sev,()=>{const d=document.createElement('div');d.innerHTML=zi(x.ic,14);return d});put(m,y);
+    const c=get('c:'+x.key,'rbc '+x.sev,()=>{const d=document.createElement('div');d.innerHTML=`<div class="tx"><b></b><small></small></div><div class="rt"></div>`;return d});
+    c.el.querySelector('b').textContent=x.title;c.el.querySelector('small').textContent=x.sub;c.el.querySelector('.rt').innerHTML=`${fmtD(x.d)} mi<small>${x.d*pace<1?'now':'in '+Math.round(x.d*pace)+' min'}</small>`;put(c,y)}else hidden++});
+  RB.forEach((e,k)=>{if(!e.seen){e.el.remove();RB.delete(k)}});
+  const all=$('rbAll');all.textContent=hidden?`+${hidden} more`:'List';t.hidden=hidden;
+  // overview rail: the whole route, you, and the window you are looking at
+  const rail=$('dRail'),RH=rail.clientHeight||430,py=f=>6+(1-f)*(RH-12);
+  const ri=$('railItems');ri.textContent='';items.filter(x=>!['lim','delta'].includes(x.kind)&&x.kind!=='end').forEach(x=>{const i=el('i',x.sev);i.style.top=(py(x.a0)-4)+'px';ri.append(i)});
+  const you=$('railYou');you.style.top=(py(a)-7)+'px';const w=$('railWin'),aw=Math.min(1,a+W/t.mi);w.style.top=py(aw)+'px';w.style.height=Math.max(10,py(a)-py(aw))+'px';
 }
-function renderSpeed(spd,along){
-  const lim=limitAt(along),S=Math.min(100,spd||0),R=50,L=2*Math.PI*R*.75,ang=135+270*(lim||0)/100,rad=Math.PI/180;
-  $('spFg').setAttribute('stroke-dasharray',`${(S/100*L).toFixed(1)} ${L.toFixed(1)}`);
-  const sl=$('spLim');if(lim){sl.setAttribute('x1',60+42*Math.cos(ang*rad));sl.setAttribute('y1',60+42*Math.sin(ang*rad));sl.setAttribute('x2',60+58*Math.cos(ang*rad));sl.setAttribute('y2',60+58*Math.sin(ang*rad));sl.style.display=''}else sl.style.display='none';
-  const over=!!(lim&&spd!=null&&spd>lim+3);$('tSpd').classList.toggle('over',over);$('tSpd').classList.toggle('hot',!over&&spd>=76);
-  const sg=$('dLimSign');sg.textContent=lim||'';sg.style.display=lim?'block':'none';$('dSpd').textContent=spd==null?'--':String(Math.round(spd));
-  return{lim,over};
+function renderAll(items){
+  const box=$('dAll');box.textContent='';box.append(el('h3','','Everything ahead'));const pace=paceMin();
+  items.filter(x=>!['lim'].includes(x.kind)).slice(0,9).forEach(x=>{const r=el('div','alr '+x.sev);r.innerHTML=zi(x.ic,18);const tx=el('div','tx');tx.append(el('b','',x.title),el('small','',x.tag+' \u00b7 '+x.sub));const rt=el('div','rt');rt.innerHTML=`${fmtD(x.d)} mi<small style="display:block;font-weight:400;color:var(--dim)">${x.d*pace<1?'now':'in '+Math.round(x.d*pace)+' min'}</small>`;r.append(tx,rt);box.append(r)});
 }
-function startTrip(r){
-  r=r||commuteUI;
+const redraw=live=>{const t=trip;if(!t)return;const items=trail(t.along);renderBanner(items);renderRibbon(items,t.along);if($('dAll').classList.contains('show'))renderAll(items);items.forEach(it=>{if(live&&it.say&&it.d<=(it.at||5))say2(it.key,it.say)})};
+function startTrip(r,opt){
+  r=r||commuteUI;opt=opt||{};
   if(!r){alert('No route yet. Wait for the commute to load.');return}
-  if(!navigator.geolocation){alert('Location is not available here.');return}
+  if(!opt.demo&&!navigator.geolocation){alert('Location is not available here.');return}
   if(trip)stopTrip();
-  const eta=r.eta?r.eta.min:r.options[0].min;
-  trip={r,t0:Date.now(),mi:r.options[0].miles,eta,eta0:eta,said:{},last:null,along:0,win:20,dir:r===commuteUI?dir:null,wx:[],lowFuel:false,fuel:stations.length?stationsOnRoute(r.geom):[]};
-  $('dDone').classList.remove('show');$('dLive').style.display='';
-  $('dTo').textContent=`${r.from} \u2192 ${r.to}`;$('drive').classList.toggle('night',document.body.dataset.tod==='night');$('drive').classList.add('open');paintOpts();tripUI(0,0,null,false);
+  const eta=r.eta?r.eta.min:r.options[0].min;RB.forEach(e=>e.el.remove());RB.clear();
+  trip={r,t0:Date.now(),mi:r.options[0].miles,eta,eta0:eta,said:{},last:null,along:0,win:20,demo:!!opt.demo,dir:r===commuteUI?dir:null,wx:[],lowFuel:false,spdS:null,fuelMode:0,fuel:stations.length?stationsOnRoute(r.geom):[]};
+  $('dDone').classList.remove('show');$('dLive').style.display='';$('dAll').classList.remove('show');
+  $('dTo').textContent=(opt.demo?'DEMO \u00b7 ':'')+`${r.from} \u2192 ${r.to}`;$('drive').classList.toggle('night',document.body.dataset.tod==='night');$('drive').classList.add('open');
+  $('rbCar').innerHTML=carTop();paintOpts();tripUI(0,0,null,false);
   try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>{if(trip)trip.wake=l}).catch(()=>{})}catch(e){}
-  trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
-  refreshWx();trip.timers=[setInterval(refreshWx,600000),setInterval(refreshTrip,300000)];
+  refreshWx();trip.timers=[setInterval(refreshWx,600000),setInterval(refreshTrip,300000),setInterval(gpsDot,2000)];
+  if(opt.demo){const g=r.geom;let s=0;const rate=opt.rate||6;trip.timers.push(setInterval(()=>{const t=trip;if(!t)return;s+=rate*(50/3600)/t.mi;const f=Math.min(1,s)*(g.length-1),i=Math.min(g.length-2,Math.floor(f)),u=f-i;onFix({coords:{latitude:g[i][0]+(g[i+1][0]-g[i][0])*u,longitude:g[i][1]+(g[i+1][1]-g[i][1])*u,speed:(50+8*Math.sin(s*60))/2.23694,heading:0}})},1000))}
+  else trip.watch=navigator.geolocation.watchPosition(onFix,()=>{$('dWarn').textContent='Waiting for a location fix...'},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
 }
-const redraw=(live)=>{const t=trip;if(!t)return;const items=trail(t.along);renderTiles(items,t.along);renderHorizon(items,t.along);items.forEach(it=>{if(live&&it.say&&it.key&&it.d<=(it.at||5))say2(it.key,it.say)})};
+function gpsDot(){const t=trip;if(!t)return;const age=t.demo?0:(Date.now()-(t.lastFix||0))/1000;$('dGps').className=age<6?'ok':age<20?'':'bad'}
 async function refreshWx(){
   const t=trip;if(!t||!getWorker())return;
   const g=t.r.geom,a=t.along||0,fr=[.12,.25,.4,.55,.7,.85,.97].filter(f=>f>a+.02);if(!fr.length)return;
@@ -2637,7 +2662,7 @@ async function refreshWx(){
 }
 const sameRoute=(a,b)=>Math.abs(a.length-b.length)<=4&&Math.abs(a[0][0]-b[0][0])<.004&&Math.abs(a[a.length-1][0]-b[b.length-1][0])<.004;
 async function refreshTrip(){
-  const t=trip;if(!t||!t.dir||t.busy)return;t.busy=true;
+  const t=trip;if(!t||!t.dir||t.busy||t.demo)return;t.busy=true;
   try{const d=await post('/commute',{dir:t.dir,...ctx()}),r=d.route;
     if(trip===t&&r&&r.geom&&sameRoute(r.geom,t.r.geom)){
       const was=t.r.eta?t.r.eta.delay:0;t.r.jams=r.jams;t.r.incidents=r.incidents;if(r.limits)t.r.limits=r.limits;
@@ -2646,22 +2671,32 @@ async function refreshTrip(){
     }}catch(e){}
   t.busy=false;
 }
+function paintFuelTile(spd){
+  const t=trip,e=$('dEff').firstElementChild;
+  if(t.fuelMode===1){const mins=Math.max(1,Math.round((Date.now()-t.t0)/60000)),done=t.along*t.mi,l=(t.r.options[0].fuel!=null?t.r.options[0].fuel:t.mi/(+cfg.mpg||+cfg.mpgAuto||45)*GAL)*Math.min(1,t.along);
+    $('dfTag').textContent='Trip so far';$('dMpg').textContent='\u00a3'+(l*effPrice().ppl/100).toFixed(2);$('dMpgN').textContent=`${done.toFixed(1)} mi \u00b7 ${mins} min \u00b7 ${(l*CO2_L[fuelType]).toFixed(1)} kg CO\u2082`;e.style.width=Math.min(100,t.along*100)+'%';e.style.background='var(--glow)';return}
+  $('dfTag').textContent='Fuel use';
+  if(spd!=null&&spd>5){const ratio=lpk(112.7)/lpk(spd*1.609),score=Math.max(5,Math.min(100,100*lpk(80)/lpk(spd*1.609)));$('dMpg').textContent=nowMpg(spd).toFixed(0)+' mpg';$('dMpgN').textContent=spd>=75&&ratio<.92?`ease to 70: save ~${Math.round((1-ratio)*100)}%`:score>=90?'efficient speed':'right now';e.style.width=score+'%';e.style.background=score>=85?'var(--ok)':score>=65?'var(--warn)':'var(--bad)'}
+  else{$('dMpg').textContent='-- mpg';$('dMpgN').textContent='right now';e.style.width='0%'}
+}
 function tripUI(along,off,spd,live){
-  const t=trip;t.along=along;const rem=Math.max(0,1-along),remMin=rem>0.02?Math.max(1,Math.round(t.eta*rem)):0;
+  const t=trip;t.along=along;if(live)t.lastFix=Date.now();
+  if(spd!=null){t.spdS=t.spdS==null?spd:t.spdS*0.55+spd*0.45;spd=t.spdS}
+  const rem=Math.max(0,1-along),remMin=rem>0.02?Math.max(1,Math.round(t.eta*rem)):0;
   const arrive=new Date(Date.now()+remMin*60000),clock=arrive.toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
   $('dEta').textContent=clock;$('dRem').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(1)} mi`;$('tpTxt').textContent=remMin?`${remMin} min \u00b7 ${clock}`:'Arrived';
-  const dl=Math.round((arrive.getTime()-(t.t0+t.eta0*60000))/60000),pl=$('dPlan');pl.textContent=Math.abs(dl)<=1?'on plan':dl>0?`+${dl} min vs plan`:`${-dl} min ahead of plan`;pl.className=Math.abs(dl)<=1?'':dl>0?(dl>=5?'rd':'am'):'';
-  $('hzRoad').style.setProperty('--ls',spd>1?Math.max(.15,3.2/(spd/10))+'s':'9s');
-  const sp=renderSpeed(spd,along);
-  if(live&&sp.over&&cfg.speedAlert===true&&Date.now()-(t.lastSpd||0)>90000){t.lastSpd=Date.now();toast(`Limit ${sp.lim}, you are doing ${Math.round(spd)}`);if(spd>sp.lim+6&&cfg.tripVoice!==false)speak(`The limit is ${sp.lim}.`)}
-  if(spd!=null&&spd>5){const ratio=lpk(112.7)/lpk(spd*1.609),score=Math.max(5,Math.min(100,100*lpk(80)/lpk(spd*1.609)));$('dMpg').textContent=nowMpg(spd).toFixed(0)+' mpg';$('dMpgN').textContent=spd>=75&&ratio<.92?`ease to 70: save ~${Math.round((1-ratio)*100)}%`:score>=90?'efficient speed':'right now';const e=$('dEff').firstElementChild;e.style.width=score+'%';e.style.background=score>=85?'var(--ok)':score>=65?'var(--warn)':'var(--bad)'}else{$('dMpg').textContent='-- mpg';$('dMpgN').textContent='right now';$('dEff').firstElementChild.style.width='0%'}
-  const l=(t.r.options[0].fuel!=null?t.r.options[0].fuel:t.mi/(+cfg.mpg||+cfg.mpgAuto||45)*GAL)*Math.min(1,along);
-  $('dCost').textContent=`\u00a3${(l*effPrice().ppl/100).toFixed(2)} \u00b7 ${(l*CO2_L[fuelType]).toFixed(1)} kg CO\u2082 so far`;
-  const w0=(t.wx||[])[0],hz=w0&&wxHazard(w0.item);$('dCond').textContent=w0?`${w0.item.t}\u00b0`:'--';$('dCondN').textContent=hz?hz.k:w0?(w0.item.rain>=40?`${w0.item.rain}% rain`:'dry'):'checking';$('tCond').style.borderColor=hz&&hz.sev==='rd'?'var(--bad)':'';
-  if(!t.lastDraw||Date.now()-t.lastDraw>1200||!live){t.lastDraw=Date.now();redraw(live)}
+  const dl=Math.round((arrive.getTime()-(t.t0+t.eta0*60000))/60000),pl=$('dPlan');pl.textContent=Math.abs(dl)<=1?'on plan':dl>0?`+${dl} min vs plan`:`${-dl} min ahead`;pl.className=Math.abs(dl)<=1?'':dl>0?(dl>=5?'rd':'am'):'';
+  $('rbLane').style.setProperty('--ls',spd>1?Math.max(.15,3.2/(spd/10))+'s':'9s');
+  const lim=limitAt(along),over=!!(lim&&spd!=null&&spd>lim+3);
+  $('dSpd').textContent=spd==null?'--':String(Math.round(spd));$('dLim').textContent=lim?`limit ${lim} mph`:'mph';
+  $('spBar').firstElementChild.style.width=Math.min(100,(spd||0)/(lim?lim*1.2:90)*100)+'%';$('dtSpd').classList.toggle('over',over);$('dtSpd').classList.toggle('hot',!over&&spd>=76);
+  const sg=$('dLimSign');sg.textContent=lim||'';sg.style.display=lim?'block':'none';
+  if(live&&over&&cfg.speedAlert===true&&Date.now()-(t.lastSpd||0)>90000){t.lastSpd=Date.now();toast(`Limit ${lim}, you are doing ${Math.round(spd)}`);if(spd>lim+6&&cfg.tripVoice!==false)speak(`The limit is ${lim}.`)}
+  paintFuelTile(spd);
+  if(!t.lastDraw||Date.now()-t.lastDraw>900||!live){t.lastDraw=Date.now();redraw(live)}
   const w=$('dWarn');w.textContent='';
-  if(live&&off>0.4){const a=el('a','','Off route: open Google Maps from here');a.href=`https://www.google.com/maps/dir/?api=1&destination=${t.r.b.lat},${t.r.b.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';w.append(a)}
-  if(live&&along>0.985&&!t.done){t.done=1;speak(`You have arrived, ${title()}.`);finishTrip()}
+  if(live&&off>0.4&&!t.demo){const a=el('a','','Off route: open Google Maps from here');a.href=`https://www.google.com/maps/dir/?api=1&destination=${t.r.b.lat},${t.r.b.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';w.append(a)}
+  if(live&&along>0.985&&!t.done){t.done=1;speak(`You have arrived, ${title()}.`);if(t.demo){stopTrip();toast('Demo finished')}else finishTrip()}
 }
 function stopTrip(){
   if(!trip)return;
@@ -2671,13 +2706,16 @@ function stopTrip(){
   trip=null;$('drive').classList.remove('open');$('tpill').classList.remove('show');
 }
 const followTrip=()=>{},destroyTripMap=()=>{},mountTripMap=()=>{};
-function paintOpts(){$('dLow').classList.toggle('on',!!(trip&&trip.lowFuel));$('dVox').classList.toggle('on',cfg.tripVoice!==false);$('dSpA').classList.toggle('on',cfg.speedAlert===true);$('dRange').textContent=`Range ${trip?trip.win:20} mi`}
+function paintOpts(){$('dLow').classList.toggle('on',!!(trip&&trip.lowFuel));$('dVox').classList.toggle('on',cfg.tripVoice!==false);$('dSpA').classList.toggle('on',cfg.speedAlert===true)}
 $('dLow').onclick=()=>{if(!trip)return;trip.lowFuel=!trip.lowFuel;paintOpts();redraw(true);toast(trip.lowFuel?'Showing the nearest fuel ahead':'Back to the best-value fuel stop')};
 $('dVox').onclick=()=>{cfg.tripVoice=cfg.tripVoice===false;saveCfg();paintOpts();toast(cfg.tripVoice===false?'Voice alerts off':'Voice alerts on')};
 $('dSpA').onclick=()=>{cfg.speedAlert=cfg.speedAlert!==true;saveCfg();paintOpts();toast(cfg.speedAlert?'Speed alerts on (limits are estimates)':'Speed alerts off')};
-$('dRange').onclick=()=>{if(!trip)return;trip.win=trip.win===10?20:trip.win===20?40:10;paintOpts();redraw(false)};
+$('rbWin').onclick=()=>{if(!trip)return;trip.win=trip.win===10?20:trip.win===20?40:10;redraw(false)};
+$('rbAll').onclick=()=>{const b=$('dAll');if(b.classList.contains('show')){b.classList.remove('show');return}b.classList.add('show');if(trip)renderAll(trail(trip.along))};
+$('dAll').onclick=()=>$('dAll').classList.remove('show');
+$('dtFuel').onclick=()=>{if(!trip)return;trip.fuelMode=trip.fuelMode?0:1;paintFuelTile(trip.spdS)};
 // end the trip with a deliberate press so a bump in the holder cannot end it
-(function(){const b=$('dEnd');let tm=null;const start=e=>{e.preventDefault&&e.preventDefault();b.classList.add('hold');tm=setTimeout(()=>{b.classList.remove('hold');stopTrip()},700)},stop=()=>{clearTimeout(tm);b.classList.remove('hold')};
+(function(){const b=$('dEnd');let tm=null;const start=e=>{b.classList.add('hold');tm=setTimeout(()=>{b.classList.remove('hold');stopTrip()},700)},stop=()=>{clearTimeout(tm);b.classList.remove('hold')};
  b.addEventListener('pointerdown',start);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop));b.onclick=()=>toast('Hold to end the trip')})();
 
 // ---------- trip log, CO2, parking ----------
@@ -2742,6 +2780,7 @@ function fillGarage(b){
     r.onclick=()=>{closeDetail();setTimeout(()=>openReplay(t),420)};b.append(r);
   });
   b.append(el('div','xs','Fuel'));const fl=el('button','btn','Fill-up log');fl.onclick=()=>{closeDetail();openLog()};b.append(fl);
+  b.append(el('div','xs','Trip co-pilot'));const dm=el('button','btn','Preview co-pilot (demo drive)');dm.onclick=()=>{if(!commuteUI){toast('Wait for the commute to load first');return}closeDetail();setTimeout(()=>startTrip(commuteUI,{demo:true}),420)};b.append(dm);
 }
 let rpCtl=null;
 function openReplay(t){
