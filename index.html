@@ -713,6 +713,77 @@ input[hidden]{display:none!important}
   #nxD{font-size:4.6rem}#nxT{font-size:1.5rem}.num>b{font-size:2rem}#dTalk{width:78px;height:78px}#dBottom .ibtn{height:60px}
 }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== CO-PILOT v1: tactical HUD ===== */
+:root{--bg:#000;--panel:#05080C;--panel2:#05080C;--dim:#7d8fa3;--glow:#00F0FF;--ok:#00FF94;--warn:#FF9E00;--line:rgba(0,240,255,.22);--ga:rgba(0,240,255,.28)}
+body[data-alert=amber]{--glow:#FF9E00;--line:rgba(255,158,0,.32);--ga:rgba(255,158,0,.3)}
+html,body{background:#000!important}
+.tile,.card,.qt{border-radius:8px!important;border:1px solid var(--line)!important;background:#05080C!important;box-shadow:inset 0 0 8px rgba(0,240,255,.06)!important}
+body[data-alert=amber] .tile,body[data-alert=amber] .qt{box-shadow:inset 0 0 8px rgba(255,158,0,.07)!important}
+.btn,.pill,.seg,.seg button,.rchip,.q button,input,select,textarea{border-radius:8px!important}
+.btn.pri,.pill.on{box-shadow:0 0 14px var(--ga),inset 0 0 8px rgba(0,240,255,.08)}
+#cMin,#clock,#dtEta,#dtSpd{font-variant-numeric:tabular-nums;text-shadow:0 0 12px var(--ga)}
+/* L-shaped reticles on hero, orb and trip HUD only */
+#tCommute::before,#drive::after,#hud::after{content:"";position:absolute;inset:5px;pointer-events:none;display:block!important;--c:var(--glow);background:linear-gradient(var(--c),var(--c)) 0 0/12px 2px,linear-gradient(var(--c),var(--c)) 0 0/2px 12px,linear-gradient(var(--c),var(--c)) 100% 0/12px 2px,linear-gradient(var(--c),var(--c)) 100% 0/2px 12px,linear-gradient(var(--c),var(--c)) 0 100%/12px 2px,linear-gradient(var(--c),var(--c)) 0 100%/2px 12px,linear-gradient(var(--c),var(--c)) 100% 100%/12px 2px,linear-gradient(var(--c),var(--c)) 100% 100%/2px 12px;background-repeat:no-repeat}
+#drive::after{position:fixed;inset:8px;z-index:3}
+#hud{position:relative}#hud::after{inset:-4px}
+/* mode switcher + ticker */
+#modes{display:flex;gap:8px;align-items:center;padding:2px 14px 6px}
+#modes button{flex:1;min-height:44px;font:600 .68rem var(--mono);letter-spacing:.12em;color:var(--dim);background:#05080C;border:1px solid var(--line);cursor:pointer}
+#modes button.on{color:var(--glow);border-color:var(--glow);box-shadow:0 0 14px var(--ga),inset 0 0 8px rgba(0,240,255,.08)}
+#modes #mRel{flex:0 0 44px;font-size:1rem;letter-spacing:0}
+#tkr{margin:0 14px 6px;min-height:28px;display:flex;align-items:center;gap:8px;font:600 .7rem var(--mono);letter-spacing:.06em;color:var(--dim)}
+#tkr::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+#tkr.am{color:var(--warn)}#tkr.am::before{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+/* hero buttons */
+.hbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;position:relative;z-index:1}
+.hbtns .btn{grid-column:1/-1;min-height:48px;font-family:var(--mono);letter-spacing:.1em;font-size:.76rem}
+.hbtns .pill{min-height:44px;font-size:.64rem;letter-spacing:.04em;padding:0 6px;text-align:center}
+#hBadge{grid-column:1/-1;font:.66rem var(--mono);color:var(--ok);min-height:0}
+/* zero-scroll hub */
+body.hub #tiles>.tile:not(#tCommute):not(#tLeave){display:none!important}
+body.hub #brief,body.hub #upd,body.hub #cShare,body.hub #cTrip,body.hub #cUsual{display:none!important}
+body.hub #hero{padding-top:0;padding-bottom:0}
+body.hub #clock{font-size:2.6rem;line-height:1}
+body.hub #hello,body.hub #date{margin:0}
+body.hub #tiles{gap:8px}
+#hub{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 0;padding:0}
+.qt{min-height:68px;padding:9px 11px;text-align:left;color:var(--ink);font:inherit;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;gap:2px;min-width:0}
+.qt b{font:600 .62rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.qt span{font-size:.84rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qt i{font:normal .64rem var(--mono);color:var(--ok);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qt i.am{color:var(--warn)}
+.qt:active{transform:scale(.97)}
+/* sub-menus */
+#sub{position:fixed;inset:0;z-index:38;background:#000;display:none;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#sub.open{display:flex}
+#subH{padding:14px 16px 6px}#subH h2{margin:0;font:600 .8rem var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--glow)}
+#subB{flex:1;overflow:auto;padding:8px 14px 14px;display:flex;flex-direction:column;gap:10px;overscroll-behavior:contain}
+#subB>.tile{display:block}
+#subBack{margin:0 14px calc(10px + env(safe-area-inset-bottom));min-height:56px;border:1px solid var(--glow);background:#05080C;color:var(--glow);font:600 .8rem var(--mono);letter-spacing:.16em;border-radius:8px;cursor:pointer;box-shadow:0 0 14px var(--ga)}
+body.subopen #dock{display:none}
+#subB .xbtn{display:block;width:100%;min-height:48px;font-family:var(--mono);letter-spacing:.08em;font-size:.74rem}
+.pcard{border:1px solid var(--line);border-radius:8px;background:#05080C;padding:14px;display:flex;flex-direction:column;gap:10px}
+.pcard .row2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pcard .row2 .pill{min-height:44px;font-size:.72rem}
+.pcard textarea,.pcard input{width:100%;font-size:16px;background:#000;color:var(--ink);border:1px solid var(--line);padding:10px 12px}
+.nrow{font-size:.88rem;padding:8px 0;border-top:1px solid var(--line)}.nrow small{color:var(--dim);font-family:var(--mono);margin-right:8px}
+.big{font:300 2rem var(--mono);color:var(--glow);text-shadow:0 0 12px var(--ga)}
+/* compact hub */
+header{grid-template-columns:44px 1fr 44px!important;gap:8px;padding-bottom:4px!important}
+body.hub header h1{display:none}
+#modes{padding:0;min-width:0}
+#mRel{width:44px;height:44px;font:1rem var(--mono);color:var(--dim);background:#05080C;border:1px solid var(--line);cursor:pointer}
+body.hub #hello,body.hub .tbtns{display:none!important}
+.hbtns{grid-template-columns:1fr 1fr 1fr}
+.hbtns .pill{font-size:.58rem;line-height:1.15;letter-spacing:.02em}
+#tkr #sys{margin-left:auto;font-size:.6rem;white-space:nowrap}
+#tkr{margin:2px 14px 4px;min-height:24px}
+.qt{min-height:60px;padding:8px 11px}
+body.hub #status{margin:0;min-height:0;line-height:1.2}
+/* drive-mode ignition */
+body.ign::before{content:"";position:fixed;inset:0;z-index:80;pointer-events:none;background:radial-gradient(circle at 50% 88%,rgba(0,240,255,.6),transparent 58%);animation:ign 1s ease-out forwards}
+@keyframes ign{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
 </style>
 </head>
 <body>
@@ -819,8 +890,8 @@ input[hidden]{display:none!important}
     <div class="sec">Accent colour</div>
     <div class="sw"><button data-a="" style="--c:#4cc9f0" aria-label="Blue"></button><button data-a="teal" style="--c:#3de0c8" aria-label="Teal"></button><button data-a="violet" style="--c:#a79bff" aria-label="Violet"></button><button data-a="amber" style="--c:#ffb454" aria-label="Amber"></button></div>
     <details class="dd"><summary>My car</summary>
-      <label>Name<input id="carName" placeholder="e.g. The Corsa" autocomplete="off"></label>
-      <label>Details<input id="carSpec" placeholder="e.g. 2017 Corsa E 1.4 Limited Edition" autocomplete="off"></label>
+      <label>Name<input id="carName" placeholder="e.g. My car" autocomplete="off"></label>
+      <label>Details<input id="carSpec" placeholder="e.g. 2017 hatchback 1.4 petrol" autocomplete="off"></label>
       <div class="note">Pick a body colour for your little car. It drives around the dashboard and the map.</div><div class="cw" id="carCols"></div>
     </details>
     <details class="dd"><summary>Arrive-by targets</summary>
@@ -856,7 +927,7 @@ input[hidden]{display:none!important}
     <div class="toggles" style="margin-top:12px"><button class="pill" id="sTest">Test voice</button></div>
     </details>
     <details class="dd"><summary>Backup and privacy</summary>
-    <div class="toggles"><button class="pill" id="bkCopy">Copy backup</button><button class="pill" id="bkRestore">Restore</button><button class="pill" id="bkClear">Clear data</button></div>
+    <div class="toggles"><button class="pill" id="bkCopy">Export Config (JSON)</button><button class="pill" id="bkRestore">Import Config (JSON)</button><button class="pill" id="bkClear">Clear data</button></div>
     <textarea id="bkText" class="bk" placeholder="Paste a backup here, then tap Apply" hidden></textarea>
     <button class="pill" id="bkApply" hidden style="margin-top:8px">Apply backup</button>
     <div class="note">A backup is plain text holding your places, preferences and history. Keep it private. Safari can clear a website's saved data if it is not used for a while, so add this app to your Home Screen.</div>
@@ -2797,6 +2868,116 @@ $('tIns').onclick=()=>openReport($('tIns'));
     r.append(left,b);box.append(r);
   });
 })();
+
+;(function(){try{
+const body=document.body;body.classList.add('hub');
+const D=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const hhmm=ts=>new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+// ----- mode switcher
+const modes=D('div');modes.id='modes';
+const mOut=D('button','on','OUT OF CAR'),mDrv=D('button','','DRIVE MODE'),mRel=D('button','','↻');mRel.id='mRel';mRel.setAttribute('aria-label','Reload');
+modes.append(mOut,mDrv);document.querySelector('header').append(modes,mRel);
+const syncMode=()=>{const on=$('drive').classList.contains('open');mOut.classList.toggle('on',!on);mDrv.classList.toggle('on',on)};
+new MutationObserver(syncMode).observe($('drive'),{attributes:true,attributeFilter:['class']});
+function enterDrive(){if(!commuteUI){alert('No route yet. Wait for the commute to load.');return}
+  body.classList.add('ign');setTimeout(()=>body.classList.remove('ign'),1000);
+  try{sfx.done()}catch(e){}
+  setTimeout(()=>startTrip(commuteUI),350)}
+mOut.onclick=()=>{if(trip)stopTrip()};mDrv.onclick=()=>{if(!trip)enterDrive()};mRel.onclick=()=>location.reload();
+// ----- alert ticker
+const tkr=D('div');tkr.id='tkr';const tkt=D('span');tkt.setAttribute('aria-live','polite');tkr.append(tkt,$('sys'));$('hero').after(tkr);
+let bay=null;try{bay=JSON.parse(localStorage.getItem('jarvisBay')||'null')}catch(e){}
+let tIdx=0,alerts=[];
+function collect(){const a=[],w=(live&&live.weather)||[];
+  if(w.some(x=>x.t!=null&&x.t<=2))a.push('Frost risk: allow +5 min to defrost');
+  const n=commuteUI&&commuteUI.incidents?commuteUI.incidents.length:0;if(n)a.push(n+' incident'+(n>1?'s':'')+' on your route');
+  if(commuteUI&&commuteUI.eta&&commuteUI.eta.delay>=10)a.push('Delay '+commuteUI.eta.delay+' min on your route');
+  try{reminderParts().forEach(r=>a.push(r))}catch(e){}
+  if(bay&&bay.end>Date.now()&&bay.end-Date.now()<10*60000)a.push('Parking bay: '+Math.ceil((bay.end-Date.now())/60000)+' min left');
+  return a}
+function paintTkr(){alerts=collect();body.dataset.alert=alerts.length?'amber':'';
+  tkr.classList.toggle('am',!!alerts.length);
+  tkt.textContent=alerts.length?alerts[tIdx%alerts.length].toUpperCase():'ALL SYSTEMS NOMINAL'}
+setInterval(()=>{tIdx++;paintTkr()},4000);
+// ----- hero launch buttons
+const hb=D('div','hbtns'),hGm=D('button','btn pri','LAUNCH GOOGLE MAPS'),hFuel=D('button','pill','+ CHEAPEST FUEL STOP'),hDr=D('button','pill','ENTER DRIVE MODE'),hBadge=D('div','');
+hGm.id='hGm';hFuel.id='hFuel';hDr.id='hDrive';hBadge.id='hBadge';const lv=$('cLeave');lv.textContent='LEAVE BY';hb.append(hGm,hFuel,hDr,lv,hBadge);
+document.querySelector('#tCommute .tbtns').after(hb);
+const stop=f=>e=>{e.stopPropagation();f()};
+hGm.onclick=stop(()=>{if(!commuteUI){alert('No route yet. Wait for the commute to load.');return}window.open(gmaps(commuteUI),'_blank','noopener')});
+const cheapest=()=>{try{const l=stationsOnRoute(commuteUI.geom);return l.length?l.reduce((m,x)=>x.price<m.price?x:m):null}catch(e){return null}};
+hFuel.onclick=stop(()=>{if(!commuteUI){alert('No route yet. Wait for the commute to load.');return}
+  const c=cheapest();if(!c){alert('No fuel prices along this route yet.');return}
+  const r=commuteUI;window.open(`https://www.google.com/maps/dir/?api=1&origin=${r.a.lat},${r.a.lon}&destination=${r.b.lat},${r.b.lon}&waypoints=${c.la},${c.lo}&travelmode=driving`,'_blank','noopener')});
+hDr.onclick=stop(enterDrive);
+function paintBadge(){const c=commuteUI&&cheapest();if(!c){hBadge.textContent='';return}
+  const l=fills.length?+fills[fills.length-1].ppl:null;
+  hBadge.textContent=`${c.price.toFixed(1)}p on route`+(l?` · ${(c.price-l>=0?'+':'')}${(c.price-l).toFixed(1)}p vs your last fill`:'')}
+// ----- hub grid + sub-menus
+const FN=()=>({e10:'E10',e5:'E5',b7:'Diesel'}[fuelType]||'Petrol');
+const wxOf=re=>((live&&live.weather)||[]).find(x=>re.test(x.name));
+const SUM={
+ wx:()=>{const h=wxOf(/home/i),w=wxOf(/work/i);if(!h&&!w)return['Not set','Add Home in Settings'];
+   const fr=[h,w].some(x=>x&&x.t<=2),rn=[h,w].some(x=>x&&x.rain>=50);return[`Home ${h?h.t+'°':'--'} · Work ${w?w.t+'°':'--'}`,fr?'FROST RISK':rn?'RAIN LIKELY':'CLEAR',fr||rn]},
+ fu:()=>{try{const ps=nearby().list.map(s=>s.price);if(!ps.length)return['--.-p','No prices yet'];const c=Math.min(...ps),l=fills.length?+fills[fills.length-1].ppl:null;return[FN()+' '+c.toFixed(1)+'p',l?`last fill ${l.toFixed(1)}p`:'no fills logged']}catch(e){return['--.-p','']}},
+ ci:()=>{const n=commuteUI&&commuteUI.incidents?commuteUI.incidents.length:0;return[(commuteUI?'Commute '+commuteUI.eta.min+' min':'-- min'),n?n+' incident'+(n>1?'s':''):'No incidents',n>0]},
+ ca:()=>{const r=(()=>{try{return reminderParts()}catch(e){return[]}})();return[$('cName').textContent||'My car',r[0]||'No reminders due',!!r.length]},
+ nw:()=>{const n=live&&live.news?(live.news.uk||[]).length+(live.news.local||[]).length:0;return[n+' headlines','Tap to hear']},
+ po:()=>park?['Parked '+hhmm(park.ts),'Walk back ready']:['No parked pin','Save your spot']
+};
+const defs=[
+ {k:'wx',h:'Weather',ids:['tHome','tWork','tFc'],x:b=>{const sp=D('button','btn pri xbtn','SPEAK WEATHER BRIEF');sp.onclick=()=>{const h=wxOf(/home/i),w=wxOf(/work/i),p=x=>x?`${x.t} degrees, ${x.desc}`:'not available';speak(`Home is ${p(h)}. Work is ${p(w)}.`)};b.append(sp)}},
+ {k:'fu',h:'Petrol & fill-up log',ids:['tFuel'],x:b=>{const lg=D('button','btn xbtn','OPEN FILL-UP LOG');lg.onclick=()=>$('fLog').click();b.append(lg)}},
+ {k:'ci',h:'Commute intel & places',ids:['tIns','tPlaces'],x:b=>{
+   const rd=D('button','btn pri xbtn','READ INCIDENTS ALOUD');rd.onclick=()=>{const i=(commuteUI&&commuteUI.incidents)||[];speak(i.length?'Incidents on your route. '+i.map(x=>x.text).join('. '):'No incidents are reported on your route.')};
+   const pit=D('button','btn xbtn','TACTICAL PIT-STOP');pit.onclick=()=>{const f=(cfg.favs||[]).filter(Boolean);if(!f.length){alert('Add favourite places in Settings first.');return}const p=f[Math.floor(Math.random()*f.length)];toast('Pit-stop: '+(p.name||p.label));window.open(`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}&travelmode=driving`,'_blank','noopener')};
+   b.append(rd,pit)}},
+ {k:'ca',h:'My car & reminders',ids:['tCar'],x:b=>{const lg=D('button','btn xbtn','OPEN FILL-UP LOG');lg.onclick=()=>$('fLog').click();b.append(lg)}},
+ {k:'nw',h:'Audio briefing',ids:['tNews'],x:b=>{const pa=D('button','btn pri xbtn','PLAY ALL');pa.onclick=()=>{const n=live&&live.news?[...(live.news.uk||[]).slice(0,4),...(live.news.local||[]).slice(0,2)]:[];speak(n.length?'Headlines. '+n.join('. '):'No headlines available yet.')};b.append(pa)}},
+ {k:'po',h:'Post-drive wrap-up',ids:[],x:renderPost}
+];
+const hub=D('section');hub.id='hub';$('tiles').after(hub);
+const tiles={};
+defs.forEach(d=>{const b=D('button','qt'),h=D('b','',d.h.split(' &')[0].split(' ')[0]==='Audio'?'Audio':d.h.split(' ')[0]===('Post-drive')?'Post-drive':d.h.split(' ')[0]),v=D('span'),i=D('i');
+  h.textContent={wx:'Weather',fu:'Petrol',ci:'Commute',ca:'My car',nw:'Briefing',po:'Post-drive'}[d.k];
+  b.append(h,v,i);b.onclick=()=>openSub(d);hub.append(b);tiles[d.k]={v,i}});
+function paintHub(){for(const d of defs){try{const r=SUM[d.k]();tiles[d.k].v.textContent=r[0];tiles[d.k].i.textContent=r[1]||'';tiles[d.k].i.className=r[2]?'am':''}catch(e){}}paintBadge();paintTkr()}
+setInterval(paintHub,2500);setTimeout(paintHub,1200);
+// sub overlay
+const sub=D('div');sub.id='sub';sub.setAttribute('role','dialog');
+const subH=D('div');subH.id='subH';const subT=D('h2');subT.id='subT';subH.append(subT);
+const subB=D('div');subB.id='subB';const back=D('button','','← BACK TO HUB');back.id='subBack';
+sub.append(subH,subB,back);document.body.append(sub);
+let cur=null,ph={},bayT=null;
+function openSub(d){closeSub();cur=d;subT.textContent=d.h;subB.textContent='';
+  d.ids.forEach(id=>{const n=$(id);if(!n)return;const m=document.createComment(id);n.parentNode.insertBefore(m,n);ph[id]=m;subB.append(n)});
+  d.x&&d.x(subB);sub.classList.add('open');body.classList.add('subopen')}
+function closeSub(){if(!cur)return;cur.ids.forEach(id=>{const n=$(id),m=ph[id];if(n&&m&&m.parentNode){m.parentNode.insertBefore(n,m);m.remove()}delete ph[id]});
+  clearInterval(bayT);subB.textContent='';sub.classList.remove('open');body.classList.remove('subopen');cur=null}
+back.onclick=closeSub;
+// post-drive panel
+function renderPost(b){b=b||subB;b.textContent='';
+  const p=D('div','pcard');p.append(D('div','ct','Parked car'));
+  p.append(D('div','sub',park?'Saved at '+hhmm(park.ts):'No parking pin saved'));
+  const sv=D('button','btn pri xbtn','SAVE PARKING SPOT HERE');sv.onclick=async()=>{if(await savePark())renderPost()};p.append(sv);
+  if(park){const wk=D('a','btn xbtn','WALK BACK VIA GOOGLE MAPS');wk.href=`https://www.google.com/maps/dir/?api=1&destination=${park.lat},${park.lon}&travelmode=walking`;wk.target='_blank';wk.rel='noopener';p.append(wk);
+    const cl=D('button','btn xbtn','CLEAR PIN');cl.onclick=()=>{park=null;try{localStorage.removeItem('jarvisPark')}catch(e){}renderPost()};p.append(cl)}
+  b.append(p);
+  const t=D('div','pcard');t.append(D('div','ct','Parking bay timer'));const big=D('div','big','--:--');t.append(big);
+  const r=D('div','row2');[[30,'30m'],[60,'1h'],[120,'2h']].forEach(([m,l])=>{const x=D('button','pill',l);x.onclick=()=>{bay={end:Date.now()+m*60000};try{localStorage.setItem('jarvisBay',JSON.stringify(bay))}catch(e){}tick()};r.append(x)});t.append(r);
+  const stopB=D('button','btn xbtn','CANCEL TIMER');stopB.onclick=()=>{bay=null;try{localStorage.removeItem('jarvisBay')}catch(e){}tick()};t.append(stopB);
+  const tick=()=>{if(bay&&bay.end>Date.now()){const s=Math.floor((bay.end-Date.now())/1000);big.textContent=String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor(s%3600/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}else{if(bay&&bay.end<=Date.now()){toast('Parking bay time is up');bay=null;try{localStorage.removeItem('jarvisBay')}catch(e){}}big.textContent='--:--'}};
+  tick();clearInterval(bayT);bayT=setInterval(tick,1000);b.append(t);
+  const s=D('div','pcard');s.append(D('div','ct','Trip smoothness & PB'));s.append(D('div','sub','Smoothness --% · PB --:-- (unlocks with the Drive Mode upgrade)'));b.append(s);
+  const n=D('div','pcard');n.append(D('div','ct','Road notes'));
+  let notes=[];try{notes=JSON.parse(localStorage.getItem('jarvisNotes')||'[]')}catch(e){}
+  const save=()=>{try{localStorage.setItem('jarvisNotes',JSON.stringify(notes.slice(-60)))}catch(e){}};
+  const ta=D('textarea');ta.rows=2;ta.placeholder='Add a note';const add=D('button','btn pri xbtn','ADD NOTE');
+  add.onclick=()=>{const v=ta.value.trim();if(!v)return;notes.push({ts:Date.now(),t:v});save();renderPost()};n.append(ta,add);
+  notes.slice().reverse().forEach(x=>{const r=D('div','nrow');r.append(D('small','',hhmm(x.ts)),document.createTextNode(x.t));n.append(r)});
+  const cp=D('button','btn xbtn','COPY ALL NOTES');cp.onclick=async()=>{const t=notes.map(x=>`${hhmm(x.ts)} ${x.t}`).join('\n');try{await navigator.clipboard.writeText(t);toast('Notes copied')}catch(e){toast('Could not copy')}};
+  const cn=D('button','btn xbtn','CLEAR NOTES');cn.onclick=()=>{notes=[];save();renderPost()};n.append(cp,cn);b.append(n)}
+}catch(e){console.error('co-pilot init',e)}})();
 </script>
 </body>
 </html>
