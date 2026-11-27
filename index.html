@@ -759,7 +759,7 @@ body.hub #tiles{gap:8px}
 #sub.open{display:flex}
 #subH{padding:14px 16px 6px}#subH h2{margin:0;font:600 .8rem var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--glow)}
 #subB{flex:1;overflow:auto;padding:8px 14px 14px;display:flex;flex-direction:column;gap:10px;overscroll-behavior:contain}
-#subB>.tile{display:block}
+#subB>.tile{display:block}#subB>*{flex:0 0 auto!important}
 #subBack{margin:0 14px calc(10px + env(safe-area-inset-bottom));min-height:56px;border:1px solid var(--glow);background:#05080C;color:var(--glow);font:600 .8rem var(--mono);letter-spacing:.16em;border-radius:8px;cursor:pointer;box-shadow:0 0 14px var(--ga)}
 body.subopen #dock{display:none}
 #subB .xbtn{display:block;width:100%;min-height:48px;font-family:var(--mono);letter-spacing:.08em;font-size:.74rem}
@@ -784,6 +784,26 @@ body.hub #status{margin:0;min-height:0;line-height:1.2}
 /* drive-mode ignition */
 body.ign::before{content:"";position:fixed;inset:0;z-index:80;pointer-events:none;background:radial-gradient(circle at 50% 88%,rgba(0,240,255,.6),transparent 58%);animation:ign 1s ease-out forwards}
 @keyframes ign{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+
+/* ---- DRIVE MODE v2 ---- */
+#drive .dhead{padding-top:calc(env(safe-area-inset-top) + 8px)}
+#dNums{grid-template-columns:minmax(0,1.25fr) minmax(0,1.1fr) minmax(0,1fr)!important}
+.num{overflow:hidden}.num>b{font-size:clamp(1.5rem,7.4vw,2.5rem)!important}#dtSpd>b{font-size:clamp(2.2rem,11vw,3.6rem)!important;color:var(--glow)}#dLimSign{display:none!important}
+.num>em{font-size:.75rem!important}
+#dMini .mini:nth-child(2){display:none}
+#dPlanB{font-size:clamp(1rem,4.8vw,1.5rem)!important;white-space:normal!important;line-height:1.1}#dtPlan>em{white-space:normal!important}
+#dx{flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
+#dx1{display:grid;grid-template-columns:1fr 1fr 64px;gap:6px}
+.xp{min-height:56px;background:#05080C;border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--mono);padding:4px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;touch-action:manipulation;min-width:0}
+.xp span{font-size:.58rem;letter-spacing:.14em;color:var(--dim)}.xp b{font-size:1rem;font-weight:600;white-space:nowrap}
+.xp.ok b{color:#00FF94}.xp.am b{color:#FF9E00}.xp.rd b{color:#ff4d5e}.xp.on{border-color:var(--glow)}
+#xG{padding:0;position:relative}#xGc{width:56px;height:56px}#xGt{position:absolute;bottom:1px;font-size:.5rem!important}
+#dx2{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+#dx2 button{min-height:44px;background:#05080C;border:1px solid var(--line);border-radius:8px;color:var(--ink);font:600 .62rem var(--mono);letter-spacing:.08em;touch-action:manipulation}
+#dx2 button.on{border-color:var(--glow);color:var(--glow)}#xExit{border-color:#ff4d5e55!important;color:#ff7a88!important}
+#dTalk{width:104px!important;height:104px!important}#dBottom{grid-template-columns:1fr 104px 1fr!important}
+#drive.oled{background:#000!important;filter:brightness(.5)}#drive.oled #dBar,#drive.oled #dx1,#drive.oled #dx2 button:not(#xOled){opacity:.35}
+@media (max-height:760px){#dBottom .ibtn{height:52px!important}#dTalk{width:84px!important;height:84px!important}#dBottom{grid-template-columns:1fr 84px 1fr!important}#nxD{font-size:3.6rem!important}#dNext{padding-top:6px!important;padding-bottom:6px!important}}
 </style>
 </head>
 <body>
@@ -956,6 +976,7 @@ body.ign::before{content:"";position:fixed;inset:0;z-index:80;pointer-events:non
       <div class="mini"><span>TRIP SO FAR</span><b id="mTripT">£0.00</b><em id="mTripS"></em></div>
     </div>
     <div id="dWarn"></div>
+    <div id="dx"><div id="dx1"><button id="xPB" class="xp"><span>VS PB</span><b>--</b></button><button id="xAvg" class="xp"><span>AVG ZONE</span><b>OFF</b></button><button id="xG" class="xp"><canvas id="xGc" width="112" height="112"></canvas><span id="xGt">G-FORCE</span></button></div><div id="dx2"><button id="xOled">OLED DIM</button><button id="xHaz">PING HAZARD</button><button id="xFuel">+ FUEL TO MAPS</button><button id="xShare">SHARE ETA</button><button id="xBrief">PLAY BRIEFING</button><button id="xExit">HOLD: EXIT</button></div></div>
     <div id="dBottom"><button class="ibtn" id="dAhead"></button><button id="dTalk" aria-label="Tap to talk"></button><button class="ibtn" id="dLow"></button></div>
     <button class="pill" id="dSpA" style="display:none">Speed alerts</button>
   </div>
@@ -1662,7 +1683,7 @@ function openLeave(){
   bM.onclick=()=>{tomorrow=true;bT.className='';bM.className='on'};
   function render(points){
     out.textContent='';
-    const ok=(points||[]).filter(p=>p.min!=null);
+    const ok=(points||[]).filter(p=>p.min!=null);const frost=((live&&live.weather)||[]).some(x=>x.t!=null&&x.t<=2),L5=t=>{const m=/^(\d\d):(\d\d)$/.exec(t||'');if(!m||!frost)return t;let v=(+m[1]*60+ +m[2]-5+1440)%1440;return String(Math.floor(v/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0')};ok.forEach(p=>{if(!p._d){p._d=1;p.time=L5(p.time)}});
     if(!ok.length){out.textContent='No traffic data came back. Try again in a minute.';return}
     const best=ok.reduce((m,p)=>p.min<m.min?p:m,ok[0]),worst=ok.reduce((m,p)=>p.min>m.min?p:m,ok[0]);
     const ref=ok.find(p=>p.off===0)||ok[0],save=ref.min-best.min;
@@ -1678,7 +1699,7 @@ function openLeave(){
       row.append(el('span','',p.time),bar,el('span','m',p.min+' min'+(p.delay>2?` (+${p.delay})`:'')));
       out.append(row);
     });
-    out.append(el('div','note2','Predicted from live and historical traffic. Conditions can change.'));
+    out.append(el('div','note2',(frost?'Frost forecast: times include +5 min to defrost. ':'')+'Predicted from live and historical traffic. Conditions can change.'));
   }
   async function run(){
     out.textContent='Checking traffic for each time...';
@@ -1860,8 +1881,10 @@ function applyAccent(){document.body.dataset.accent=cfg.accent||'';document.quer
 document.querySelectorAll('.sw button').forEach(b=>b.onclick=()=>{cfg.accent=b.dataset.a;saveCfg();applyAccent()});applyAccent();
 // ---------- my little car ----------
 let carN=0;
-const carSide=()=>{const n=++carN;return `<svg viewBox="100 70 990 425" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bd${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" style="stop-color:var(--car,#f4f6f8)"/><stop offset="1" stop-color="#aeb8bf"/></linearGradient><linearGradient id="gl${n}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#32455a"/><stop offset="1" stop-color="#0d1620"/></linearGradient></defs><ellipse cx="596" cy="474" rx="520" ry="12" fill="#000" opacity=".4"/><circle cx="260" cy="396" r="86" fill="#080b0e"/><g class="wh" style="transform-origin:260px 396px"><circle cx="260" cy="396" r="74" fill="#14181c"/><circle cx="260" cy="396" r="55" fill="#1d2329"/><path d="M260 396 L306.0 396.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L299.8 419.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L283.0 435.8" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L260.0 442.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L237.0 435.8" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L220.2 419.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L214.0 396.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L220.2 373.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L237.0 356.2" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L260.0 350.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L283.0 356.2" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M260 396 L299.8 373.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><circle cx="260" cy="396" r="48" fill="none" stroke="#0e1216" stroke-width="3"/><circle cx="260" cy="396" r="11" fill="#0b0f12"/><circle cx="260" cy="396" r="4" fill="#5b6770"/></g><circle cx="880" cy="396" r="86" fill="#080b0e"/><g class="wh" style="transform-origin:880px 396px"><circle cx="880" cy="396" r="74" fill="#14181c"/><circle cx="880" cy="396" r="55" fill="#1d2329"/><path d="M880 396 L926.0 396.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L919.8 419.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L903.0 435.8" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L880.0 442.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L857.0 435.8" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L840.2 419.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L834.0 396.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L840.2 373.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L857.0 356.2" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L880.0 350.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L903.0 356.2" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><path d="M880 396 L919.8 373.0" stroke="#3a444c" stroke-width="5" stroke-linecap="round"/><circle cx="880" cy="396" r="48" fill="none" stroke="#0e1216" stroke-width="3"/><circle cx="880" cy="396" r="11" fill="#0b0f12"/><circle cx="880" cy="396" r="4" fill="#5b6770"/></g><path d="M125 412 C121 380 125 330 140 288 C150 262 175 242 200 228 L226 142 L282 150 C330 128 450 124 560 126 C605 128 645 152 700 182 C760 212 800 233 835 241 C900 256 985 272 1032 294 C1056 306 1066 332 1067 362 L1067 412 L975 428 C972 360 930 322 880 322 C830 322 788 360 788 428 L352 430 C352 360 310 322 260 322 C210 322 168 360 168 430 L130 418 Z" fill="url(#bd${n})" stroke="#9aa5ad" stroke-width="2"/><path d="M226 142 L282 150 L250 158 Z" fill="#14181c"/><path d="M196 226 L246 160 L430 152 L436 218 Z" fill="url(#gl${n})"/><path d="M458 152 L640 144 C700 152 742 184 800 232 L458 238 Z" fill="url(#gl${n})"/><path d="M436 150 L458 150 L458 240 L436 220 Z" fill="#101418"/><path d="M196 226 L246 160 L430 152 L436 218 Z M458 152 L640 144 C700 152 742 184 800 232 L458 238 Z" fill="none" stroke="#101418" stroke-width="7" stroke-linejoin="round"/><path d="M285 175 L410 170 M480 172 L600 166" stroke="#fff" stroke-opacity=".22" stroke-width="5" stroke-linecap="round"/><path d="M452 240 C458 300 468 360 486 410 M776 258 C774 310 770 360 764 404" fill="none" stroke="#b3bdc4" stroke-width="2.4"/><path d="M472 268 H528 Q534 268 534 274 H472 Z" fill="#c9d2d8" stroke="#9aa5ad" stroke-width="1.5"/><path d="M706 232 Q704 214 728 212 Q752 212 752 232 L744 252 L714 254 Z" fill="#14181c"/><path d="M322 128 L298 78" stroke="#14181c" stroke-width="4" stroke-linecap="round"/><path d="M932 268 L1026 292 Q1038 300 1034 308 L1000 314 L944 292 Z" fill="#243039" stroke="#9aa5ad" stroke-width="2"/><path d="M948 276 L1018 296 L1004 304 L950 286 Z" fill="#fff" opacity=".6" class="hl"/><path d="M1010 380 L1062 378 L1064 404 L1016 406 Z" fill="#14181c"/><path d="M152 252 L203 246 L206 270 L160 286 Z" fill="#c4312f"/><path d="M170 410 L352 420 M788 422 L972 420" stroke="#14181c" stroke-width="6" opacity=".55" fill="none"/></svg>`};
-const carTop=()=>'<div class="cartop"></div>';
+const carWheel=(cx,cy)=>{let s='';for(let i=0;i<10;i++){const a=i*36*Math.PI/180,c=Math.cos(a),n=Math.sin(a);s+=`<path d="M${(cx+c*16).toFixed(1)} ${(cy+n*16).toFixed(1)}L${(cx+c*68).toFixed(1)} ${(cy+n*68).toFixed(1)}" stroke-width="5"/>`}
+return `<circle cx="${cx}" cy="${cy}" r="92" fill="#06101a" stroke-width="6"/><g class="wh" style="transform-origin:${cx}px ${cy}px"><circle cx="${cx}" cy="${cy}" r="72" stroke-width="4"/><circle cx="${cx}" cy="${cy}" r="38" stroke-width="3" opacity=".7"/>${s}<circle cx="${cx}" cy="${cy}" r="12" stroke-width="4"/></g>`};
+const carSide=()=>{const n=++carN;return `<svg viewBox="0 0 1000 440" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bm${n}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bfeaff" stop-opacity="0"/><stop offset="1" stop-color="#bfeaff" stop-opacity=".8"/></linearGradient></defs><g fill="none" stroke="var(--glow,#38BDF8)" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="500" cy="428" rx="470" ry="7" stroke="none" fill="var(--glow,#38BDF8)" opacity=".18"/>${carWheel(177,330)}${carWheel(828,330)}<path d="M34 316C26 280 26 215 40 170L60 158C84 124 116 94 146 76C210 56 300 48 392 48C480 48 545 58 590 80L769 172C780 178 790 182 806 186L940 232C962 240 972 252 972 280L970 300C968 308 966 314 962 320L930 352A104 104 0 1 0 726 352L279 352A104 104 0 1 0 75 352Z" fill="#0a1622" fill-opacity=".85" stroke-width="6"/><path d="M126 82L130 62L244 54L246 68" stroke-width="5"/><path d="M760 172L602 98C548 76 474 68 392 68C300 68 214 72 160 90L196 138L400 156Z" fill="var(--glow,#38BDF8)" fill-opacity=".07" stroke-width="4.5"/><path d="M386 70L426 70L420 158L392 156" stroke-width="4"/><path d="M398 158L392 340M772 176L782 330" stroke-width="3" opacity=".75"/><path d="M450 200H500" stroke-width="7"/><path d="M768 166C752 164 736 170 734 180L742 192L778 188L784 176Z" stroke-width="4"/><path d="M110 300C300 294 560 294 780 300" stroke-width="3" opacity=".5"/><path d="M279 334L726 334" stroke-width="3" opacity=".6"/><circle cx="100" cy="246" r="15" stroke-width="3" opacity=".7"/><path d="M894 192C920 194 944 206 954 220L948 230L888 214Z" stroke-width="4" fill="#dff6ff" fill-opacity=".85"/><path d="M40 176L58 160L108 164L102 200L44 204Z" stroke="#ff4b4b" fill="#ff4b4b" fill-opacity=".55" stroke-width="4"/><path d="M930 352L962 320L972 322" stroke-width="4"/><path d="M930 220L1000 230L1000 320L962 310Z" fill="url(#bm${n})" stroke="none" class="hl"/></g></svg>`};
+const carTop=()=>`<svg viewBox="0 0 50 100" xmlns="http://www.w3.org/2000/svg"><g fill="#08131d" stroke="var(--glow,#38BDF8)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><rect x="2" y="16" width="6" height="16" rx="2.5"/><rect x="42" y="16" width="6" height="16" rx="2.5"/><rect x="2" y="66" width="6" height="16" rx="2.5"/><rect x="42" y="66" width="6" height="16" rx="2.5"/><path d="M14 4C22 1 28 1 36 4C42 7 46 16 46 30L46 72C46 84 43 92 38 95L12 95C7 92 4 84 4 72L4 30C4 16 8 7 14 4Z" stroke-width="2"/><path d="M9 37C20 32 30 32 41 37L43 49L7 49Z" fill="var(--glow,#38BDF8)" fill-opacity=".14"/><path d="M8 50L42 50L42 74L8 74Z" fill="var(--glow,#38BDF8)" fill-opacity=".1"/><path d="M8 76L42 76L42 82L8 82Z"/><path d="M14 10L15 32M36 10L35 32" opacity=".5" stroke-width="1"/><path d="M6 8L16 5L15 9L8 12ZM44 8L34 5L35 9L42 12Z" fill="#dff6ff" stroke="none"/><path d="M5 90L15 93L14 95L7 93ZM45 90L35 93L36 95L43 93Z" fill="#ff4b4b" stroke="#ff4b4b" stroke-width=".8"/><rect x="0" y="38" width="5.5" height="5" rx="2"/><rect x="44.5" y="38" width="5.5" height="5" rx="2"/></g></svg>`;
 const CAR_COL=['#f4f6f8','#2a3036','#aeb7bf','#d33a3a','#2f6fd6','#f2c230'];
 const carEl=()=>{const d=el('div','mk-cartop');d.innerHTML=carTop();return d};
 function brg(g,i){const a=g[i],b=g[Math.min(g.length-1,i+3)],r=Math.PI/180,y=Math.sin((b[1]-a[1])*r)*Math.cos(b[0]*r),x=Math.cos(a[0]*r)*Math.sin(b[0]*r)-Math.sin(a[0]*r)*Math.cos(b[0]*r)*Math.cos((b[1]-a[1])*r);return(Math.atan2(y,x)/r+360)%360}
@@ -2893,6 +2916,7 @@ function collect(){const a=[],w=(live&&live.weather)||[];
   const n=commuteUI&&commuteUI.incidents?commuteUI.incidents.length:0;if(n)a.push(n+' incident'+(n>1?'s':'')+' on your route');
   if(commuteUI&&commuteUI.eta&&commuteUI.eta.delay>=10)a.push('Delay '+commuteUI.eta.delay+' min on your route');
   try{reminderParts().forEach(r=>a.push(r))}catch(e){}
+  try{const g=window.jvGlare&&window.jvGlare(commuteUI);if(g)a.push(g)}catch(e){}
   if(bay&&bay.end>Date.now()&&bay.end-Date.now()<10*60000)a.push('Parking bay: '+Math.ceil((bay.end-Date.now())/60000)+' min left');
   return a}
 function paintTkr(){alerts=collect();body.dataset.alert=alerts.length?'amber':'';
@@ -2968,7 +2992,7 @@ function renderPost(b){b=b||subB;b.textContent='';
   const stopB=D('button','btn xbtn','CANCEL TIMER');stopB.onclick=()=>{bay=null;try{localStorage.removeItem('jarvisBay')}catch(e){}tick()};t.append(stopB);
   const tick=()=>{if(bay&&bay.end>Date.now()){const s=Math.floor((bay.end-Date.now())/1000);big.textContent=String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor(s%3600/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}else{if(bay&&bay.end<=Date.now()){toast('Parking bay time is up');bay=null;try{localStorage.removeItem('jarvisBay')}catch(e){}}big.textContent='--:--'}};
   tick();clearInterval(bayT);bayT=setInterval(tick,1000);b.append(t);
-  const s=D('div','pcard');s.append(D('div','ct','Trip smoothness & PB'));s.append(D('div','sub','Smoothness --% · PB --:-- (unlocks with the Drive Mode upgrade)'));b.append(s);
+  const s=D('div','pcard');s.append(D('div','ct','Trip smoothness & PB'));s.append(D('div','sub',''+(()=>{try{const L=JSON.parse(localStorage.getItem('jarvisLast')||'null');return L?'Smoothness '+(L.sm==null?'--':L.sm+'/100')+' · PB '+(L.pb?Math.floor(L.pb/60)+':'+String(L.pb%60).padStart(2,'0'):'--:--')+' · last drive '+(L.d||''):'Smoothness --/100 · PB --:-- (fills in after a drive)'}catch(e){return'--'}})()+''));b.append(s);
   const n=D('div','pcard');n.append(D('div','ct','Road notes'));
   let notes=[];try{notes=JSON.parse(localStorage.getItem('jarvisNotes')||'[]')}catch(e){}
   const save=()=>{try{localStorage.setItem('jarvisNotes',JSON.stringify(notes.slice(-60)))}catch(e){}};
@@ -2978,6 +3002,61 @@ function renderPost(b){b=b||subB;b.textContent='';
   const cp=D('button','btn xbtn','COPY ALL NOTES');cp.onclick=async()=>{const t=notes.map(x=>`${hhmm(x.ts)} ${x.t}`).join('\n');try{await navigator.clipboard.writeText(t);toast('Notes copied')}catch(e){toast('Could not copy')}};
   const cn=D('button','btn xbtn','CLEAR NOTES');cn.onclick=()=>{notes=[];save();renderPost()};n.append(cp,cn);b.append(n)}
 }catch(e){console.error('co-pilot init',e)}})();
+
+;(function(){try{
+const $=id=>document.getElementById(id),LS=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},SV=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const hv=(a,b,c,d)=>{const r=Math.PI/180,x=Math.sin((c-a)*r/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin((d-b)*r/2)**2;return 2*6371000*Math.asin(Math.sqrt(x))};
+const voice=m=>{if(cfg.tripVoice!==false)speak(m)};
+const ms=s=>{const a=Math.abs(Math.round(s));return(s<0?'-':'+')+Math.floor(a/60)+':'+String(a%60).padStart(2,'0')};
+let pace=null,gOn=false,gx=0,gy=0,gs=0,gn=0,warned={},prev=null,briefing=false;
+// OLED
+$('xOled').onclick=()=>{const o=$('drive').classList.toggle('oled');$('xOled').classList.toggle('on',o)};
+// hazard pins
+$('xHaz').onclick=()=>{const t=trip;if(!t||!t.last){toast('Waiting for GPS');return}const h=LS('jarvisHaz',[]);h.push({la:t.last.la,lo:t.last.lo,ts:Date.now()});SV('jarvisHaz',h.slice(-60));toast('Hazard pinned');try{sfx.done()}catch(e){}};
+// fuel to maps
+$('xFuel').onclick=()=>{const t=trip;if(!t||!t.fuel||!t.fuel.length){toast('No fuel data on this route');return}const c=t.fuel.reduce((m,s)=>s.price<m.price?s:m,t.fuel[0]);const b=t.r.b;window.open(`https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lon}&waypoints=${c.la!=null?c.la:c.lat},${c.lo!=null?c.lo:c.lon}&travelmode=driving`,'_blank','noopener')};
+// share eta
+$('xShare').onclick=async()=>{const t=trip;if(!t)return;const m=`ETA ${$('dEta').textContent} (${$('dRem').textContent}) to ${t.r.to}`;try{if(navigator.share)await navigator.share({text:m});else{await navigator.clipboard.writeText(m);toast('ETA copied')}}catch(e){}};
+// briefing
+$('xBrief').onclick=()=>{if(briefing){briefing=false;try{speechSynthesis.cancel();tts.pause()}catch(e){}$('xBrief').textContent='PLAY BRIEFING';return}
+ const w=(live&&live.weather)||[],n=(live&&live.news)||{},h=[...(n.uk||[]).slice(0,2),...(n.local||[]).slice(0,1)].map(x=>x.title||x).filter(Boolean);
+ const txt=[whatsAhead(),w[1]&&w[1].t!=null?`It is ${w[1].t} degrees at your destination.`:'',h.length?'Headlines. '+h.join('. '):''].filter(Boolean).join(' ');
+ briefing=true;$('xBrief').textContent='SKIP';speak(txt);setTimeout(()=>{briefing=false;$('xBrief').textContent='PLAY BRIEFING'},Math.min(90000,txt.length*80))};
+// hold exit
+(function(){const b=$('xExit');let tm;const st=()=>{b.classList.add('on');tm=setTimeout(()=>{b.classList.remove('on');stopTrip()},900)},sp=()=>{clearTimeout(tm);b.classList.remove('on')};b.addEventListener('pointerdown',st);['pointerup','pointerleave','pointercancel'].forEach(e=>b.addEventListener(e,sp))})();
+// avg speed zone
+$('xAvg').onclick=()=>{if(pace){pace=null;paintAvg();return}pace={d:0,t0:Date.now(),w:0};paintAvg()};
+function paintAvg(){const b=$('xAvg'),v=b.querySelector('b');if(!pace){v.textContent='OFF';b.className='xp';return}const h=(Date.now()-pace.t0)/3.6e6,avg=h>0.0005?pace.d/h:0,lim=(typeof limitAt==='function'&&trip)?limitAt(trip.along):null;v.textContent=Math.round(avg)+(lim?'/'+lim:' mph');b.className='xp on '+(lim?(avg>lim?'rd':avg>lim-3?'am':'ok'):'');if(lim&&avg>lim&&h>0.01&&Date.now()-pace.w>60000){pace.w=Date.now();voice('Average speed is over the limit.')}}
+// G-force
+function drawG(){const c=$('xGc'),x=c.getContext('2d'),W=112,R=48;x.clearRect(0,0,W,W);x.strokeStyle='#00F0FF';x.lineWidth=2;x.globalAlpha=.6;[R,R/2].forEach(r=>{x.beginPath();x.arc(56,56,r,0,7);x.stroke()});x.beginPath();x.moveTo(8,56);x.lineTo(104,56);x.moveTo(56,8);x.lineTo(56,104);x.stroke();x.globalAlpha=1;x.fillStyle='#00FF94';x.beginPath();x.arc(56+Math.max(-1,Math.min(1,gx/.6))*R,56+Math.max(-1,Math.min(1,gy/.6))*R,7,0,7);x.fill()}
+$('xG').onclick=async()=>{if(gOn){gOn=false;$('xG').classList.remove('on');return}
+ try{if(typeof DeviceMotionEvent!=='undefined'&&DeviceMotionEvent.requestPermission){const r=await DeviceMotionEvent.requestPermission();if(r!=='granted'){toast('Motion access denied');return}}}catch(e){toast('Motion not available');return}
+ gOn=true;$('xG').classList.add('on');if(!window._gm){window._gm=1;addEventListener('devicemotion',e=>{if(!gOn)return;const a=e.acceleration;if(!a||a.x==null)return;gx=gx*.85+(a.x/9.81)*.15;gy=gy*.85+(a.y/9.81)*.15;if(trip&&trip.spdS>5){const m=Math.hypot(gx,gy);gs+=m*m;gn++}if(!window._gr){window._gr=1;requestAnimationFrame(()=>{window._gr=0;drawG()})}})}};
+const smooth=()=>gn>30?Math.max(0,Math.round(100-Math.min(100,Math.sqrt(gs/gn)*300))):null;
+drawG();
+// wrap trip loop
+const _t=window.tripUI;window.tripUI=function(al,off,spd,lv){_t.apply(this,arguments);try{const t=trip;if(!t)return;
+ if(t.last&&prev&&pace&&lv){pace.d+=hv(prev.la,prev.lo,t.last.la,t.last.lo)/1609.34}if(t.last)prev={la:t.last.la,lo:t.last.lo};
+ if(pace)paintAvg();
+ const key=t.r.from+'>'+t.r.to,pb=LS('jarvisPB',{})[key],tot=(Date.now()-t.t0)/1000+t.eta*60*(1-al),b=$('xPB');
+ if(pb){const d=tot-pb;b.querySelector('b').textContent=ms(d)+' vs PB';b.className='xp '+(d<=0?'ok':d<120?'am':'rd')}else{b.querySelector('b').textContent='PB: new';b.className='xp'}
+ if(lv&&t.last){LS('jarvisHaz',[]).forEach((h,i)=>{if(hv(t.last.la,t.last.lo,h.la,h.lo)<400&&Date.now()-(warned[i]||0)>600000){warned[i]=Date.now();voice('Hazard pinned ahead.');toast('Hazard ahead')}})}
+}catch(e){console.error(e)}};
+const _f=window.finishTrip;window.finishTrip=function(){const t=trip;_f.apply(this,arguments);try{if(!t||t.demo)return;const key=t.r.from+'>'+t.r.to,P=LS('jarvisPB',{}),tot=Math.round((Date.now()-t.t0)/1000),sm=smooth(),isPB=!P[key]||tot<P[key],old=P[key];if(isPB){P[key]=tot;SV('jarvisPB',P)}
+ SV('jarvisLast',{sm,pb:P[key],d:new Date().toLocaleDateString('en-GB')});const d=$('dDone'),n=document.createElement('div');n.className='sub';n.textContent=(sm!=null?'Smoothness '+sm+'/100 · ':'')+(isPB?(old?'New personal best, '+ms(tot-old)+' vs old PB':'PB set: '+Math.floor(tot/60)+' min'):'PB '+ms(tot-old));d.insertBefore(n,d.children[2]||null);gs=0;gn=0;pace=null;prev=null;warned={};paintAvg()}catch(e){console.error(e)}};
+const _s=window.startTrip;window.startTrip=function(){gs=0;gn=0;pace=null;prev=null;warned={};paintAvg();$('drive').classList.remove('oled');$('xOled').classList.remove('on');return _s.apply(this,arguments)};
+}catch(e){console.error('drive v2',e)}})();
+
+;(function(){try{
+const R=Math.PI/180;
+function sun(la,lo,d){const j=d/864e5+2440587.5-2451545,n=j,Lm=(280.46+0.9856474*n)%360,g=(357.528+0.9856003*n)%360*R,lam=(Lm+1.915*Math.sin(g)+0.02*Math.sin(2*g))*R,e=(23.439-0.0000004*n)*R,
+ ra=Math.atan2(Math.cos(e)*Math.sin(lam),Math.cos(lam)),dec=Math.asin(Math.sin(e)*Math.sin(lam)),gst=(280.46061837+360.98564736629*j)%360,H=((gst+lo-ra/R)%360)*R,
+ el=Math.asin(Math.sin(la*R)*Math.sin(dec)+Math.cos(la*R)*Math.cos(dec)*Math.cos(H)),az=Math.atan2(-Math.sin(H),Math.tan(dec)*Math.cos(la*R)-Math.sin(la*R)*Math.cos(H));
+ return{el:el/R,az:(az/R+360)%360}}
+window.jvGlare=function(r){r=r||(typeof commuteUI!=='undefined'?commuteUI:null);if(!r||!r.geom||r.geom.length<4)return null;const g=r.geom,mid=g[Math.floor(g.length/2)];
+ const now=Date.now();for(const off of [0,15,30]){const s=sun(mid[0],mid[1],now+off*6e4);if(s.el>0&&s.el<14){const h=routeHeading(g,.15),df=Math.abs(((s.az-h+540)%360)-180);if(df<35)return 'Low sun glare ahead'+(off?' in '+off+' min':'')+': sunglasses, visor down'}}return null};
+const _s=window.startTrip;window.startTrip=function(r){const o=_s.apply(this,arguments);try{const m=window.jvGlare(r||commuteUI);if(m&&trip)setTimeout(()=>{try{speak(m+'.')}catch(e){}},4000)}catch(e){}return o};
+}catch(e){console.error('p3',e)}})();
 </script>
 </body>
 </html>
