@@ -786,7 +786,6 @@ body.ign::before{content:"";position:fixed;inset:0;z-index:80;pointer-events:non
 @keyframes ign{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
 
 /* ---- DRIVE MODE v2 ---- */
-#drive .dhead{padding-top:calc(env(safe-area-inset-top) + 8px)}
 #dNums{grid-template-columns:minmax(0,1.25fr) minmax(0,1.1fr) minmax(0,1fr)!important}
 .num{overflow:hidden}.num>b{font-size:clamp(1.5rem,7.4vw,2.5rem)!important}#dtSpd>b{font-size:clamp(2.2rem,11vw,3.6rem)!important;color:var(--glow)}#dLimSign{display:none!important}
 .num>em{font-size:.75rem!important}
@@ -798,12 +797,38 @@ body.ign::before{content:"";position:fixed;inset:0;z-index:80;pointer-events:non
 .xp span{font-size:.58rem;letter-spacing:.14em;color:var(--dim)}.xp b{font-size:1rem;font-weight:600;white-space:nowrap}
 .xp.ok b{color:#00FF94}.xp.am b{color:#FF9E00}.xp.rd b{color:#ff4d5e}.xp.on{border-color:var(--glow)}
 #xG{padding:0;position:relative}#xGc{width:56px;height:56px}#xGt{position:absolute;bottom:1px;font-size:.5rem!important}
-#dx2{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+#dx2{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 #dx2 button{min-height:44px;background:#05080C;border:1px solid var(--line);border-radius:8px;color:var(--ink);font:600 .62rem var(--mono);letter-spacing:.08em;touch-action:manipulation}
 #dx2 button.on{border-color:var(--glow);color:var(--glow)}#xExit{border-color:#ff4d5e55!important;color:#ff7a88!important}
 #dTalk{width:104px!important;height:104px!important}#dBottom{grid-template-columns:1fr 104px 1fr!important}
 #drive.oled{background:#000!important;filter:brightness(.5)}#drive.oled #dBar,#drive.oled #dx1,#drive.oled #dx2 button:not(#xOled){opacity:.35}
 @media (max-height:760px){#dBottom .ibtn{height:52px!important}#dTalk{width:84px!important;height:84px!important}#dBottom{grid-template-columns:1fr 84px 1fr!important}#nxD{font-size:3.6rem!important}#dNext{padding-top:6px!important;padding-bottom:6px!important}}
+
+/* ---- fit + orientation + fun ---- */
+@media (orientation:landscape) and (max-height:380px){#dx1{display:none}}
+html,body{height:var(--H,100dvh)!important}
+#drive,#sub,#sheet,#picker,#lsheet,#dsheet,#boot{height:var(--H,auto)}
+button,.pill,.qt,.num,.xp,#drive{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+#dx2 button{font-size:.6rem!important;letter-spacing:.04em!important;padding:0 2px}
+#gm{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#05080C;border-top:1px solid var(--glow);border-radius:14px 14px 0 0;padding:14px 14px calc(env(safe-area-inset-bottom) + 14px);display:none;flex-direction:column;gap:8px;box-shadow:0 -10px 40px #000}
+#gm.open{display:flex}#gm h3{font:600 .8rem var(--mono);letter-spacing:.16em;color:var(--glow);margin:0 0 2px;display:flex;justify-content:space-between}
+#gm button{min-height:54px;background:#000;border:1px solid var(--line);border-radius:8px;color:var(--ink);font:600 .8rem var(--mono);letter-spacing:.06em;text-align:left;padding:0 14px;touch-action:manipulation}
+#gm button small{display:block;font-weight:400;color:var(--dim);font-size:.62rem;letter-spacing:.02em}
+#gm .xpb{height:8px;background:#ffffff14;border-radius:4px;overflow:hidden}#gm .xpb i{display:block;height:100%;background:linear-gradient(90deg,var(--glow),#00FF94)}
+@media (orientation:landscape) and (max-height:520px){
+ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);box-sizing:border-box}
+ #drive{padding-left:max(12px,env(safe-area-inset-left))!important;padding-right:max(12px,env(safe-area-inset-right))!important}
+ #dx{grid-area:dx}#dBar{display:none}#dNums{grid-area:nm}#dx2 button{min-height:36px}.xp{min-height:44px}
+ #drive #dLive{grid-template-areas:"nx nm" "nx dx" "nx bt"!important;grid-template-rows:auto auto 1fr!important;gap:6px!important}
+ #dNext{padding:8px 12px!important}#nxD{font-size:3.2rem!important}#nxT{font-size:1.2rem!important}
+ #dBottom .ibtn{height:52px!important}#dTalk{width:72px!important;height:72px!important}#dBottom{grid-template-columns:1fr 72px 1fr!important}
+ .num>b{font-size:clamp(1.3rem,3.4vw,2rem)!important}#dtSpd>b{font-size:clamp(1.8rem,5vw,2.6rem)!important}
+ body.hub #main{overflow-y:auto;-webkit-overflow-scrolling:touch}
+ #dock .q,#dock #status,#dock #wave,#hello,#date,#brief,#upd,#refresh{display:none!important}#clock{font-size:1.6rem!important;margin:0!important}#hero{padding:0!important}
+ body.hub #main{display:grid!important;grid-template-columns:1.2fr 1fr;gap:8px 10px;align-content:start}#mini,#hero{grid-column:1/3}#hub{grid-template-columns:1fr 1fr;margin:0!important;align-content:start}body.hub #tiles{grid-column:1}#hub{grid-column:2}
+ #sub{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+}
 </style>
 </head>
 <body>
@@ -976,12 +1001,13 @@ body.ign::before{content:"";position:fixed;inset:0;z-index:80;pointer-events:non
       <div class="mini"><span>TRIP SO FAR</span><b id="mTripT">£0.00</b><em id="mTripS"></em></div>
     </div>
     <div id="dWarn"></div>
-    <div id="dx"><div id="dx1"><button id="xPB" class="xp"><span>VS PB</span><b>--</b></button><button id="xAvg" class="xp"><span>AVG ZONE</span><b>OFF</b></button><button id="xG" class="xp"><canvas id="xGc" width="112" height="112"></canvas><span id="xGt">G-FORCE</span></button></div><div id="dx2"><button id="xOled">OLED DIM</button><button id="xHaz">PING HAZARD</button><button id="xFuel">+ FUEL TO MAPS</button><button id="xShare">SHARE ETA</button><button id="xBrief">PLAY BRIEFING</button><button id="xExit">HOLD: EXIT</button></div></div>
+    <div id="dx"><div id="dx1"><button id="xPB" class="xp"><span>VS PB</span><b>--</b></button><button id="xAvg" class="xp"><span>AVG ZONE</span><b>OFF</b></button><button id="xG" class="xp"><canvas id="xGc" width="112" height="112"></canvas><span id="xGt">G-FORCE</span></button></div><div id="dx2"><button id="xOled">OLED DIM</button><button id="xHaz">HAZARD</button><button id="xFuel">FUEL &#8594; MAPS</button><button id="xShare">SHARE ETA</button><button id="xBrief">BRIEFING</button><button id="xGames">GAMES</button><button id="xXp">LV 1</button><button id="xExit">HOLD EXIT</button></div></div>
     <div id="dBottom"><button class="ibtn" id="dAhead"></button><button id="dTalk" aria-label="Tap to talk"></button><button class="ibtn" id="dLow"></button></div>
     <button class="pill" id="dSpA" style="display:none">Speed alerts</button>
   </div>
   <div id="dDone"></div>
 </div>
+<div id="gm"><h3><span>DRIVE GAMES · VOICE</span><span id="gmx" style="cursor:pointer">&#10005;</span></h3><div id="gmLv"></div><div class="xpb"><i id="gmBar"></i></div></div>
 <div id="lsheet" role="dialog" aria-label="Fill-up log">
   <div class="panel">
     <div class="ph"><h2>Fill-up log</h2><button class="icon" id="lClose" aria-label="Close">&#10005;</button></div>
@@ -3018,10 +3044,10 @@ $('xFuel').onclick=()=>{const t=trip;if(!t||!t.fuel||!t.fuel.length){toast('No f
 // share eta
 $('xShare').onclick=async()=>{const t=trip;if(!t)return;const m=`ETA ${$('dEta').textContent} (${$('dRem').textContent}) to ${t.r.to}`;try{if(navigator.share)await navigator.share({text:m});else{await navigator.clipboard.writeText(m);toast('ETA copied')}}catch(e){}};
 // briefing
-$('xBrief').onclick=()=>{if(briefing){briefing=false;try{speechSynthesis.cancel();tts.pause()}catch(e){}$('xBrief').textContent='PLAY BRIEFING';return}
+$('xBrief').onclick=()=>{if(briefing){briefing=false;try{speechSynthesis.cancel();tts.pause()}catch(e){}$('xBrief').textContent='BRIEFING';return}
  const w=(live&&live.weather)||[],n=(live&&live.news)||{},h=[...(n.uk||[]).slice(0,2),...(n.local||[]).slice(0,1)].map(x=>x.title||x).filter(Boolean);
  const txt=[whatsAhead(),w[1]&&w[1].t!=null?`It is ${w[1].t} degrees at your destination.`:'',h.length?'Headlines. '+h.join('. '):''].filter(Boolean).join(' ');
- briefing=true;$('xBrief').textContent='SKIP';speak(txt);setTimeout(()=>{briefing=false;$('xBrief').textContent='PLAY BRIEFING'},Math.min(90000,txt.length*80))};
+ briefing=true;$('xBrief').textContent='SKIP';speak(txt);setTimeout(()=>{briefing=false;$('xBrief').textContent='BRIEFING'},Math.min(90000,txt.length*80))};
 // hold exit
 (function(){const b=$('xExit');let tm;const st=()=>{b.classList.add('on');tm=setTimeout(()=>{b.classList.remove('on');stopTrip()},900)},sp=()=>{clearTimeout(tm);b.classList.remove('on')};b.addEventListener('pointerdown',st);['pointerup','pointerleave','pointercancel'].forEach(e=>b.addEventListener(e,sp))})();
 // avg speed zone
@@ -3043,7 +3069,7 @@ const _t=window.tripUI;window.tripUI=function(al,off,spd,lv){_t.apply(this,argum
  if(lv&&t.last){LS('jarvisHaz',[]).forEach((h,i)=>{if(hv(t.last.la,t.last.lo,h.la,h.lo)<400&&Date.now()-(warned[i]||0)>600000){warned[i]=Date.now();voice('Hazard pinned ahead.');toast('Hazard ahead')}})}
 }catch(e){console.error(e)}};
 const _f=window.finishTrip;window.finishTrip=function(){const t=trip;_f.apply(this,arguments);try{if(!t||t.demo)return;const key=t.r.from+'>'+t.r.to,P=LS('jarvisPB',{}),tot=Math.round((Date.now()-t.t0)/1000),sm=smooth(),isPB=!P[key]||tot<P[key],old=P[key];if(isPB){P[key]=tot;SV('jarvisPB',P)}
- SV('jarvisLast',{sm,pb:P[key],d:new Date().toLocaleDateString('en-GB')});const d=$('dDone'),n=document.createElement('div');n.className='sub';n.textContent=(sm!=null?'Smoothness '+sm+'/100 · ':'')+(isPB?(old?'New personal best, '+ms(tot-old)+' vs old PB':'PB set: '+Math.floor(tot/60)+' min'):'PB '+ms(tot-old));d.insertBefore(n,d.children[2]||null);gs=0;gn=0;pace=null;prev=null;warned={};paintAvg()}catch(e){console.error(e)}};
+ SV('jarvisLast',{sm,pb:P[key],d:new Date().toLocaleDateString('en-GB'),newpb:isPB&&!!old});const d=$('dDone'),n=document.createElement('div');n.className='sub';n.textContent=(sm!=null?'Smoothness '+sm+'/100 · ':'')+(isPB?(old?'New personal best, '+ms(tot-old)+' vs old PB':'PB set: '+Math.floor(tot/60)+' min'):'PB '+ms(tot-old));d.insertBefore(n,d.children[2]||null);gs=0;gn=0;pace=null;prev=null;warned={};paintAvg()}catch(e){console.error(e)}};
 const _s=window.startTrip;window.startTrip=function(){gs=0;gn=0;pace=null;prev=null;warned={};paintAvg();$('drive').classList.remove('oled');$('xOled').classList.remove('on');return _s.apply(this,arguments)};
 }catch(e){console.error('drive v2',e)}})();
 
@@ -3057,6 +3083,34 @@ window.jvGlare=function(r){r=r||(typeof commuteUI!=='undefined'?commuteUI:null);
  const now=Date.now();for(const off of [0,15,30]){const s=sun(mid[0],mid[1],now+off*6e4);if(s.el>0&&s.el<14){const h=routeHeading(g,.15),df=Math.abs(((s.az-h+540)%360)-180);if(df<35)return 'Low sun glare ahead'+(off?' in '+off+' min':'')+': sunglasses, visor down'}}return null};
 const _s=window.startTrip;window.startTrip=function(r){const o=_s.apply(this,arguments);try{const m=window.jvGlare(r||commuteUI);if(m&&trip)setTimeout(()=>{try{speak(m+'.')}catch(e){}},4000)}catch(e){}return o};
 }catch(e){console.error('p3',e)}})();
+
+;(function(){try{
+const $=id=>document.getElementById(id),LS=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},SV=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+// fill the screen (iOS PWA reports a short viewport)
+const fit=()=>{try{const land=innerWidth>innerHeight,sa=Math.max(screen.width,screen.height),sb=Math.min(screen.width,screen.height),sh=land?sb:sa,st=navigator.standalone||matchMedia('(display-mode:standalone)').matches;const H=st?Math.max(innerHeight,sh):innerHeight;document.documentElement.style.setProperty('--H',H+'px')}catch(e){}};
+fit();addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,250));
+// no text selection after hold
+const clr=()=>{try{getSelection().removeAllRanges()}catch(e){}};
+['xExit','dEnd'].forEach(id=>{const b=$(id);['contextmenu','selectstart','dragstart'].forEach(ev=>b.addEventListener(ev,e=>e.preventDefault()));b.addEventListener('pointerup',()=>setTimeout(clr,50))});
+document.addEventListener('selectionchange',()=>{const a=document.activeElement;if(!a||!/INPUT|TEXTAREA/.test(a.tagName)){const s=getSelection();if(s&&s.toString().length&&document.body.classList.contains('hub')&&$('drive').classList.contains('open'))clr()}});
+// XP + games
+const lvl=x=>Math.floor(Math.sqrt(x/60))+1,base=l=>(l-1)*(l-1)*60;
+const X=()=>{const x=LS('jarvisXP',0)||0;return{x,l:lvl(x)}};
+function paintXp(){const{x,l}=X();$('xXp').textContent='LV '+l+' · '+x;$('gmLv').innerHTML='<div style="font:600 1rem var(--mono);margin:2px 0 6px">LEVEL '+l+' · '+x+' XP <span style="color:var(--dim);font-size:.65rem">next at '+base(l+1)+'</span></div>';$('gmBar').style.width=Math.min(100,(x-base(l))/(base(l+1)-base(l))*100)+'%'}
+window.jvXP=(n,why)=>{const o=X(),x=o.x+n;SV('jarvisXP',x);paintXp();toast('+'+n+' XP'+(why?' · '+why:'')+(lvl(x)>o.l?' · LEVEL UP '+lvl(x):''));if(lvl(x)>o.l){try{sfx.done();speak('Level up. You are now level '+lvl(x)+'.')}catch(e){}}};
+paintXp();
+const G=[['TRIVIA','Quick-fire questions','Let us play a voice trivia game for a driver. Ask me one short question at a time on mixed topics, wait for my answer, tell me if I was right in one sentence, keep score, then ask the next. Keep every reply under 25 words.'],
+['20 QUESTIONS','I think of something','Play 20 Questions. Think of a famous thing and I will ask yes or no questions. Answer only yes, no or sometimes, and count the questions. Keep replies very short.'],
+['WORD CHAIN','Last letter starts the next','Play a word chain game with me. You say a word, I say a word starting with your last letter, no repeats. Start with a word. Keep replies to a single word plus a brief comment.'],
+['NUMBER PLATE','Spot the letters','Play the number plate game. Give me three random letters and I must say a word or phrase using them in order. Judge fairly, keep it playful and short, then give new letters.'],
+['ROAD STORY','Build a story together','Let us build a funny story together. You say two sentences, then I add the next. Keep your turns to two sentences and keep it light.'],
+['GUESS THE SONG','Describe it, I guess','Play guess the song with me. Describe a well-known song in three vague clues without naming it. I will guess. Keep it short.']];
+const gm=$('gm');G.forEach(g=>{const b=document.createElement('button');b.innerHTML=g[0]+'<small>'+g[1]+'</small>';b.onclick=()=>{gm.classList.remove('open');try{ask(g[2],{raw:true})}catch(e){toast('Games need the Worker')}};gm.insertBefore(b,null)});
+$('xGames').onclick=()=>{paintXp();gm.classList.add('open')};$('gmx').onclick=()=>gm.classList.remove('open');
+$('xXp').onclick=()=>{const{x,l}=X();speak('You are level '+l+' with '+x+' experience points.')};
+// award XP at the end of a real drive
+const _f=window.finishTrip;window.finishTrip=function(){const t=trip;const had=t&&t.saved;_f.apply(this,arguments);try{if(!t||t.demo||had)return;const L=LS('jarvisLast',{});const n=Math.round(t.mi*2)+(L.sm!=null?Math.round(L.sm/10):0)+(L.newpb?25:0);window.jvXP(n,Math.round(t.mi)+' mi')}catch(e){console.error(e)}};
+}catch(e){console.error('p4',e)}})();
 </script>
 </body>
 </html>
