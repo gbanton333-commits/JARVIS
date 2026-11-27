@@ -284,7 +284,7 @@
   details.dd summary::after{content:"+";float:right;font-size:1rem;line-height:1}
   details[open].dd summary::after{content:"\2212"}
   .two{display:flex;gap:8px}.two input{flex:1}
-  #sSave{position:sticky;bottom:6px;box-shadow:0 8px 24px #000c;margin-top:18px}
+  #sSave{position:sticky;bottom:calc(6px + env(safe-area-inset-bottom));box-shadow:0 8px 24px #000c;margin-top:18px}
   #hud{position:relative}
   #hud:not(.listening):not(.thinking):not(.speaking) .core{animation:breathe 4.5s ease-in-out infinite}
   @keyframes breathe{50%{transform:scale(1.07)}}
@@ -536,7 +536,7 @@ body{padding-bottom:0}
 #boot .dot{fill:#bfeaff;stroke:none;filter:drop-shadow(0 0 6px #bfeaff);animation:dotp 2.4s ease-in-out infinite}
 #hud .dot,#boot .dot{transform-box:fill-box;transform-origin:center}
   /* ===== DESIGN PASS v8 + fixes ===== */
-#sheet .panel,#lsheet .panel{padding-bottom:96px}
+#sheet .panel,#lsheet .panel{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 #sys{font-size:.68rem}
 .ct,.sec,.dlab{font-size:.7rem}
 .seg button{min-width:44px}
@@ -890,6 +890,14 @@ body.cust #tIns{display:none!important}
 .rrow .x{flex:0 0 44px;height:44px;margin-right:-10px;display:grid;place-items:center;color:var(--dim)}
 .rseg{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:0 0 auto}.rseg button{min-height:46px;background:#05080C;border:1px solid var(--line);border-radius:8px;color:var(--dim);font:600 .75rem var(--mono);touch-action:manipulation}.rseg button.on{border-color:var(--glow);color:var(--glow)}
 .rh{font:600 .62rem var(--mono);letter-spacing:.16em;color:var(--dim);margin:6px 2px 0;flex:0 0 auto}
+
+#dBar .trk{z-index:0}#dBar>.bd{z-index:1}#dBar>.it{z-index:3}#dBar .you,#dBar .fin{z-index:2}
+#dBar .fin small,#dBar .you small{font-size:.8rem;font-weight:700}
+#dBar>.it .lab{font-size:.9rem}
+
+/* ---- moving lockout ---- */
+#drive.moving #dx2 button:not(#xHaz):not(#xExit),#drive.moving #xG,#drive.moving #xAvg,#drive.moving #dMore,#drive.moving #dLive>.gs{pointer-events:none;opacity:.35}
+#drive.moving #xGames{pointer-events:auto;opacity:.6}
 </style>
 </head>
 <body>
@@ -1255,7 +1263,7 @@ async function loadFuel(){
   urls.push('fuel.json');
   for(const u of urls){
     try{
-      const r=await fetch(u+'?t='+Math.floor(Date.now()/300000));if(!r.ok)continue;
+      const r=await fetch(u+'?t='+Math.floor(Date.now()/300000),{signal:tmo(15000)});if(!r.ok)continue;
       const j=await r.json();
       if(Array.isArray(j.stations)&&j.stations.length){
         stations=j.stations.map(s=>({b:s[0],pc:s[1],la:s[2],lo:s[3],p:[s[4],s[5],s[6]]}));
@@ -1840,7 +1848,7 @@ $('lSave').onclick=()=>{
 };
 
 // ---------- backup, restore, privacy ----------
-const BK_KEYS=['jarvisCfg','fuel','jarvisHist','jarvisFills','jarvisPrefs','jarvisTrips','jarvisPark','jarvisParkPhoto','snd','hf','worker'];
+const BK_KEYS=['jarvisCfg','fuel','jarvisHist','jarvisFills','jarvisPrefs','jarvisTrips','jarvisPark','jarvisParkPhoto','snd','hf','worker','jarvisXP','jarvisBadges','jarvisStreak','jarvisScores','jarvisCh','jarvisPB','jarvisPBcp','jarvisHaz','jarvisCust','jarvisLast','jarvisBay','jarvisNotes'];
 function flash(btn,t){toast(t)}
 $('bkCopy').onclick=async()=>{
   const o={v:1,app:'jarvis',at:new Date().toISOString(),data:{}};
@@ -2688,7 +2696,7 @@ function addSat(m){
 }
 async function radarFrames(){
   if(radarCache&&Date.now()-radarCache.t<300000)return radarCache.f;
-  const d=await (await fetch('https://api.rainviewer.com/public/weather-maps.json')).json();
+  const d=await (await fetch('https://api.rainviewer.com/public/weather-maps.json',{signal:tmo(15000)})).json();
   const f=((d.radar&&d.radar.past)||[]).slice(-6).map(x=>d.host+x.path+'/256/{z}/{x}/{y}/2/1_1.png');radarCache={t:Date.now(),f};return f;
 }
 function attachTools(ctl,map){
@@ -3278,6 +3286,33 @@ window.jvRoutesUI=function(b){b.textContent='';
  {const o=orgPt();if(o&&getWorker()&&all.length)post('/eta',{from:{lat:o.lat,lon:o.lon},dests:all.map(d=>({lat:d.lat,lon:d.lon}))}).then(r=>{(r.items||[]).forEach((e,i)=>{if(e&&rows[i])rows[i].textContent=e.min+' min \u00b7 '+e.miles+' mi from '+CUST.org().toLowerCase()+(e.delay>2?' \u00b7 +'+e.delay+' min traffic':'')})}).catch(()=>{})}
  const add=mk('button','btn pri xbtn');add.textContent='+ ADD DESTINATION';add.onclick=()=>{closeUI();setTimeout(()=>openPicker('favcust'),150)};b.append(add)};
 }catch(e){console.error('p9',e)}})();
+
+;(function(){try{
+// trip line: icons never touch YOU / FINISH or each other
+window.renderBar=function(items,a){
+ const t=trip,bar=document.getElementById('dBar'),D=Math.max(1,(1-a)*t.mi),P=d=>Math.sqrt(Math.min(Math.max(d,0),D)/D),Wd=bar.clientWidth||366,usable=Math.max(100,Wd-92);
+ BR.forEach(e=>e.seen=false);
+ const get=(key,cls,make)=>{let e=BR.get(key);if(!e){const n=make();n.style.transition='none';bar.append(n);e={el:n,fresh:true};BR.set(key,e)}e.el.className=cls;e.seen=true;return e};
+ const show=e=>{if(e.fresh){void e.el.offsetWidth;e.el.style.transition='';e.fresh=false}e.el.classList.add('in')};
+ items.filter(x=>['jam','wx'].includes(x.kind)).forEach(x=>{const p0=P((x.a0-a)*t.mi),p1=P(Math.max(x.a0,Math.min(1,x.a1)-a)*t.mi),e=get('b:'+x.key,'bd '+(x.kind==='jam'?'j'+x.mag:'w '+x.band),()=>document.createElement('div'));e.el.style.setProperty('--p',p0);e.el.style.setProperty('--w',Math.max(.03,p1-p0));show(e)});
+ const rank={rd:0,am:1,ok:2},cand=items.filter(x=>x.d<=D&&x.kind!=='delta').sort((x,y)=>rank[x.sev]-rank[y.sev]||x.d-y.d),placed=[0,usable];
+ cand.forEach(x=>{const px=P(x.d)*usable;if(placed.every(p=>Math.abs(p-px)>=56)){placed.push(px);const e=get('i:'+x.key,'it '+x.sev,()=>{const d=document.createElement('div');d.innerHTML='<div class="dot"></div><div class="lab"></div>';return d});e.el.style.setProperty('--p',P(x.d));e.el.querySelector('.dot').innerHTML=zi(x.ic,18);e.el.querySelector('.lab').textContent=fmtD(x.d)+' mi';show(e)}});
+ BR.forEach((e,k)=>{if(!e.seen){e.el.remove();BR.delete(k)}});
+ document.getElementById('barEnd').textContent=Math.round(D)+' mi';
+};
+// no accidental reload: hold the button, and swallow the tap that lands after leaving Drive Mode
+let guard=0;document.addEventListener('click',e=>{if(Date.now()<guard){e.stopPropagation();e.preventDefault()}},true);
+const _st=window.stopTrip;window.stopTrip=function(){guard=Date.now()+900;return _st.apply(this,arguments)};
+const r=document.getElementById('mRel');if(r){r.onclick=null;r.title='Hold to reload';let tm;const on=()=>{r.classList.add('on');tm=setTimeout(()=>{r.classList.remove('on');location.reload()},700)},off=()=>{clearTimeout(tm);r.classList.remove('on')};r.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(e=>r.addEventListener(e,off));r.addEventListener('click',e=>{if(typeof toast==='function')toast('Hold to reload')})}
+}catch(e){console.error('p10',e)}})();
+
+;(function(){try{
+const d=()=>document.getElementById('drive');
+const _t=window.tripUI;window.tripUI=function(al,off,spd,lv){_t.apply(this,arguments);try{const t=trip;if(!t)return;const v=(t.spdS!=null?t.spdS:spd)||0,m=d().classList.contains('moving');if(!m&&v>6){d().classList.add('moving');const g=document.getElementById('gm');g&&g.classList.remove('open');try{document.getElementById('dx2').classList.remove('more')}catch(e){}}else if(m&&v<2)d().classList.remove('moving')}catch(e){}};
+// games while moving are voice-only
+document.getElementById('xGames').addEventListener('click',e=>{if(d().classList.contains('moving')){e.stopImmediatePropagation();const g=document.getElementById('gm');g&&g.classList.remove('open');try{toast('Moving: say "let\'s play trivia" with the mic');speak('Press the mic and say which game you want.')}catch(x){}}},true);
+const _s=window.stopTrip;window.stopTrip=function(){d().classList.remove('moving');return _s.apply(this,arguments)};
+}catch(e){console.error('p11',e)}})();
 </script>
 </body>
 </html>
