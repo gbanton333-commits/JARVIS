@@ -829,6 +829,43 @@ input,textarea{-webkit-user-select:text;user-select:text}
  body.hub #main{display:grid!important;grid-template-columns:1.2fr 1fr;gap:8px 10px;align-content:start}#mini,#hero{grid-column:1/3}#hub{grid-template-columns:1fr 1fr;margin:0!important;align-content:start}body.hub #tiles{grid-column:1}#hub{grid-column:2}
  #sub{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
 }
+
+/* ---- glance hierarchy (portrait) ---- */
+#dx2:not(.more) .lo{display:none}
+@media (orientation:portrait){
+ #drive #dLive{gap:8px}
+ #dNums{order:1;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)!important;grid-template-rows:1fr 1fr;gap:8px}
+ #dtSpd{grid-row:1/3;grid-column:1;display:flex;flex-direction:column;justify-content:center;border-color:var(--glow)}
+ #dtSpd>b{font-size:clamp(4.6rem,25vw,7.6rem)!important;font-weight:600!important;line-height:.95;letter-spacing:-.02em}
+ #dtSpd>span,#dtEta>span,#dtPlan>span{font-size:.7rem!important}
+ #dLim{font-size:1.15rem!important;font-weight:700;color:var(--ink)}
+ #dtEta{grid-column:2;grid-row:1}#dtPlan{grid-column:2;grid-row:2}
+ #dtEta>b{font-size:clamp(1.8rem,9vw,2.6rem)!important;font-weight:600!important}
+ #dtPlan>b{font-size:clamp(1.1rem,5.4vw,1.6rem)!important}
+ #dNext{order:2;flex:1 1 0!important;min-height:96px;padding:10px 16px!important;justify-content:center}
+ #nxD{font-size:clamp(2.8rem,14vw,4.4rem)!important;font-weight:600!important}
+ #nxT{font-size:clamp(1.05rem,5vw,1.45rem)!important;-webkit-line-clamp:2!important}
+ #nxS{font-size:.9rem!important;-webkit-line-clamp:1!important}
+ #dBar{order:3;height:64px!important}#dWarn{order:4}
+ #dx{order:5}#dBottom{order:6}
+ #dx1{grid-template-columns:1fr 1fr 56px}.xp{min-height:48px}
+ #xGc{width:44px;height:44px}#xG{padding:0}#xGt{display:none}
+ #dx2 button{min-height:46px}
+}
+
+#gm{max-height:90%;overflow:auto;-webkit-overflow-scrolling:touch}
+#gmT{display:flex;flex-direction:column;gap:6px;margin:2px 0 4px}
+.gmr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.gmr>div{background:#000;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:600 1rem var(--mono)}.gmr small{display:block;font-weight:400;font-size:.55rem;letter-spacing:.12em;color:var(--dim)}
+.gch{background:#000;border:1px solid var(--glow);border-radius:8px;padding:8px 10px;font:.75rem var(--mono)}.gch b{color:var(--glow);letter-spacing:.1em}.gch.done{border-color:#00FF94}.gch.done b{color:#00FF94}
+.bds{display:flex;flex-wrap:wrap;gap:5px}.bd{font:600 .58rem var(--mono);letter-spacing:.06em;padding:4px 7px;border-radius:5px;border:1px solid var(--line);color:#ffffff40}.bd.on{color:var(--glow);border-color:var(--glow);box-shadow:0 0 8px var(--ga)}
+.scard{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;background:#05080C;border:1px solid var(--glow);border-radius:10px;padding:12px 14px;margin:8px 0;text-align:left}
+.scard .gr{grid-row:1/4;font:700 3.4rem var(--mono);color:var(--glow);text-shadow:0 0 18px var(--ga);line-height:1}.scard .sc{font:600 1.1rem var(--mono)}.scard small{font:.7rem var(--mono);color:var(--dim)}.scard .nb{grid-column:1/3;font:600 .7rem var(--mono);color:#00FF94;letter-spacing:.06em}
+
+.gs{display:flex;align-items:center;gap:8px;min-height:30px;padding:0 10px;background:#05080C;border:1px solid var(--line);border-radius:8px;font:600 .62rem var(--mono);letter-spacing:.08em;color:var(--ink);white-space:nowrap;overflow:hidden;touch-action:manipulation;flex:0 0 auto}
+.gs .b{flex:1;min-width:30px;height:5px;background:#ffffff18;border-radius:3px;overflow:hidden}.gs .b i{display:block;height:100%;background:linear-gradient(90deg,var(--glow),#00FF94)}
+.gs .c{color:var(--glow);overflow:hidden;text-overflow:ellipsis}.gs .c.d{color:#00FF94}.gs .s{color:#FF9E00}
+#dLive>.gs{order:0}
+#hgs{grid-column:1/-1}
 </style>
 </head>
 <body>
@@ -1001,13 +1038,13 @@ input,textarea{-webkit-user-select:text;user-select:text}
       <div class="mini"><span>TRIP SO FAR</span><b id="mTripT">£0.00</b><em id="mTripS"></em></div>
     </div>
     <div id="dWarn"></div>
-    <div id="dx"><div id="dx1"><button id="xPB" class="xp"><span>VS PB</span><b>--</b></button><button id="xAvg" class="xp"><span>AVG ZONE</span><b>OFF</b></button><button id="xG" class="xp"><canvas id="xGc" width="112" height="112"></canvas><span id="xGt">G-FORCE</span></button></div><div id="dx2"><button id="xOled">OLED DIM</button><button id="xHaz">HAZARD</button><button id="xFuel">FUEL &#8594; MAPS</button><button id="xShare">SHARE ETA</button><button id="xBrief">BRIEFING</button><button id="xGames">GAMES</button><button id="xXp">LV 1</button><button id="xExit">HOLD EXIT</button></div></div>
+    <div id="dx"><div id="dx1"><button id="xPB" class="xp"><span>VS PB</span><b>--</b></button><button id="xAvg" class="xp"><span>AVG ZONE</span><b>OFF</b></button><button id="xG" class="xp"><canvas id="xGc" width="112" height="112"></canvas><span id="xGt">G-FORCE</span></button></div><div id="dx2"><button id="xHaz">HAZARD</button><button id="xFuel">FUEL &#8594; MAPS</button><button id="xGames">GAMES</button><button id="xMore">MORE &#9662;</button><button id="xOled" class="lo">OLED DIM</button><button id="xShare" class="lo">SHARE ETA</button><button id="xBrief" class="lo">BRIEFING</button><button id="xXp" class="lo">LV 1</button><button id="xExit" class="lo">HOLD EXIT</button></div></div>
     <div id="dBottom"><button class="ibtn" id="dAhead"></button><button id="dTalk" aria-label="Tap to talk"></button><button class="ibtn" id="dLow"></button></div>
     <button class="pill" id="dSpA" style="display:none">Speed alerts</button>
   </div>
   <div id="dDone"></div>
 </div>
-<div id="gm"><h3><span>DRIVE GAMES · VOICE</span><span id="gmx" style="cursor:pointer">&#10005;</span></h3><div id="gmLv"></div><div class="xpb"><i id="gmBar"></i></div></div>
+<div id="gm"><h3><span>DRIVE GAMES · VOICE</span><span id="gmx" style="cursor:pointer">&#10005;</span></h3><div id="gmLv"></div><div class="xpb"><i id="gmBar"></i></div><div id="gmT"></div></div>
 <div id="lsheet" role="dialog" aria-label="Fill-up log">
   <div class="panel">
     <div class="ph"><h2>Fill-up log</h2><button class="icon" id="lClose" aria-label="Close">&#10005;</button></div>
@@ -3068,7 +3105,7 @@ const _t=window.tripUI;window.tripUI=function(al,off,spd,lv){_t.apply(this,argum
  if(pb){const d=tot-pb;b.querySelector('b').textContent=ms(d)+' vs PB';b.className='xp '+(d<=0?'ok':d<120?'am':'rd')}else{b.querySelector('b').textContent='PB: new';b.className='xp'}
  if(lv&&t.last){LS('jarvisHaz',[]).forEach((h,i)=>{if(hv(t.last.la,t.last.lo,h.la,h.lo)<400&&Date.now()-(warned[i]||0)>600000){warned[i]=Date.now();voice('Hazard pinned ahead.');toast('Hazard ahead')}})}
 }catch(e){console.error(e)}};
-const _f=window.finishTrip;window.finishTrip=function(){const t=trip;_f.apply(this,arguments);try{if(!t||t.demo)return;const key=t.r.from+'>'+t.r.to,P=LS('jarvisPB',{}),tot=Math.round((Date.now()-t.t0)/1000),sm=smooth(),isPB=!P[key]||tot<P[key],old=P[key];if(isPB){P[key]=tot;SV('jarvisPB',P)}
+const _f=window.finishTrip;window.finishTrip=function(){const t=trip;_f.apply(this,arguments);try{if(!t||t.demo)return;const key=t.r.from+'>'+t.r.to,P=LS('jarvisPB',{}),tot=Math.round((Date.now()-t.t0)/1000),sm=smooth(),isPB=(!P[key]||tot<P[key])&&(window.jvClean?window.jvClean(t):true),old=P[key];if(isPB){P[key]=tot;SV('jarvisPB',P)}
  SV('jarvisLast',{sm,pb:P[key],d:new Date().toLocaleDateString('en-GB'),newpb:isPB&&!!old});const d=$('dDone'),n=document.createElement('div');n.className='sub';n.textContent=(sm!=null?'Smoothness '+sm+'/100 · ':'')+(isPB?(old?'New personal best, '+ms(tot-old)+' vs old PB':'PB set: '+Math.floor(tot/60)+' min'):'PB '+ms(tot-old));d.insertBefore(n,d.children[2]||null);gs=0;gn=0;pace=null;prev=null;warned={};paintAvg()}catch(e){console.error(e)}};
 const _s=window.startTrip;window.startTrip=function(){gs=0;gn=0;pace=null;prev=null;warned={};paintAvg();$('drive').classList.remove('oled');$('xOled').classList.remove('on');return _s.apply(this,arguments)};
 }catch(e){console.error('drive v2',e)}})();
@@ -3109,8 +3146,63 @@ const gm=$('gm');G.forEach(g=>{const b=document.createElement('button');b.innerH
 $('xGames').onclick=()=>{paintXp();gm.classList.add('open')};$('gmx').onclick=()=>gm.classList.remove('open');
 $('xXp').onclick=()=>{const{x,l}=X();speak('You are level '+l+' with '+x+' experience points.')};
 // award XP at the end of a real drive
-const _f=window.finishTrip;window.finishTrip=function(){const t=trip;const had=t&&t.saved;_f.apply(this,arguments);try{if(!t||t.demo||had)return;const L=LS('jarvisLast',{});const n=Math.round(t.mi*2)+(L.sm!=null?Math.round(L.sm/10):0)+(L.newpb?25:0);window.jvXP(n,Math.round(t.mi)+' mi')}catch(e){console.error(e)}};
+const _f=window.finishTrip;window.finishTrip=function(){const t=trip;const had=t&&t.saved;_f.apply(this,arguments);try{if(!t||t.demo||had)return;const L=LS('jarvisLast',{});const n=Math.round(t.mi*2)+(L.sm!=null?Math.round(L.sm/10):0)+(L.newpb?25:0);(window.jvTripEnd?window.jvTripEnd(t,L,n):window.jvXP(n,Math.round(t.mi)+' mi'))}catch(e){console.error(e)}};
 }catch(e){console.error('p4',e)}})();
+
+;(function(){const m=document.getElementById('xMore');m.onclick=()=>{const d=document.getElementById('dx2'),o=d.classList.toggle('more');m.innerHTML=o?'LESS &#9652;':'MORE &#9662;'}})();
+
+;(function(){try{
+const $=id=>document.getElementById(id),LS=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}},SV=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const RANKS=['ROOKIE','CADET','NAVIGATOR','PILOT','ACE','GHOST','LEGEND'],rank=l=>RANKS[Math.min(l-1,RANKS.length-1)];
+const day=()=>new Date().toISOString().slice(0,10),dn=Math.floor(Date.now()/864e5);
+const CH=[['SMOOTH CRUISE','Finish a drive with a score of 85+',c=>c.score>=85],['BEAT YOUR BEST','Set a new clean personal best',c=>c.newpb],['LAW ABIDER','Zero time over the limit',c=>c.adh>=98],['EARLY BIRD','Arrive 2+ min ahead of plan',c=>c.early>=120]];
+const todayCh=()=>CH[dn%CH.length];
+const BD=[['FIRST DRIVE','First drive logged',c=>true],['SMOOTH OPERATOR','Smoothness 90+',c=>c.sm!=null&&c.sm>=90],['CLEAN PB','New personal best',c=>c.newpb],['EARLY BIRD','3+ min ahead of plan',c=>c.early>=180],['S RANK','Drive score 90+',c=>c.score>=90],['LAW ABIDER','No time over the limit',c=>c.adh>=98],['STREAK 3','3 days in a row',c=>c.streak>=3],['STREAK 7','7 days in a row',c=>c.streak>=7],['LONG HAUL','A drive of 40+ miles',c=>c.mi>=40],['NIGHT OWL','Drive after 10pm',c=>c.hour>=22||c.hour<4],['SCOUT','10 hazards pinned',c=>(LS('jarvisHaz',[]).length>=10)],['LEVEL 5','Reach level 5',c=>c.lvl>=5]];
+window.jvClean=t=>{const mv=t._mv||0,ov=t._ov||0;return mv<30||ov/mv<0.06};
+// trip tracking
+const _t=window.tripUI;window.tripUI=function(al,off,spd,lv){_t.apply(this,arguments);try{const t=trip;if(!t||t.demo&&0)return;const n=Date.now(),dt=t._tk?Math.min(5,(n-t._tk)/1000):0;t._tk=n;
+ if(lv&&spd>3&&dt){t._mv=(t._mv||0)+dt;const lim=typeof limitAt==='function'?limitAt(al):null;if(lim&&spd>lim+4)t._ov=(t._ov||0)+dt}
+ t._cp=t._cp||{};t._cd=t._cd||{};const el=(n-t.t0)/1000;[.25,.5,.75].forEach(f=>{if(al>=f&&!t._cd[f]){t._cd[f]=1;t._cp[f]=el;const pb=(LS('jarvisPBcp',{})[t.r.from+'>'+t.r.to]||{})[f];if(pb&&cfg.tripVoice!==false){const d=Math.round(pb-el);speak(Math.abs(d)<4?'Level with your best.':d>0?'Up '+d+' seconds on your best.':'Down '+(-d)+' seconds on your best.')}}})}catch(e){}};
+// challenge announce
+const _s=window.startTrip;window.startTrip=function(){const o=_s.apply(this,arguments);try{const c=todayCh(),done=(LS('jarvisCh',{}))[day()];if(!done&&trip&&!trip.demo)setTimeout(()=>{try{toast('Challenge: '+c[0]+' - '+c[1]);speak('Today\'s challenge. '+c[1]+'.')}catch(e){}},6000)}catch(e){}return o};
+// end of drive
+window.jvTripEnd=function(t,L,xp0){try{const act=Math.max(1,Math.round((Date.now()-t.t0)/1000)),mv=t._mv||1,ov=t._ov||0,adh=Math.round(100*(1-Math.min(1,ov/mv*4))),sm=L.sm,early=Math.round(t.eta*60-act),plan=Math.max(0,Math.min(100,70+early/6)),score=Math.round(.45*(sm==null?75:sm)+.35*adh+.2*plan),gr=score>=90?'S':score>=80?'A':score>=70?'B':score>=55?'C':'D';
+ const P=LS('jarvisPB',{}),key=t.r.from+'>'+t.r.to,newpb=P[key]!=null&&Math.abs(P[key]-act)<2&&L.newpb;
+ if(P[key]!=null&&Math.abs(P[key]-act)<2){const cps=LS('jarvisPBcp',{});cps[key]=t._cp||{};SV('jarvisPBcp',cps)}
+ // streak
+ const S=LS('jarvisStreak',{last:'',n:0}),y=new Date(Date.now()-864e5).toISOString().slice(0,10);if(S.last!==day()){S.n=S.last===y?S.n+1:1;S.last=day();SV('jarvisStreak',S)}
+ const H=LS('jarvisScores',[]);H.push({ts:Date.now(),score});SV('jarvisScores',H.slice(-40));
+ const xo=LS('jarvisXP',0),lvBefore=Math.floor(Math.sqrt(xo/60))+1;
+ const ctx={score,sm,adh,early,newpb,streak:S.n,mi:t.mi,hour:new Date().getHours(),lvl:lvBefore,t};
+ let bonus=Math.round(t.mi*2)+Math.round(score/2)+(newpb?40:0)+Math.min(S.n,7)*5;
+ const chd=LS('jarvisCh',{}),c=todayCh();let chDone=false;if(!chd[day()]&&c[2](ctx)){chd[day()]=1;SV('jarvisCh',chd);bonus+=50;chDone=true}
+ const have=LS('jarvisBadges',[]),nw=[];BD.forEach(b=>{if(!have.includes(b[0])&&b[2](ctx)){have.push(b[0]);nw.push(b[0])}});SV('jarvisBadges',have);
+ const d=$('dDone'),card=document.createElement('div');card.className='scard';
+ card.innerHTML='<div class="gr">'+gr+'</div><div class="sc">DRIVE SCORE '+score+'</div><small>Smooth '+(sm==null?'--':sm)+' · Limit '+adh+' · Plan '+(early>=0?'+':'')+Math.round(early/60)+' min</small><small>Streak '+S.n+' day'+(S.n===1?'':'s')+'</small>'+((nw.length||chDone||newpb)?'<div class="nb">'+[newpb?'NEW PERSONAL BEST':'',chDone?'CHALLENGE DONE +50':'',...nw.map(x=>'BADGE: '+x)].filter(Boolean).join(' · ')+'</div>':'');
+ const xs=d.querySelector('.xstat');d.insertBefore(card,xs);
+ window.jvXP(bonus,'Score '+score);if(nw.length||chDone||newpb){try{sfx.done()}catch(e){}}
+}catch(e){console.error('tripEnd',e);window.jvXP(xp0,'drive')}};
+// trophy panel
+function trophy(){const S=LS('jarvisStreak',{n:0}),H=LS('jarvisScores',[]),best=H.length?Math.max(...H.map(h=>h.score)):0,have=LS('jarvisBadges',[]),c=todayCh(),done=LS('jarvisCh',{})[day()],x=LS('jarvisXP',0),l=Math.floor(Math.sqrt(x/60))+1;
+ $('gmLv').innerHTML='<div style="font:600 1rem var(--mono);margin:2px 0 6px">LEVEL '+l+' · '+rank(l)+' <span style="color:var(--dim);font-size:.65rem">'+x+' XP · next '+(l*l*60)+'</span></div>';
+ $('gmT').innerHTML='<div class="gmr"><div><small>STREAK</small>'+S.n+'d</div><div><small>BEST SCORE</small>'+(best||'--')+'</div><div><small>DRIVES</small>'+H.length+'</div></div><div class="gch'+(done?' done':'')+'"><b>'+(done?'CHALLENGE DONE':'TODAY\'S CHALLENGE')+'</b><br>'+c[0]+': '+c[1]+(done?'':' (+50 XP)')+'</div><div class="bds">'+BD.map(b=>'<span class="bd'+(have.includes(b[0])?' on':'')+'" title="'+b[1]+'">'+b[0]+'</span>').join('')+'</div><div style="font:.6rem var(--mono);color:var(--dim)">Personal bests only count when you spend under 6% of the drive over the limit.</div>'}
+$('xGames').addEventListener('click',trophy);$('xXp').onclick=()=>$('xGames').click();
+const lv=$('xXp'),pl=()=>{const x=LS('jarvisXP',0),l=Math.floor(Math.sqrt(x/60))+1;lv.textContent='LV '+l+' '+rank(l)};pl();setInterval(pl,4000);
+}catch(e){console.error('p6',e)}})();
+
+;(function(){try{
+const $=id=>document.getElementById(id),LS=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+const R=['ROOKIE','CADET','NAVIGATOR','PILOT','ACE','GHOST','LEGEND'],C=['SMOOTH CRUISE','BEAT YOUR BEST','LAW ABIDER','EARLY BIRD'];
+const mk=id=>{const d=document.createElement('div');d.className='gs';d.id=id;d.innerHTML='<span class="l"></span><span class="b"><i></i></span><span class="s"></span><span class="c"></span>';d.onclick=()=>{const g=$('xGames');g&&g.click()};return d};
+const dg=mk('dgs'),hg=mk('hgs');
+function paint(){const x=LS('jarvisXP',0),l=Math.floor(Math.sqrt(x/60))+1,lo=(l-1)*(l-1)*60,hi=l*l*60,S=LS('jarvisStreak',{n:0,last:''}),y=new Date(Date.now()-864e5).toISOString().slice(0,10),td=new Date().toISOString().slice(0,10),sn=(S.last===td||S.last===y)?S.n:0,dn=Math.floor(Date.now()/864e5),done=(LS('jarvisCh',{}))[td];
+ [dg,hg].forEach(g=>{g.querySelector('.l').textContent='LV'+l+' '+R[Math.min(l-1,6)];g.querySelector('i').style.width=Math.min(100,(x-lo)/(hi-lo)*100)+'%';g.querySelector('.s').textContent=sn+'D STREAK';const c=g.querySelector('.c');c.textContent=done?'CHALLENGE DONE':'TODAY: '+C[dn%4];c.className='c'+(done?' d':'')})}
+paint();setInterval(paint,3000);
+const dl=$('dLive'),hd=document.querySelector('#drive .dhead');
+function place(){const land=innerWidth>innerHeight&&innerHeight<520;if(land){if(hd&&dg.parentNode!==hd){hd.insertBefore(dg,hd.children[1]||null);dg.style.maxWidth='300px'}}else if(dl&&dg.parentNode!==dl){dl.prepend(dg);dg.style.maxWidth=''}
+ const hb=$('hub');if(hb&&hg.parentNode!==hb)hb.prepend(hg)}
+place();addEventListener('resize',place);setTimeout(place,1500);
+}catch(e){console.error('p7',e)}})();
 </script>
 </body>
 </html>
