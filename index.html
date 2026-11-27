@@ -866,6 +866,30 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .gs .c{color:var(--glow);overflow:hidden;text-overflow:ellipsis}.gs .c.d{color:#00FF94}.gs .s{color:#FF9E00}
 #dLive>.gs{order:0}
 #hgs{grid-column:1/-1}
+
+/* ---- clear event timeline ---- */
+#dBar{height:88px!important}
+#drive.detail #dMini,#drive.detail #dx1{display:none!important}
+#dList,#dWarn{order:4}#dx{order:5}
+#drive.detail #dNext{flex:0 0 auto!important;min-height:0}#drive.detail #nxD{font-size:2.6rem!important}#drive.detail #dBar{height:84px!important}#drive.detail #dList{flex:1 1 0!important;min-height:90px}
+#drive.detail #dList{gap:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding:2px 0}
+.tlr{display:grid;grid-template-columns:76px 34px minmax(0,1fr);align-items:stretch;min-height:64px;flex:0 0 auto}
+.tlr .d{text-align:right;padding:8px 6px 8px 0;font:700 1.05rem var(--mono);color:#fff;white-space:nowrap}.tlr .d small{display:block;font:400 .7rem var(--mono);color:var(--dim);margin-top:1px}
+.tlr .ln{position:relative;display:flex;justify-content:center}.tlr .ln:before{content:"";position:absolute;top:0;bottom:0;width:2px;background:#ffffff24}.tlr:first-child .ln:before{top:18px}.tlr.end .ln:before{bottom:calc(100% - 22px)}
+.tlr .ln u{position:relative;z-index:1;margin-top:6px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#0b141f;border:2px solid var(--ok);color:var(--ok);text-decoration:none}
+.tlr.am .ln u{border-color:var(--warn);color:var(--warn)}.tlr.rd .ln u{border-color:var(--bad);color:var(--bad)}.tlr.end .ln u{border-color:var(--glow);color:var(--glow)}
+.tlr .ln u svg{width:15px;height:15px}
+.tlr .tx{padding:8px 4px 10px 6px;min-width:0}.tlr .tx b{display:block;font:600 1.02rem var(--font,system-ui);color:#fff;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tlr .tx small{display:block;font-size:.8rem;color:var(--dim);margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tlr.am .tx b{color:var(--warn)}.tlr.rd .tx b{color:var(--bad)}
+
+#hub .qt.ro{grid-column:1/-1;border-color:var(--glow)}#hub .qt.ro b{color:var(--glow)}
+body.cust #tIns{display:none!important}
+.rrow{display:flex;align-items:center;gap:10px;min-height:54px;padding:0 14px;background:#05080C;border:1px solid var(--line);border-radius:8px;color:var(--ink);font:600 .85rem var(--mono);text-align:left;width:100%;touch-action:manipulation;flex:0 0 auto}
+.rrow small{display:block;font-weight:400;font-size:.65rem;color:var(--dim);margin-top:2px;letter-spacing:0}.rrow.on{border-color:var(--glow);box-shadow:0 0 10px var(--ga)}.rrow .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rrow .x{flex:0 0 44px;height:44px;margin-right:-10px;display:grid;place-items:center;color:var(--dim)}
+.rseg{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:0 0 auto}.rseg button{min-height:46px;background:#05080C;border:1px solid var(--line);border-radius:8px;color:var(--dim);font:600 .75rem var(--mono);touch-action:manipulation}.rseg button.on{border-color:var(--glow);color:var(--glow)}
+.rh{font:600 .62rem var(--mono);letter-spacing:.16em;color:var(--dim);margin:6px 2px 0;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -1546,7 +1570,7 @@ function paintWeather(){
 function delayClass(d){return d<=2?'ok':d<=9?'am':'rd'}
 function paintBar(r){jamBar($('cBar'),r)}
 function paintCommute(){
-  $('cDir').textContent=dir==='work'?'To work':'To home';
+  $('cDir').textContent=jvTo();
   const r=commuteUI;
   $('cMin').classList.remove('sk');
   if(!r){$('cMin').textContent='--';$('cChip').textContent='';$('cUsual').textContent='';paintBar(null);return}
@@ -1561,10 +1585,10 @@ function paintCommute(){
   paintBar(r);paintMini();
 }
 function briefParts(){
-  const parts=[],r=commuteUI,where=dir==='work'?'work':'home';
+  const parts=[],r=commuteUI,where=jvWhere();
   if(r){
     const mn=r.eta?r.eta.min:r.options[0].min,dl=r.eta?r.eta.delay:r.options[0].delay,u=usual();
-    parts.push(`${dir==='work'?'To work':'To home'}: ${mn} min`+(dl>2?`, ${dl} min slower than free-flow`:', roads clear')+(u&&mn-u.min>5?`, ${mn-u.min} min above your usual`:''));
+    parts.push(`${jvTo()}: ${mn} min`+(dl>2?`, ${dl} min slower than free-flow`:', roads clear')+(u&&mn-u.min>5?`, ${mn-u.min} min above your usual`:''));
     if(r.incidents&&r.incidents.length)parts.push(`${r.incidents.length} incident${r.incidents.length===1?'':'s'} on your route`);
     const ice=routeIce(r);
     if(ice)parts.push(ice.kind==='ice'?`Ice risk near ${ice.name}`:`Frost possible near ${ice.name}`);
@@ -1584,7 +1608,7 @@ async function loadCommute(){
   if(!getWorker())return;
   $('cSub').textContent='Checking traffic...';
   try{
-    const r=await fetch(getWorker()+'/commute',{signal:tmo(20000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir,...ctx()})});
+    const r=await fetch(getWorker()+'/commute',{signal:tmo(20000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir,...cctx()})});
     if(!r.ok)throw new Error(r.status);
     const d=await r.json();
     if(d.error){commuteUI=null;paintCommute();$('cSub').textContent=d.error;return}
@@ -1732,7 +1756,7 @@ const ymd=d=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London'}).format(
 function openLeave(){
   if(needsSetup()){openSettings();return}
   const c=el('div','card lvc');
-  c.append(el('div','ct',(dir==='work'?'Home \u2192 Work':'Work \u2192 Home')+' \u00b7 best time to leave'));
+  c.append(el('div','ct',jvLeg()+' \u00b7 best time to leave'));
   const ctl=el('div','lvctl'),mode=el('div','seg'),bSoon=el('button','on','Leave soon'),bAt=el('button','','Around a time');mode.append(bSoon,bAt);
   const time=el('input');time.type='time';time.value=dir==='work'?'07:30':'17:15';time.style.display='none';
   const day=el('div','seg'),bT=el('button','on','Today'),bM=el('button','','Tomorrow');day.append(bT,bM);day.style.display='none';
@@ -1766,7 +1790,7 @@ function openLeave(){
   }
   async function run(){
     out.textContent='Checking traffic for each time...';
-    const body={dir,...ctx()};
+    const body={dir,...cctx()};
     if(at){body.base_local=ymd(new Date(Date.now()+(tomorrow?864e5:0)))+' '+(time.value||'07:30');body.offsets=[-30,-15,0,15,30,45,60]}
     else body.offsets=[0,15,30,45,60,90];
     try{const d=await post('/leave',body);if(d.error){out.textContent=d.error;return}render(d.points)}
@@ -2035,14 +2059,14 @@ function reminderParts(){
 async function loadLeaveBy(){
   const t=arrive()[dir];
   if(!t||!getWorker()||needsSetup()){lbData=null;paintLeaveBy();return}
-  try{const d=await post('/leaveby',{dir,target:t,...ctx()});lbData=d.error?null:d}catch(e){lbData=null}
+  try{const d=await post('/leaveby',{dir,target:t,...cctx()});lbData=d.error?null:d}catch(e){lbData=null}
   paintLeaveBy();
 }
 function paintLeaveBy(){
   const tile=$('tLeave');
   if(!lbData){tile.style.display='none';return}
   tile.style.display='';$('lbT').textContent=lbData.depart;
-  $('lbS').textContent=`${lbData.min} min journey, arrive ${lbData.arrive}${lbData.day==='tomorrow'?' tomorrow':''} (${dir==='work'?'work':'home'} by ${lbData.target})`;
+  $('lbS').textContent=`${lbData.min} min journey, arrive ${lbData.arrive}${lbData.day==='tomorrow'?' tomorrow':''} (${jvWhere()} by ${lbData.target})`;
   const m=Math.round((Date.parse(lbData.departISO)-Date.now())/60000),c=$('lbC');
   c.className='chip '+(m<=0?'rd':m<=15?'am':'ok');
   c.textContent=m<=0?'leave now':m<90?`in ${m} min`:`in ${Math.floor(m/60)}h ${m%60}m`;
@@ -2071,7 +2095,7 @@ async function loadForecast(){
 function paintInsights(){
   const tile=$('tIns'),a=chist.filter(x=>x.dir===dir);
   if(a.length<6){tile.style.display='none';return}
-  tile.style.display='';$('insT').textContent=(dir==='work'?'To work':'To home')+' by weekday';
+  tile.style.display='';$('insT').textContent=jvTo()+' by weekday';
   const D=['Mon','Tue','Wed','Thu','Fri'],by={},f=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',weekday:'short'});
   a.forEach(x=>{const wd=f.format(new Date(x.ts));(by[wd]=by[wd]||[]).push(x.min)});
   const vals=D.map(d=>by[d]?Math.round(med(by[d])):null),ok=vals.filter(v=>v!=null),mx=Math.max(...ok),mn=Math.min(...ok);
@@ -2579,7 +2603,7 @@ $('blk').onclick=()=>{cfg.black=!cfg.black;saveCfg();applyBlack()};applyBlack();
 function paintMini(){
   const m=$('mini');if(!m)return;$('miniClock').textContent=$('clock').textContent;
   const r=commuteUI,mn=r?(r.eta?r.eta.min:r.options[0].min):null,w=live&&live.weather&&live.weather[0];
-  $('miniInfo').textContent=(mn!=null?(dir==='work'?'To work ':'To home ')+mn+' min':'')+(w?(mn!=null?' \u00b7 ':'')+w.t+'\u00b0':'');
+  $('miniInfo').textContent=(mn!=null?(jvTo()+' ')+mn+' min':'')+(w?(mn!=null?' \u00b7 ':'')+w.t+'\u00b0':'');
 }
 main.addEventListener('scroll',()=>$('mini').classList.toggle('show',main.scrollTop>140),{passive:true});
 // pull to refresh with a progress ring
@@ -2809,7 +2833,7 @@ async function refreshWx(){
 const sameRoute=(a,b)=>Math.abs(a.length-b.length)<=4&&Math.abs(a[0][0]-b[0][0])<.004&&Math.abs(a[a.length-1][0]-b[b.length-1][0])<.004;
 async function refreshTrip(){
   const t=trip;if(!t||!t.dir||t.busy||t.demo)return;t.busy=true;
-  try{const d=await post('/commute',{dir:t.dir,...ctx()}),r=d.route;
+  try{const d=await post('/commute',{dir:t.dir,...cctx()}),r=d.route;
     if(trip===t&&r&&r.geom&&sameRoute(r.geom,t.r.geom)){
       const was=t.r.eta?t.r.eta.delay:0;t.r.jams=r.jams;t.r.incidents=r.incidents;if(r.limits)t.r.limits=r.limits;
       if(r.eta){const grow=r.eta.delay-was;if(grow>=3){t.deltaMsg=`Delay has grown by ${grow} min`;t.deltaAt=Date.now();say2('d'+Date.now(),`The delay has grown by ${grow} minutes.`)}else if(grow<=-3){t.deltaMsg=`Traffic easing: ${-grow} min quicker`;t.deltaAt=Date.now()}t.r.eta=r.eta;t.eta=r.eta.min}
@@ -3003,7 +3027,7 @@ function paintBadge(){const c=commuteUI&&cheapest();if(!c){hBadge.textContent=''
 // ----- hub grid + sub-menus
 const FN=()=>({e10:'E10',e5:'E5',b7:'Diesel'}[fuelType]||'Petrol');
 const wxOf=re=>((live&&live.weather)||[]).find(x=>re.test(x.name));
-const SUM={
+const SUM={ro:()=>window.jvRouteSum?window.jvRouteSum():['Home / Work',''],
  wx:()=>{const h=wxOf(/home/i),w=wxOf(/work/i);if(!h&&!w)return['Not set','Add Home in Settings'];
    const fr=[h,w].some(x=>x&&x.t<=2),rn=[h,w].some(x=>x&&x.rain>=50);return[`Home ${h?h.t+'°':'--'} · Work ${w?w.t+'°':'--'}`,fr?'FROST RISK':rn?'RAIN LIKELY':'CLEAR',fr||rn]},
  fu:()=>{try{const ps=nearby().list.map(s=>s.price);if(!ps.length)return['--.-p','No prices yet'];const c=Math.min(...ps),l=fills.length?+fills[fills.length-1].ppl:null;return[FN()+' '+c.toFixed(1)+'p',l?`last fill ${l.toFixed(1)}p`:'no fills logged']}catch(e){return['--.-p','']}},
@@ -3013,6 +3037,7 @@ const SUM={
  po:()=>park?['Parked '+hhmm(park.ts),'Walk back ready']:['No parked pin','Save your spot']
 };
 const defs=[
+ {k:'ro',h:'Routes & destinations',ids:[],x:b=>window.jvRoutesUI&&window.jvRoutesUI(b)},
  {k:'wx',h:'Weather',ids:['tHome','tWork','tFc'],x:b=>{const sp=D('button','btn pri xbtn','SPEAK WEATHER BRIEF');sp.onclick=()=>{const h=wxOf(/home/i),w=wxOf(/work/i),p=x=>x?`${x.t} degrees, ${x.desc}`:'not available';speak(`Home is ${p(h)}. Work is ${p(w)}.`)};b.append(sp)}},
  {k:'fu',h:'Petrol & fill-up log',ids:['tFuel'],x:b=>{const lg=D('button','btn xbtn','OPEN FILL-UP LOG');lg.onclick=()=>$('fLog').click();b.append(lg)}},
  {k:'ci',h:'Commute intel & places',ids:['tIns','tPlaces'],x:b=>{
@@ -3026,8 +3051,8 @@ const defs=[
 const hub=D('section');hub.id='hub';$('tiles').after(hub);
 const tiles={};
 defs.forEach(d=>{const b=D('button','qt'),h=D('b','',d.h.split(' &')[0].split(' ')[0]==='Audio'?'Audio':d.h.split(' ')[0]===('Post-drive')?'Post-drive':d.h.split(' ')[0]),v=D('span'),i=D('i');
-  h.textContent={wx:'Weather',fu:'Petrol',ci:'Commute',ca:'My car',nw:'Briefing',po:'Post-drive'}[d.k];
-  b.append(h,v,i);b.onclick=()=>openSub(d);hub.append(b);tiles[d.k]={v,i}});
+  h.textContent={ro:'Routes',wx:'Weather',fu:'Petrol',ci:'Commute',ca:'My car',nw:'Briefing',po:'Post-drive'}[d.k];
+  b.append(h,v,i);b.onclick=()=>openSub(d);if(d.k==='ro')b.classList.add('ro');hub.append(b);tiles[d.k]={v,i}});
 function paintHub(){for(const d of defs){try{const r=SUM[d.k]();tiles[d.k].v.textContent=r[0];tiles[d.k].i.textContent=r[1]||'';tiles[d.k].i.className=r[2]?'am':''}catch(e){}}paintBadge();paintTkr()}
 setInterval(paintHub,2500);setTimeout(paintHub,1200);
 // sub overlay
@@ -3203,6 +3228,56 @@ function place(){const land=innerWidth>innerHeight&&innerHeight<520;if(land){if(
  const hb=$('hub');if(hb&&hg.parentNode!==hb)hb.prepend(hg)}
 place();addEventListener('resize',place);setTimeout(place,1500);
 }catch(e){console.error('p7',e)}})();
+
+;(function(){try{
+window.renderList=function(items){const box=document.getElementById('dList');box.textContent='';const t=trip;if(!t)return;
+ const nx=nextUp(items),rows=items.filter(x=>x.kind!=='delta'&&x!==nx);
+ rows.slice(0,8).forEach(x=>{const r=el('div','tlr '+x.sev);r.innerHTML='<div class="d">'+fmtD(x.d)+' mi<small>'+inMin(x.d)+'</small></div><div class="ln"><u>'+zi(x.ic,15)+'</u></div><div class="tx"><b></b><small></small></div>';r.querySelector('.tx b').textContent=x.title;r.querySelector('.tx small').textContent=x.sub||'';box.append(r)});
+ const rem=Math.max(0,Math.round((1-t.along)*t.mi)),e=el('div','tlr end');e.innerHTML='<div class="d">'+rem+' mi<small>'+(document.getElementById('dEta').textContent||'')+'</small></div><div class="ln"><u>'+zi('ok',15)+'</u></div><div class="tx"><b></b><small>Arrive</small></div>';e.querySelector('.tx b').textContent=t.r.to||'Destination';box.append(e)};
+}catch(e){console.error('p8',e)}})();
+
+// ---- custom destinations ----
+function cctx(){return window.CUST&&window.CUST.on?window.CUST.ctx():ctx()}
+function jvTo(){return window.CUST&&window.CUST.on?'To '+(dir==='work'?window.CUST.dest():window.CUST.org()):(dir==='work'?'To work':'To home')}
+function jvWhere(){return window.CUST&&window.CUST.on?(dir==='work'?window.CUST.dest():window.CUST.org()).replace(/[^\w ]/g,''):(dir==='work'?'work':'home')}
+function jvLeg(){return window.CUST&&window.CUST.on?(dir==='work'?window.CUST.org()+' → '+window.CUST.dest():window.CUST.dest()+' → '+window.CUST.org()):(dir==='work'?'Home → Work':'Work → Home')}
+;(function(){try{
+const LSg=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}},KEY='jarvisCust';
+let C=Object.assign({on:false,name:'',lat:null,lon:null,from:'home',saved:[]},LSg(KEY,{}));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(C))}catch(e){}};
+const orgPt=()=>C.from==='here'&&here?{lat:here.lat,lon:here.lon}:homePt();
+window.CUST={get on(){return !!(C.on&&C.lat!=null)},dest:()=>C.name||'Destination',org:()=>C.from==='here'&&here?'Here':'Home',
+ ctx(){const b=ctx(),o=orgPt();return{...b,home:C.from==='here'&&here?'My location':(placeText('home')||'Home'),homeLL:o?{lat:o.lat,lon:o.lon}:b.homeLL,work:C.name,workLL:{lat:C.lat,lon:C.lon}}}};
+const flag=()=>document.body.classList.toggle('cust',CUST.on);flag();
+function reload(){flag();try{commuteUI=null;paintCommute();$('cMin').textContent='--';lbData=null;loadCommute();try{loadLeaveBy()}catch(e){}}catch(e){console.error(e)}}
+function pick(d){C.on=true;C.name=d.name||d.label||'Destination';C.lat=d.lat;C.lon=d.lon;dir='work';save();reload();closeUI()}
+function home(){C.on=false;save();reload();closeUI()}
+function addDest(nv){const n=(nv.name||nv.label||'Place').slice(0,22);C.saved=(C.saved||[]).filter(x=>Math.abs(x.lat-nv.lat)>1e-4||Math.abs(x.lon-nv.lon)>1e-4);C.saved.unshift({name:n,lat:nv.lat,lon:nv.lon});C.saved=C.saved.slice(0,12);pick({name:n,lat:nv.lat,lon:nv.lon})}
+const closeUI=()=>{const b=document.getElementById('subBack');b&&b.click()};
+const _sl=window.setLoc;window.setLoc=function(w,v){if(w==='favcust'){addDest(v);return}return _sl.apply(this,arguments)};
+const _op=window.openPicker;window.openPicker=function(w){_op.apply(this,arguments);if(w==='favcust')document.getElementById('pTitle').textContent='Add destination'};
+const _rt=window.recordTrip;window.recordTrip=function(){if(CUST.on)return;return _rt.apply(this,arguments)};
+const _us=window.usual;window.usual=function(){return CUST.on?null:_us.apply(this,arguments)};
+const _lc=window.loadCommute;window.loadCommute=async function(){await _lc.apply(this,arguments);if(CUST.on&&commuteUI){const o=CUST.org(),d=CUST.dest();commuteUI.from=dir==='work'?o:d;commuteUI.to=dir==='work'?d:o;try{paintCommute()}catch(e){}}};
+window.jvRouteSum=()=>CUST.on?['→ '+C.name,'from '+CUST.org()+' · tap to change']:['Home ⇄ Work','tap for destinations'];
+window.jvRoutesUI=function(b){b.textContent='';
+ const mk=(t,c)=>{const e=document.createElement(t);if(c)e.className=c;return e};
+ const seg=mk('div','rseg'),a=mk('button'),h=mk('button');a.textContent='FROM HOME';h.textContent='FROM MY LOCATION';(C.from==='here'?h:a).classList.add('on');
+ a.onclick=()=>{C.from='home';save();if(CUST.on)reload();window.jvRoutesUI(b)};
+ h.onclick=()=>{const go=p=>{here={lat:p.coords.latitude,lon:p.coords.longitude,ts:Date.now(),src:'you'};C.from='here';save();if(CUST.on)reload();window.jvRoutesUI(b)};if(!navigator.geolocation){toast('Location unavailable');return}navigator.geolocation.getCurrentPosition(go,()=>toast('Could not get your location'),{timeout:8000,maximumAge:60000})};
+ seg.append(a,h);
+ const hw=mk('button','rrow'+(CUST.on?'':' on'));hw.innerHTML='<div class="t">HOME ⇄ WORK<small>Your normal commute</small></div>';hw.onclick=home;
+ const H=t=>{const e=mk('div','rh');e.textContent=t;b.append(e)};H('ROUTE');b.append(hw);
+ H('START POINT (CUSTOM DESTINATIONS)');b.append(seg);
+ H('DESTINATIONS');
+ const favs=(cfg.favs||[]).filter(Boolean).map(f=>({name:f.name||f.label,lat:f.lat,lon:f.lon,fav:1}));
+ const all=[...(C.saved||[]).map((x,i)=>({...x,i})),...favs.filter(f=>!(C.saved||[]).some(x=>Math.abs(x.lat-f.lat)<1e-4&&Math.abs(x.lon-f.lon)<1e-4))];
+ const rows=[];all.forEach(d=>{const r=mk('button','rrow'+(CUST.on&&Math.abs(C.lat-d.lat)<1e-4&&Math.abs(C.lon-d.lon)<1e-4?' on':''));const t=mk('div','t');t.textContent=d.name;const sm=mk('small');sm.textContent=d.fav?'Favourite place':'Saved destination';t.append(sm);rows.push(sm);r.append(t);
+  r.onclick=()=>pick(d);if(d.i!=null){const x=mk('span','x');x.textContent='✕';x.onclick=e=>{e.stopPropagation();C.saved.splice(d.i,1);if(CUST.on&&Math.abs(C.lat-d.lat)<1e-4)C.on=false;save();flag();window.jvRoutesUI(b);if(!CUST.on&&d.i!=null)reload()};r.append(x)}b.append(r)});
+ if(!all.length){const n=mk('div','rh');n.textContent='NO DESTINATIONS YET. ADD ONE BELOW.';b.append(n)}
+ {const o=orgPt();if(o&&getWorker()&&all.length)post('/eta',{from:{lat:o.lat,lon:o.lon},dests:all.map(d=>({lat:d.lat,lon:d.lon}))}).then(r=>{(r.items||[]).forEach((e,i)=>{if(e&&rows[i])rows[i].textContent=e.min+' min \u00b7 '+e.miles+' mi from '+CUST.org().toLowerCase()+(e.delay>2?' \u00b7 +'+e.delay+' min traffic':'')})}).catch(()=>{})}
+ const add=mk('button','btn pri xbtn');add.textContent='+ ADD DESTINATION';add.onclick=()=>{closeUI();setTimeout(()=>openPicker('favcust'),150)};b.append(add)};
+}catch(e){console.error('p9',e)}})();
 </script>
 </body>
 </html>
