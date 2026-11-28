@@ -916,6 +916,29 @@ body.cust #tIns{display:none!important}
 #fogM{position:absolute;inset:0}#fogC{position:absolute;inset:0;pointer-events:none;z-index:500}
 #fogX{position:absolute;z-index:600;top:calc(env(safe-area-inset-top) + 10px);right:12px;border:1px solid #ffffff44;background:#000a;color:#fff;border-radius:99px;padding:8px 14px;font:.7rem var(--mono)}
 #fogI{position:absolute;z-index:600;left:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);background:#000a;border:1px solid #ffffff22;border-radius:10px;padding:8px 12px;font:.7rem var(--mono)}
+
+#crash{position:fixed;inset:0;z-index:90;background:#2a0505ee;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center}#crash.open{display:flex}#crash h2{font:700 1.4rem var(--mono);color:#ff6b6b;letter-spacing:.1em}#crash button{width:100%;max-width:320px;min-height:56px}
+.pins{display:flex;gap:8px;overflow-x:auto;padding:6px 0}.pins div{flex:0 0 auto;position:relative}.pins img{width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #ffffff22;display:block}.pins small{font:.58rem var(--mono);color:#8fb0c4}
+
+#wb{position:fixed;left:0;right:0;top:0;height:var(--H,100vh);z-index:80;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px}#wb.open{display:flex}
+#wbA{width:180px;height:180px;transition:transform .15s linear}#wbA svg{width:100%;height:100%;filter:drop-shadow(0 0 12px var(--glow))}
+#wbD{font:700 2.2rem var(--mono);letter-spacing:.08em}#wbS{font:.7rem var(--mono);color:#8fb0c4;text-align:center;padding:0 24px}
+#wb button{min-width:200px;min-height:50px}
+.thm{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.thm button{border:1px solid #ffffff33;background:#06121f;color:inherit;border-radius:99px;padding:6px 12px;font:.66rem var(--mono)}.thm button.on{border-color:var(--glow);color:var(--glow)}.thm button[disabled]{opacity:.4}
+
+#fxd{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;opacity:.55;mix-blend-mode:screen}
+#fxb{position:fixed;inset:0;width:100%;height:var(--H,100vh);pointer-events:none;z-index:95}
+#lvu{position:fixed;inset:0;z-index:96;display:none;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle,#00000099,#000000dd);pointer-events:none}#lvu.on{display:flex;animation:lvf 2.4s ease forwards}
+#lvu b{font:800 4.2rem var(--mono);color:var(--glow);text-shadow:0 0 30px var(--glow);letter-spacing:.1em}#lvu span{font:.8rem var(--mono);letter-spacing:.3em;color:#cfe8f5;margin-top:6px}
+@keyframes lvf{0%{opacity:0;transform:scale(.8)}12%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1.08)}}
+#suit{position:fixed;inset:0;z-index:94;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000;pointer-events:none}#suit.on{display:flex;animation:suf 1.5s ease forwards}
+#suit i{position:absolute;left:0;right:0;height:3px;background:var(--glow);box-shadow:0 0 22px var(--glow);animation:sus 1.2s linear forwards}
+#suit b{font:700 1rem var(--mono);letter-spacing:.35em;color:var(--glow)}#suit span{font:.62rem var(--mono);letter-spacing:.2em;color:#8fb0c4;margin-top:8px}
+@keyframes sus{0%{top:0}100%{top:100%}}@keyframes suf{0%{opacity:1}75%{opacity:1}100%{opacity:0}}
+.qt{transition:transform .12s ease,box-shadow .2s ease}.qt:active{transform:scale(.96);box-shadow:0 0 20px color-mix(in srgb,var(--glow) 55%,transparent)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;background:repeating-linear-gradient(0deg,transparent 0 3px,var(--glow) 3px 4px);animation:scn 9s linear infinite}
+@keyframes scn{0%{background-position:0 0}100%{background-position:0 80px}}
+@media (prefers-reduced-motion:reduce){body::before{animation:none}#suit,#lvu{animation:none!important}}
 </style>
 </head>
 <body>
@@ -1056,10 +1079,10 @@ body.cust #tIns{display:none!important}
     <div id="elBox" style="display:none"><div class="note">Add your ElevenLabs API key to the Worker as a secret called ELEVENLABS_API_KEY, then load your voices. If it fails, JARVIS falls back to the device voice.</div>
     <div class="toggles"><button class="pill" id="elLoad">Load my voices</button></div>
     <label>ElevenLabs voice<select id="sElv"></select></label></div>
-    <div class="toggles" style="margin-top:12px"><button class="pill" id="sTest">Test voice</button></div>
+    <div class="toggles" style="margin-top:12px"><button class="pill" id="sTest">Test voice</button><button class="pill on" id="sSave">Save credits: ON</button><button class="pill" id="sWarm">Pre-load trip phrases</button></div><div class="sub" id="sCr" style="margin-top:6px;font-size:.7rem"></div>
     </details>
     <details class="dd"><summary>Backup and privacy</summary>
-    <div class="toggles"><button class="pill" id="bkCopy">Export Config (JSON)</button><button class="pill" id="bkRestore">Import Config (JSON)</button><button class="pill" id="bkClear">Clear data</button></div><div style="font:.7rem var(--mono);color:var(--dim);margin-top:6px">Build 16</div>
+    <div class="toggles"><button class="pill" id="bkCopy">Export Config (JSON)</button><button class="pill" id="bkRestore">Import Config (JSON)</button><button class="pill" id="bkClear">Clear data</button></div><div style="font:.7rem var(--mono);color:var(--dim);margin-top:6px">Build 20</div>
     <textarea id="bkText" class="bk" placeholder="Paste a backup here, then tap Apply" hidden></textarea>
     <button class="pill" id="bkApply" hidden style="margin-top:8px">Apply backup</button>
     <div class="note">A backup is plain text holding your places, preferences and history. Keep it private. Safari can clear a website's saved data if it is not used for a while, so add this app to your Home Screen.</div>
@@ -1132,11 +1155,12 @@ const tmo=ms=>(window.AbortSignal&&AbortSignal.timeout)?AbortSignal.timeout(ms):
 const main=$('main'),log=$('log'),hud=$('hud'),statusEl=$('status');
 const IDLE='Tap the orb and speak';
 
-const SYSTEM_BASE=()=>`You are J.A.R.V.I.S., the user's personal AI, modelled on the assistant from the Iron Man films: formal, unflappable, dryly witty British manner; understated, never gushing. You address the user as "${title()}", though not in every sentence.
-Style: your replies are spoken aloud, so use 1 to 4 short sentences, plain text, no lists, no markdown, no emoji. Lead with the verdict or status, then the key facts, then a recommendation or a brief offer such as "Shall I check the alternative?". Anticipate needs: if rain is likely, mention it; if a delay is building, suggest leaving earlier. Wit is dry and rare: at most one light remark, never at the cost of clarity. Phrases like "I'd advise", "might I suggest", "as you wish" and "all systems nominal" are welcome, sparingly. Never over-apologise; if you lack data, say so plainly, as in "I don't have that feed connected, ${title()}".
-Say "degrees" rather than "C", "miles per hour" rather than "mph", and spell out minutes, litres and pounds.
-You have LIVE DATA below: weather at home and at work, plus UK and local headlines. Use only what is in it and never invent figures. Traffic, routes and fuel efficiency are not connected yet, so say so plainly if asked.
-If asked for a briefing: a short greeting suited to the time of day, the weather at home, mention work only if it differs notably, then the three most important headlines in a sentence each. Under 90 words in total.`;
+const SYSTEM_BASE=()=>`You are J.A.R.V.I.S., the user's personal AI, voiced as in the Iron Man films: calm, precise, quietly confident, with dry British wit. You address the user as "${title()}", but only now and then, as a butler would, never every sentence.
+Voice: you are heard, not read. Plain text only, no lists, no markdown, no emoji. Be brief: one or two sentences is the norm, three at most, and a briefing never exceeds 60 words. Lead with the answer, then only the one or two facts that matter, then at most one short offer or piece of advice. Cut preamble, filler and repetition; never restate the question.
+Manner: understated and unflappable. Report problems the way a good aide would, evenly and with a solution attached, as in "Rain from nine, ${title()}. I'd leave ten minutes early." Humour is dry, rare, and never at the cost of clarity: perhaps one light remark in five replies. Useful touches, sparingly: "As you wish", "Might I suggest", "I've taken the liberty of...", "For what it's worth", "Shall I proceed?". When the user is clearly rushing or driving, drop the wit and give only the facts. Never gush, never over-apologise; if you lack data say so in a few words, as in "That feed isn't connected, ${title()}".
+Say "degrees", "miles per hour", and spell out minutes, litres and pounds. Round figures to what is useful.
+Use only the LIVE DATA below and tool results; never invent figures. Traffic, routes and fuel efficiency are not connected yet, so say so plainly if asked.
+Briefing format: a greeting suited to the time of day in four words or fewer, the weather at home in one sentence, work only if it differs notably, then the two most important headlines as short clauses, and a closing line only if something needs action.`;
 
 let history=[],live=null,liveAt=0,busy=false,lastReply='';
 let handsFree=localStorage.getItem('hf')==='1';
@@ -1867,7 +1891,7 @@ $('lSave').onclick=()=>{
 };
 
 // ---------- backup, restore, privacy ----------
-const BK_KEYS=['jarvisCfg','fuel','jarvisHist','jarvisFills','jarvisPrefs','jarvisTrips','jarvisPark','jarvisParkPhoto','snd','hf','worker','jarvisXP','jarvisBadges','jarvisTrk','jarvisCmp','jarvisStreak','jarvisScores','jarvisCh','jarvisPB','jarvisPBcp','jarvisHaz','jarvisCust','jarvisLast','jarvisBay','jarvisNotes'];
+const BK_KEYS=['jarvisCfg','fuel','jarvisHist','jarvisFills','jarvisPrefs','jarvisTrips','jarvisPark','jarvisParkPhoto','snd','hf','worker','jarvisXP','jarvisBadges','jarvisTrk','jarvisCmp','jarvisTank','jarvisTheme','jarvisRem','jarvisPins','jarvisRough','jarvisStreak','jarvisScores','jarvisCh','jarvisPB','jarvisPBcp','jarvisHaz','jarvisCust','jarvisLast','jarvisBay','jarvisNotes'];
 function flash(btn,t){toast(t)}
 $('bkCopy').onclick=async()=>{
   const o={v:1,app:'jarvis',at:new Date().toISOString(),data:{}};
@@ -1908,7 +1932,7 @@ $('elLoad').onclick=async()=>{
     cfg.vox=Object.assign({},cfg.vox,{list:d.voices});saveCfg();fillElv((cfg.vox&&cfg.vox.id)||'');toast(d.voices.length+' voices loaded')}
   catch(e){toast('Could not reach your Worker')}
 };
-$('sTest').onclick=()=>speak('Good day, '+title()+'. All systems nominal.',{voice:$('sVoice').value,rate:+$('sRate').value||1,engine:$('sEng').value,voiceId:$('sElv').value});
+$('sTest').onclick=()=>speak('Good day, '+title()+'. All systems nominal, as ever.',{voice:$('sVoice').value,rate:+$('sRate').value||1,engine:$('sEng').value,voiceId:$('sElv').value});
 const greetWord=()=>{const h=+londonPart('hour');return h<12?'Good morning':h<18?'Good afternoon':'Good evening'};
 function briefSentence(){const p=briefParts();return p.length?`${greetWord()}, ${title()}. `+p.join('. ')+'.':''}
 function speakBriefWhenReady(){
@@ -2570,7 +2594,7 @@ function endBoot(sound){
 }
 if(cmd){
   booted=true;boot.remove();if(needsSetup())openSettings();setTimeout(autoLocate,1500);
-  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?"),leave:openLeave,fuel:openStationsMap,trip:()=>startTrip(commuteUI),park:savePark,demo:()=>startTrip(commuteUI,{demo:true}),where:()=>openGarage(null),report:()=>openReport(null)}[cmd];
+  const run={briefing,work:()=>ask("How's the drive from home to work right now?"),home:()=>ask("How's the drive from work to home right now?"),leave:openLeave,fuel:openStationsMap,trip:()=>startTrip(commuteUI),park:savePark,demo:()=>startTrip(commuteUI,{demo:true}),where:()=>openGarage(null),report:()=>openReport(null),drive:()=>window.jvCmdDrive&&window.jvCmdDrive(),reveal:()=>window.jvCompOpen&&window.jvCompOpen(),brief:briefing}[cmd];
   if(run)setTimeout(run,600);history.replaceState(null,'',location.pathname);
 }else{
   const lines=['Initialising core','Linking traffic feeds','Weather online','Tap to begin'];
@@ -2878,7 +2902,7 @@ function tripUI(along,off,spd,live){
   const lim=limitAt(along),over=!!(lim&&spd!=null&&spd>lim+3);
   $('dSpd').textContent=spd==null?'--':String(Math.round(spd));$('dLim').textContent=lim?`limit ${lim}`:'mph';$('dtSpd').classList.toggle('over',over);$('dtSpd').classList.toggle('hot',!over&&spd>=76);
   const sg=$('dLimSign');sg.textContent=lim||'';sg.style.display=lim?'block':'none';
-  if(live&&over&&cfg.speedAlert===true&&Date.now()-(t.lastSpd||0)>90000){t.lastSpd=Date.now();toast(`Limit ${lim}, you are doing ${Math.round(spd)}`);if(spd>lim+6&&cfg.tripVoice!==false)speak(`The limit is ${lim}.`)}
+  if(live&&over&&cfg.speedAlert===true&&Date.now()-(t.lastSpd||0)>90000){t.lastSpd=Date.now();toast(`Limit ${lim}, you are doing ${Math.round(spd)}`);if(spd>lim+6&&cfg.tripVoice!==false)speak(`Limit is ${lim}, ${title()}.`)}
   // detail tiles
   const mins=Math.max(1,Math.round((Date.now()-t.t0)/60000)),done=along*t.mi,l=(t.r.options[0].fuel!=null?t.r.options[0].fuel:t.mi/(+cfg.mpg||+cfg.mpgAuto||45)*GAL)*Math.min(1,along),e=$('dEff').firstElementChild;
   $('mArrT').textContent=clock;$('mArrS').textContent=`${remMin} min \u00b7 ${(rem*t.mi).toFixed(0)} mi`;$('mTripT').textContent='\u00a3'+(l*effPrice().ppl/100).toFixed(2);$('mTripS').textContent=`${done.toFixed(1)} mi \u00b7 ${mins} min \u00b7 ${(l*CO2_L[fuelType]).toFixed(1)} kg CO\u2082`;
@@ -2888,7 +2912,7 @@ function tripUI(along,off,spd,live){
   if(!t.lastDraw||Date.now()-t.lastDraw>900||!live){t.lastDraw=Date.now();redraw(live)}
   const w=$('dWarn');w.textContent='';
   if(live&&off>0.4&&!t.demo){const a=el('a','','Off route: open Google Maps from here');a.href=`https://www.google.com/maps/dir/?api=1&destination=${t.r.b.lat},${t.r.b.lon}&travelmode=driving`;a.target='_blank';a.rel='noopener';w.append(a)}
-  if(live&&along>0.985&&!t.done){t.done=1;speak(`You have arrived, ${title()}.`);if(t.demo){stopTrip();toast('Demo finished')}else finishTrip()}
+  if(live&&along>0.985&&!t.done){t.done=1;speak(['We have arrived, '+title()+'.','Destination reached, '+title()+'.','Arrived, '+title()+'. Do mind the door.'][Math.floor(Math.random()*3)]);if(t.demo){stopTrip();toast('Demo finished')}else finishTrip()}
 }
 function stopTrip(){
   if(!trip)return;
@@ -3502,6 +3526,11 @@ function openFog(){
   if(all.length){const bb=bbox(all);m.fitBounds([[bb[0],bb[2]],[bb[1],bb[3]]],{padding:[40,40],maxZoom:13})}else m.setView([51.5,-0.12],9);
   setTimeout(()=>{m.invalidateSize();paint()},200)}
 // ---- companion UI
+async function shareArt(t){const S=1080,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');x.fillStyle='#02070c';x.fillRect(0,0,S,S);const f=fit(t.pts,S,S-300,90);x.lineJoin=x.lineCap='round';
+  [[26,'#00f0ff22'],[8,'#00f0ff']].forEach(([w,col])=>{x.beginPath();t.pts.forEach((p,i)=>{const q=f(p);i?x.lineTo(q[0],q[1]+120):x.moveTo(q[0],q[1]+120)});x.strokeStyle=col;x.lineWidth=w;x.stroke()});
+  x.fillStyle='#00f0ff';x.font='bold 44px monospace';x.fillText('J.A.R.V.I.S.',60,90);x.fillStyle='#cfe8f5';x.font='34px monospace';x.fillText((t.d/1609.34).toFixed(1)+' mi  Zen '+t.zen+'  '+Math.round((t.t1-t.t0)/60000)+' min',60,S-70);
+  const bl=await new Promise(r=>c.toBlob(r,'image/png')),file=new File([bl],'drive.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file]})}catch(e){}}else{const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='drive.png';a.click()}}
 let sel=null;
 window.jvCompSum=()=>{const M=CM(),day=dayKey(Date.now()),b=M.bingo[day];return b?['Bingo '+b.done.length+'/9',(LSg('jarvisTrk',[]).length)+' drives logged']:['Bingo 0/9',LSg('jarvisTrk',[]).length+' drives logged']};
 window.jvCompOpen=()=>{try{openDetail('Companion',window.jvCompUI)}catch(e){}};
@@ -3534,9 +3563,219 @@ window.jvCompUI=function(b){
   if(best){const info=el('div','sub','');ghost(cv(b,200),t,best,info);b.append(info)}else b.append(el('div','sub','Drive this route again to race your ghost.'));
   if((t.nb||[]).length||(t.bd||[]).length){b.append(el('div','cph','EARNED'));const e=el('div','cpr');(t.nb||[]).forEach(k=>e.append(el('span','','Badge: '+BADGE[k])));(t.bd||[]).forEach(k=>e.append(el('span','','Bingo: '+GOALS.find(x=>x[0]===k)[1])));b.append(e)}
   if(t.crate){b.append(el('div','cph','MYSTERY CRATE'));b.append(el('div','sub',t.crate.title+(t.crate.fact?' — '+t.crate.fact:'')));const ur=el('div','cpr');ur.append(el('span','','Unlocked: '+t.crate.reward));b.append(ur)}
-  const bd=Object.keys(M.badges);if(bd.length){b.append(el('div','cph','BADGES'));const e=el('div','cpr');bd.forEach(k=>e.append(el('span','',BADGE[k]||k)));b.append(e)}
+  const shb=el('button','btn xbtn','SHARE ROUTE ART');shb.onclick=()=>shareArt(t);b.append(shb);const bd=Object.keys(M.badges);if(bd.length){b.append(el('div','cph','BADGES'));const e=el('div','cpr');bd.forEach(k=>e.append(el('span','',BADGE[k]||k)));b.append(e)}
 };
 }catch(e){console.error('p15',e)}})();
+
+;(function(){try{
+const CN='jarvis-tts',saveOn=()=>localStorage.getItem('jarvisSave')!=='0';
+const kurl=k=>'/__tts/'+encodeURIComponent(k);
+async function cget(k){try{const c=await caches.open(CN),r=await c.match(kurl(k));return r?await r.blob():null}catch(e){return null}}
+async function cput(k,b){try{const c=await caches.open(CN);await c.put(kurl(k),new Response(b,{headers:{'Content-Type':b.type||'audio/mpeg'}}));const ks=await c.keys();if(ks.length>150)await c.delete(ks[0])}catch(e){}}
+function credit(n){try{const m=new Date().toISOString().slice(0,7),o=JSON.parse(localStorage.getItem('jarvisChars')||'{}');if(o.m!==m){o.m=m;o.n=0}o.n+=n;localStorage.setItem('jarvisChars',JSON.stringify(o));paint()}catch(e){}}
+function paint(){try{const o=JSON.parse(localStorage.getItem('jarvisChars')||'{}'),n=(o.m===new Date().toISOString().slice(0,7)?o.n:0)||0;$('sCr').textContent='ElevenLabs this month: about '+n+' characters sent from this phone (free plan is roughly 20,000 credits on Flash). Short repeated phrases are cached on the phone and cost nothing after the first time.'}catch(e){}}
+// persistent cache + char counter inside speakEleven
+const _se=window.speakEleven;
+window.speakEleven=async function(text,o){
+  const id=o.voiceId||(cfg.vox&&cfg.vox.id),key=id+'|'+(o.rate||cfg.rate||1)+'|'+text,mem=text.length<=90;
+  if(mem&&!ttsCache.get(key)){const b=await cget(key);if(b)ttsCache.set(key,URL.createObjectURL(b))}
+  const had=ttsCache.get(key);
+  if(!had){credit(text.length);if(mem){const _f=window.fetch;let hit=null;window.fetch=function(u,i){const p=_f.apply(this,arguments);if(String(u).endsWith('/tts'))hit=p.then(r=>r.clone().blob());return p};try{await _se.apply(this,arguments)}finally{window.fetch=_f}
+    try{const b=await hit;if(b&&b.type.includes('audio'))cput(key,b)}catch(e){}return}}
+  return _se.apply(this,arguments)};
+// smart routing: uncached short callouts while driving use the free device voice
+const _sp=window.speak;
+window.speak=function(text,o){
+  try{const eng=(o&&o.engine!==undefined)?o.engine:(cfg.vox&&cfg.vox.engine),id=(o&&o.voiceId)||(cfg.vox&&cfg.vox.id);
+    if(saveOn()&&eng==='eleven'&&id&&typeof trip!=='undefined'&&trip&&!trip.demo&&text.length<=90&&!(o&&o.force)){
+      const key=id+'|'+((o&&o.rate)||cfg.rate||1)+'|'+text;
+      if(ttsCache.get(key))return _sp.apply(this,arguments);
+      return cget(key).then(b=>{if(b){ttsCache.set(key,URL.createObjectURL(b));return _sp.call(this,text,o)}return deviceSpeak(text,o)})}}catch(e){}
+  return _sp.apply(this,arguments)};
+$('sSave').onclick=()=>{const on=!saveOn();localStorage.setItem('jarvisSave',on?'1':'0');$('sSave').textContent='Save credits: '+(on?'ON':'OFF');$('sSave').classList.toggle('on',on)};
+$('sSave').textContent='Save credits: '+(saveOn()?'ON':'OFF');$('sSave').classList.toggle('on',saveOn());
+$('sWarm').onclick=async()=>{const id=(cfg.vox&&cfg.vox.id)||$('sElv').value;if(!id||!getWorker()){toast('Pick an ElevenLabs voice first');return}
+  const t=title(),L=['We have arrived, '+t+'.','Destination reached, '+t+'.','Arrived, '+t+'. Do mind the door.','Good day, '+t+'. All systems nominal, as ever.'];
+  for(let i=L.length;i<L.length+0;i++);
+  for(let lim=20;lim<=70;lim+=10)L.push('Limit is '+lim+', '+t+'.');
+  toast('Loading '+L.length+' phrases...');let n=0;
+  for(const x of L){try{await window.speakEleven(x,{voiceId:id,rate:cfg.rate||1});n++}catch(e){toast('Stopped: '+(e.message||e));return}}
+  toast('Trip phrases saved on this phone')};
+paint();
+}catch(e){console.error('p17',e)}})();
+
+;(function(){try{
+const LSg=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+const LSs=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}};
+const mpl=(a,b,c,d)=>{const R=6371000,r=x=>x*Math.PI/180,h=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+// persistent storage
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+// ---- haptics (iOS 17.4+ switch trick)
+const hl=document.createElement('label');hl.style.cssText='position:fixed;left:-99px;top:-99px;opacity:.01;pointer-events:none';hl.innerHTML='<input type="checkbox" switch>';document.body.append(hl);
+const hapOn=()=>localStorage.getItem('jarvisHap')!=='0',tick=()=>{try{hl.click()}catch(e){}};
+window.jvHap=p=>{if(!hapOn())return;(p||[0]).forEach(d=>setTimeout(tick,d))};
+document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('button,.qt,.tile'))window.jvHap([0])},true);
+const _toast=window.toast;window.toast=function(m){try{m=String(m);if(/LEVEL UP/.test(m))jvHap([0,110,220]);else if(/^\+\d+ XP|reveal ready|Rough road/.test(m))jvHap([0,120])}catch(e){}return _toast.apply(this,arguments)};
+// ---- badge
+const badge=n=>{try{n>0?navigator.setAppBadge&&navigator.setAppBadge(n):navigator.clearAppBadge&&navigator.clearAppBadge()}catch(e){}};
+const dueRem=()=>LSg('jarvisRem',[]).filter(r=>r.fired&&!r.seen).length;
+function pbadge(){let n=dueRem();try{n+=reminderParts().length}catch(e){}badge(n)}
+setInterval(pbadge,60000);setTimeout(pbadge,3000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkRem();setTimeout(()=>{const a=LSg('jarvisRem',[]);a.forEach(r=>{if(r.fired)r.seen=1});LSs('jarvisRem',a.filter(r=>!r.fired||Date.now()-r.ts<86400000));pbadge()},4000)}});
+// ---- voice reminders
+function fmtT(ts){return new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}
+function notify(body){try{if('Notification' in window&&Notification.permission==='granted')navigator.serviceWorker.ready.then(r=>r.showNotification('JARVIS',{body,icon:'jarvis-192.png',badge:'jarvis-192.png',tag:'rem'+Date.now()}))}catch(e){}}
+function checkRem(){const a=LSg('jarvisRem',[]);let ch=0;a.forEach(r=>{if(!r.fired&&r.ts<=Date.now()){r.fired=1;ch=1;const late=Date.now()-r.ts>120000,m='Reminder, '+title()+': '+r.text+'.';add('j',m);notify(m);jvHap([0,150,300]);if(!late)speak(m);else toast('Missed reminder: '+r.text)}});if(ch){LSs('jarvisRem',a);pbadge()}}
+setInterval(checkRem,15000);
+const _li=window.localIntent;
+window.localIntent=function(t){
+  try{const s=t.toLowerCase().replace(/[.,!?]/g,''),say=m=>{add('u',t);add('j',m);speak(m)};
+    let m=s.match(/remind me (?:to |about )?(.+?) in (\d+|an?|half an) ?(minutes?|mins?|hours?|hrs?)\b/)||s.match(/in (\d+|an?|half an) ?(minutes?|mins?|hours?|hrs?) remind me (?:to |about )?(.+)/);
+    if(m){let txt,n,u;if(/^remind/.test(s)){txt=m[1];n=m[2];u=m[3]}else{n=m[1];u=m[2];txt=m[3]}
+      n=/half/.test(n)?.5:/^an?$/.test(n)?1:+n;const ms=n*(/^h/.test(u)?3600000:60000),a=LSg('jarvisRem',[]);a.push({ts:Date.now()+ms,text:txt});LSs('jarvisRem',a);
+      say('Noted. I will remind you at '+fmtT(Date.now()+ms)+'.');return true}
+    m=s.match(/remind me (?:to |about )?(.+?) at (\d{1,2})(?::(\d{2}))? ?(am|pm)?$/);
+    if(m){let h=+m[2],mi=+(m[3]||0);if(m[4]==='pm'&&h<12)h+=12;if(m[4]==='am'&&h===12)h=0;const d=new Date();d.setHours(h,mi,0,0);if(d<=Date.now())d.setDate(d.getDate()+1);
+      const a=LSg('jarvisRem',[]);a.push({ts:d.getTime(),text:m[1]});LSs('jarvisRem',a);say('Noted. I will remind you at '+fmtT(d.getTime())+'.');return true}
+  }catch(e){}
+  return _li.apply(this,arguments)};
+// ---- Siri / CarPlay: drive command
+window.jvCmdDrive=function(){let n=0;const t=setInterval(()=>{n++;if(window.commuteUI||n>40){clearInterval(t);try{if(window.commuteUI)enterDrive()}catch(e){}}},500)};
+// ---- media session (lock screen)
+function media(){try{if(!('mediaSession' in navigator))return;navigator.mediaSession.metadata=new MediaMetadata({title:'JARVIS Drive',artist:trip?trip.r.from+' → '+trip.r.to:'',album:'J.A.R.V.I.S.',artwork:[{src:'jarvis-192.png',sizes:'192x192',type:'image/png'}]});
+  navigator.mediaSession.setActionHandler('nexttrack',()=>{try{speak(whatsAhead())}catch(e){}});navigator.mediaSession.setActionHandler('previoustrack',()=>{if(lastReply)speak(lastReply)});
+  ['play','pause'].forEach(k=>{try{navigator.mediaSession.setActionHandler(k,()=>{})}catch(e){}})}catch(e){}}
+// ---- trip hooks
+const _stt=window.startTrip;window.startTrip=function(){
+  try{if(typeof DeviceMotionEvent!=='undefined'&&DeviceMotionEvent.requestPermission&&!window._dmOK)DeviceMotionEvent.requestPermission().then(r=>{window._dmOK=r==='granted'}).catch(()=>{})}catch(e){}
+  const o=_stt.apply(this,arguments);try{media();navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}return o};
+const _tu=window.tripUI;window.tripUI=function(al,off,spd,lv){const t=trip;
+  try{if(t&&!t.demo&&spd!=null){t._sp=spd;const n=Date.now(),h=t._sh||(t._sh=[]);h.push([n,spd]);while(h.length&&n-h[0][0]>8000)h.shift()}
+    if(t&&!t.demo&&lv&&t.last&&spd>15){const R=LSg('jarvisRough',[]);for(let i=0;i<R.length;i++){const r=R[i];if(mpl(t.last.la,t.last.lo,r.la,r.lo)<200&&Date.now()-(r.w||0)>600000){r.w=Date.now();LSs('jarvisRough',R);toast('Rough road ahead');speak('Rough surface ahead.');break}}}}catch(e){}
+  return _tu.apply(this,arguments)};
+// motion: potholes + impact
+window._rmOn||(window._rmOn=1,addEventListener('devicemotion',e=>{try{const t=trip,a=e.acceleration;if(!t||t.demo||!a||a.x==null)return;const sp=t._sp||0,n=Date.now();
+  if(sp>10&&Math.abs(a.y)>4.5&&Math.abs(a.x)<4&&n-(t._rb||0)>20000&&t.last){t._rb=n;const R=LSg('jarvisRough',[]);if(!R.some(r=>mpl(r.la,r.lo,t.last.la,t.last.lo)<40)){R.push({la:t.last.la,lo:t.last.lo,ts:n});LSs('jarvisRough',R.slice(-100));toast('Rough road logged')}}
+  if(Math.hypot(a.x,a.y,a.z)>15&&n-(t._ci||0)>60000){const h=t._sh||[],mx=Math.max(0,...h.map(x=>x[1]));if(mx>25&&sp<10){t._ci=n;crash()}}}catch(x){}}));
+function crash(){let o=$('crash');if(!o){o=el('div');o.id='crash';o.innerHTML='<h2>IMPACT DETECTED</h2><div class="sub">Are you alright?</div><button class="btn pri" id="crOk">I\'M OK</button><button class="btn" id="crSh">SHARE MY LOCATION</button>';document.body.append(o);$('crOk').onclick=()=>o.classList.remove('open');$('crSh').onclick=async()=>{const p=await fixNow();const u=p?'https://maps.google.com/?q='+p.lat+','+p.lon:'';const text='I may have had an incident. My location: '+u;if(navigator.share){try{await navigator.share({text})}catch(e){}}else{try{await navigator.clipboard.writeText(text);toast('Copied')}catch(e){}}}}
+  o.classList.add('open');jvHap([0,200,400,600]);speak('Impact detected. Are you alright, '+title()+'?',{force:1})}
+// ---- photo pins (camera)
+function shrink(file,max,q){return new Promise(res=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',q))};im.onerror=()=>res(null);im.src=u})}
+function pickPhoto(kind){const i=document.createElement('input');i.type='file';i.accept='image/*';i.capture='environment';i.onchange=async()=>{const f=i.files&&i.files[0];if(!f)return;toast('Saving...');const p=await fixNow(),img=await shrink(f,640,.5);if(!img){toast('Could not read the photo');return}
+  const a=LSg('jarvisPins',[]);a.push({kind,la:p?p.lat:null,lo:p?p.lon:null,ts:Date.now(),img});let b=a.slice(-12);while(!LSs('jarvisPins',b)&&b.length>1)b.shift();toast(kind==='receipt'?'Receipt saved':'Photo pinned');const bd=$('dtB');if(bd&&$('dsheet').classList.contains('open')&&window.jvCompUI)window.jvCompUI(bd)};i.click()}
+const _cu=window.jvCompUI;window.jvCompUI=function(b){_cu.apply(this,arguments);
+  const h=el('div','cph','PHOTO PINS');b.append(h);const r=el('div','');const p1=el('button','btn xbtn','PIN A PHOTO HERE'),p2=el('button','btn xbtn','SAVE A FUEL RECEIPT PHOTO');p1.onclick=()=>pickPhoto('photo');p2.onclick=()=>pickPhoto('receipt');b.append(p1,p2);
+  const P=LSg('jarvisPins',[]).slice().reverse();if(P.length){const w=el('div','pins');P.forEach(x=>{const d=el('div');const im=el('img');im.src=x.img;im.onclick=()=>{if(x.la!=null)window.open('https://www.google.com/maps?q='+x.la+','+x.lo,'_blank','noopener')};const sm=el('small',null,(x.kind==='receipt'?'Receipt ':'Photo ')+new Date(x.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'}));const dl=el('small',null,' ✕');dl.style.cursor='pointer';dl.onclick=()=>{const a=LSg('jarvisPins',[]).filter(y=>y.ts!==x.ts);LSs('jarvisPins',a);window.jvCompUI(b)};sm.append(dl);d.append(im,sm);w.append(d)});b.append(w)}
+  const R=LSg('jarvisRough',[]),rem=LSg('jarvisRem',[]).filter(x=>!x.fired);b.append(el('div','sub','Rough road spots logged: '+R.length+(rem.length?' · Reminders waiting: '+rem.length:'')))};
+// ---- settings: haptics + Siri/CarPlay help
+const sc=$('sCr');if(sc){const hb=el('button','pill'+(hapOn()?' on':''),'Haptics: '+(hapOn()?'ON':'OFF'));hb.onclick=()=>{const on=!hapOn();localStorage.setItem('jarvisHap',on?'1':'0');hb.textContent='Haptics: '+(on?'ON':'OFF');hb.classList.toggle('on',on);jvHap([0,120])};
+  const d=el('details');d.style.cssText='margin-top:12px;font-size:.72rem;line-height:1.5';const sm=el('summary','','Siri and CarPlay automation');sm.style.cssText='cursor:pointer;font:.7rem var(--mono);letter-spacing:.1em';d.append(sm);
+  const base=location.origin+location.pathname,L=[['Open Drive Mode','drive'],['Speak my briefing','briefing'],['Home to work','work'],['Work to home','home'],['Save parking spot','park'],['Drive reveal','reveal']];
+  d.append(el('div','sub','Open the Shortcuts app, then Automation, then New, then CarPlay (or Bluetooth, choosing your car), set Is Connected, Run Immediately, add the action Open URL and paste a link below. For Siri, make a normal shortcut with the same Open URL action and name it, for example Brief me.'));
+  L.forEach(([n,c])=>{const bt=el('button','pill',n);bt.style.margin='4px 4px 0 0';bt.onclick=async()=>{const u=base+'?cmd='+c;try{await navigator.clipboard.writeText(u);toast('Link copied')}catch(e){prompt('Copy this link',u)}};d.append(bt)});
+  sc.parentNode.insertBefore(hb,sc);sc.parentNode.insertBefore(d,sc.nextSibling)}
+}catch(e){console.error('p18',e)}})();
+
+;(function(){try{
+const LSg=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+const LSs=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}};
+const mpl=(a,b,c,d)=>{const R=6371000,r=x=>x*Math.PI/180,h=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+const brg=(a,b,c,d)=>{const r=x=>x*Math.PI/180,y=Math.sin(r(d-b))*Math.cos(r(c)),x=Math.cos(r(a))*Math.sin(r(c))-Math.sin(r(a))*Math.cos(r(c))*Math.cos(r(d-b));return(Math.atan2(y,x)*180/Math.PI+360)%360};
+// ---- HUD themes unlocked by level
+const TH=[['Arc','#4cc9f0','#15324c',1],['Gold','#f4c542','#4a3a12',3],['Mark III','#ff5a4d','#4a1a16',5],['Ice','#9be7ff','#1c3a4a',7],['Stealth','#cfd8e0','#2a3138',10]];
+const lv=()=>Math.floor(Math.sqrt((+LSg('jarvisXP',0)||0)/60))+1;
+function applyTheme(){const i=Math.min(TH.length-1,+localStorage.jarvisTheme||0),t=TH[i];if(lv()<t[3]){document.documentElement.style.removeProperty('--glow');document.documentElement.style.removeProperty('--line');return}
+  document.documentElement.style.setProperty('--glow',t[1]);document.documentElement.style.setProperty('--line',t[2])}
+setTimeout(applyTheme,500);
+// ---- banter + systems check
+const _ft=window.finishTrip;window.finishTrip=function(){const t=trip,o=_ft.apply(this,arguments);
+  try{if(t&&!t.demo&&t.trk&&t.trk.length>8)setTimeout(()=>{const L=LSg('jarvisLast',{}),n=title(),sm=L.sm;
+    const q=L.newpb?`New personal best, ${n}. I shall alert the press.`:sm>=90?`Smooth, ${n}. Almost suspiciously so.`:sm>=75?`Tidy driving, ${n}.`:sm!=null&&sm<55?`Rather spirited, ${n}. The suspension has filed a complaint.`:null;if(q){add('j',q);speak(q)}},2500)}catch(e){}return o};
+const _st=window.startTrip;window.startTrip=function(){const o=_st.apply(this,arguments);
+  try{if(trip&&!trip.demo&&Date.now()-(+localStorage.jarvisSys||0)>1800000){localStorage.jarvisSys=Date.now();setTimeout(()=>speak(`Systems check complete. All green, ${title()}.`),1200);setTimeout(()=>{try{fuelGuard()}catch(e){}},9000)}}catch(e){}return o};
+// ---- fuel range guardian
+function range(){const tank=+localStorage.jarvisTank;if(!tank||!fills.length)return null;const f=fills[fills.length-1],mpg=+cfg.mpg||+cfg.mpgAuto||45;
+  const mi=trips.filter(t=>t.ts>f.ts).reduce((a,t)=>a+(+t.mi||0),0),used=mi/mpg*GAL,left=Math.max(0,tank-used);return{mi:Math.round(left*mpg/GAL),l:left,since:Math.round(mi)}}
+function fuelGuard(){const r=range();if(!r||r.mi>=60)return;let m=`Fuel is getting low, ${title()}. About ${r.mi} miles left.`;try{const c=cheapest();if(c)m+=` Cheapest on your route is ${c.price.toFixed(1)} pence.`}catch(e){}add('j',m);speak(m)}
+// ---- parking timer + compass
+function wbOpen(){if(!park){toast('No parking spot saved');return}
+  let o=$('wb');if(!o){o=el('div');o.id='wb';o.innerHTML='<div id="wbA"><svg viewBox="0 0 100 100"><path d="M50 6 L82 88 L50 70 L18 88 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" style="color:var(--glow)"/></svg></div><div id="wbD">--</div><div id="wbS">Hold the phone flat. Follow the arrow to your car.</div><button class="btn" id="wbX">CLOSE</button>';document.body.append(o);
+    $('wbX').onclick=()=>{o.classList.remove('open');if(o._w)navigator.geolocation.clearWatch(o._w);removeEventListener('deviceorientationabsolute',o._h,true);removeEventListener('deviceorientation',o._h,true)}}
+  o.classList.add('open');let pos=null,hd=null;
+  const draw=()=>{if(!pos)return;const d=mpl(pos.la,pos.lo,park.lat,park.lon),b=brg(pos.la,pos.lo,park.lat,park.lon);$('wbD').textContent=d<1000?Math.round(d)+' m':(d/1609.34).toFixed(2)+' mi';
+    $('wbA').style.transform='rotate('+(hd==null?b:(b-hd+360)%360)+'deg)';$('wbS').textContent=hd==null?'No compass: arrow points north-up. Walk towards '+Math.round(b)+' degrees.':'Follow the arrow to your car.'};
+  o._h=e=>{hd=e.webkitCompassHeading!=null?e.webkitCompassHeading:(e.absolute&&e.alpha!=null?360-e.alpha:null);draw()};
+  const go=()=>{addEventListener('deviceorientationabsolute',o._h,true);addEventListener('deviceorientation',o._h,true)};
+  try{if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission)DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted')go()}).catch(()=>{});else go()}catch(e){go()}
+  o._w=navigator.geolocation.watchPosition(p=>{pos={la:p.coords.latitude,lo:p.coords.longitude};draw()},()=>{},{enableHighAccuracy:true,maximumAge:2000})}
+window.jvWalkBack=wbOpen;
+// ---- intents
+const _li=window.localIntent;
+window.localIntent=function(t){
+  try{const s=t.toLowerCase().replace(/[.,!?]/g,''),say=m=>{add('u',t);add('j',m);speak(m)};
+    if(/\b(walk me|take me|guide me|find|navigate)\b.*\b(my car|the car|back)\b|\bcompass\b.*\bcar\b/.test(s)){say('Opening the walk-back compass.');wbOpen();return true}
+    let m=s.match(/parked (?:here )?for (\d+|an?|half an|one|two|three|four) ?(minutes?|mins?|hours?|hrs?)/);
+    if(m){const W={one:1,two:2,three:3,four:4};let n=/half/.test(m[1])?.5:/^an?$/.test(m[1])?1:(W[m[1]]||+m[1]);const ms=n*(/^h/.test(m[2])?3600000:60000);savePark();
+      const lead=Math.min(15*60000,ms/2),a=LSg('jarvisRem',[]);a.push({ts:Date.now()+ms-lead,text:'your parking expires in '+Math.round(lead/60000)+' minutes'});LSs('jarvisRem',a);
+      say('Parking saved. I will warn you '+Math.round(lead/60000)+' minutes before it expires.');return true}
+    if(/\b(fuel|petrol|diesel)\b.*\b(left|range|remaining)\b|\bhow far\b.*\b(go|get|drive)\b|\bmy range\b/.test(s)){const r=range();
+      say(r?`About ${r.mi} miles of fuel left, ${title()}, ${r.since} miles since your last fill.`:'Set your tank size in the Companion menu and log a fill-up, and I will track that for you.');return true}
+  }catch(e){}
+  return _li.apply(this,arguments)};
+// ---- wake word
+let wk=null,wkHit=0,wkT=null;const SRw=window.SpeechRecognition||window.webkitSpeechRecognition,wkOn=()=>localStorage.jarvisWake==='1';
+function wkStop(){try{clearTimeout(wkT);if(wk){wk.onend=null;wk.abort()}}catch(e){}wk=null;wkHit=0}
+function wkStart(){if(!SRw||!wkOn()||wk||listening||busy||document.hidden||(window.speechSynthesis&&speechSynthesis.speaking))return;
+  try{wk=new SRw();wk.lang='en-GB';wk.continuous=true;wk.interimResults=true;
+    wk.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i],tx=r[0].transcript.toLowerCase();const m=tx.match(/\b(?:hey |ok |okay )?(?:jarvis|jarvas|jarves|service)\b\s*(.*)$/);
+      if(m){if(r.isFinal){const rest=(m[1]||'').trim();wkStop();if(rest.split(' ').length>=2)ask(rest);else listen();return}
+        if(!wkHit){wkHit=1;wkT=setTimeout(()=>{wkStop();listen()},3500)}}}};
+    wk.onend=()=>{wk=null};wk.onerror=()=>{wk=null};wk.start()}catch(e){wk=null}}
+setInterval(wkStart,3000);
+const _sp=window.speak;window.speak=function(){if(wk)wkStop();return _sp.apply(this,arguments)};
+const _ls=window.listen;window.listen=function(){if(wk)wkStop();return _ls.apply(this,arguments)};
+document.addEventListener('visibilitychange',()=>{if(document.hidden)wkStop()});
+// ---- UI: Companion additions + settings toggle
+const _cu=window.jvCompUI;window.jvCompUI=function(b){_cu.apply(this,arguments);
+  b.append(el('div','cph','TRAVEL TOOLS'));
+  const wbb=el('button','btn xbtn','WALK BACK TO MY CAR');wbb.onclick=wbOpen;b.append(wbb);
+  const tk=el('button','btn xbtn',localStorage.jarvisTank?'TANK SIZE: '+localStorage.jarvisTank+' L (tap to change)':'SET TANK SIZE (for fuel range)');tk.onclick=async()=>{const v=await cfm({title:'Tank size',body:'Fuel tank capacity in litres (for example 50). I assume each logged fill-up is a full tank.',input:localStorage.jarvisTank||'',ok:'Save'});if(v&&+v>10&&+v<200){localStorage.jarvisTank=+v;window.jvCompUI(b)}};b.append(tk);
+  const r=range();if(r)b.append(el('div','sub','Estimated range: about '+r.mi+' miles ('+r.since+' miles since last fill)'));
+  b.append(el('div','cph','HUD THEME · LEVEL '+lv()));const w=el('div','thm'),cur=+localStorage.jarvisTheme||0;
+  TH.forEach((t,i)=>{const x=el('button',i===cur?'on':'',lv()>=t[3]?t[0]:t[0]+' · Lv '+t[3]);if(lv()<t[3])x.disabled=true;x.onclick=()=>{localStorage.jarvisTheme=i;applyTheme();window.jvCompUI(b)};w.append(x)});b.append(w)};
+const sc=$('sCr');if(sc){const wb=el('button','pill'+(wkOn()?' on':''),'Wake word: '+(wkOn()?'ON':'OFF'));wb.onclick=()=>{const on=!wkOn();localStorage.jarvisWake=on?'1':'0';wb.textContent='Wake word: '+(on?'ON':'OFF');wb.classList.toggle('on',on);if(!on)wkStop();else toast('Say "Jarvis" followed by your question')};sc.parentNode.insertBefore(wb,sc)}
+}catch(e){console.error('p19',e)}})();
+
+;(function(){try{
+const RM=()=>!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+const glow=()=>getComputedStyle(document.documentElement).getPropertyValue('--glow').trim()||'#4cc9f0';
+// ---- confetti / particle burst
+let bc=null,bp=[],braf=0;
+window.jvBurst=function(kind){if(RM())return;if(!bc){bc=document.createElement('canvas');bc.id='fxb';document.body.append(bc)}
+  const dp=Math.min(devicePixelRatio||1,2),W=bc.width=innerWidth*dp,H=bc.height=(bc.getBoundingClientRect().height||innerHeight)*dp,g=glow(),cols=kind==='gold'?['#f4c542','#fff3b0','#ffb703','#ffffff']:[g,'#ffffff','#5ee6a8','#f4d35e','#ff6b6b'];
+  for(let i=0;i<110;i++){const a=Math.random()*Math.PI*2,v=(4+Math.random()*9)*dp;bp.push({x:W/2,y:H*.42,vx:Math.cos(a)*v,vy:Math.sin(a)*v-5*dp,r:(2+Math.random()*4)*dp,c:cols[i%cols.length],l:1,rot:Math.random()*6})}
+  cancelAnimationFrame(braf);const x=bc.getContext('2d'),f=()=>{x.clearRect(0,0,W,H);bp=bp.filter(p=>p.l>0);bp.forEach(p=>{p.vy+=.28*dp;p.vx*=.992;p.x+=p.vx;p.y+=p.vy;p.l-=.011;p.rot+=.2;x.save();x.globalAlpha=Math.max(0,p.l);x.translate(p.x,p.y);x.rotate(p.rot);x.fillStyle=p.c;x.fillRect(-p.r,-p.r/2,p.r*2,p.r);x.restore()});if(bp.length)braf=requestAnimationFrame(f);else x.clearRect(0,0,W,H)};braf=requestAnimationFrame(f)};
+function levelUp(n){let o=document.getElementById('lvu');if(!o){o=document.createElement('div');o.id='lvu';document.body.append(o)}o.innerHTML='<span>SUIT UPGRADE</span><b>LEVEL '+n+'</b>';o.classList.remove('on');void o.offsetWidth;o.classList.add('on');setTimeout(()=>o.classList.remove('on'),2500);jvBurst()}
+const _toast=window.toast;window.toast=function(m){try{m=String(m);const L=m.match(/LEVEL UP (\d+)/);if(L&&!RM())levelUp(L[1]);else if(/new badge/i.test(m))jvBurst();else if(/Bingo line|BINGO/.test(m))jvBurst('gold')}catch(e){}return _toast.apply(this,arguments)};
+const _ft=window.finishTrip;window.finishTrip=function(){const o=_ft.apply(this,arguments);try{setTimeout(()=>{try{if(JSON.parse(localStorage.jarvisLast||'{}').newpb)jvBurst('gold')}catch(e){}},600)}catch(e){}return o};
+// ---- suit-up scan when Drive Mode opens
+const dr=document.getElementById('drive');
+if(dr&&window.MutationObserver){let was=false,last=0;new MutationObserver(()=>{const on=dr.classList.contains('open');if(on&&!was&&!RM()&&Date.now()-last>600000){last=Date.now();let s=document.getElementById('suit');if(!s){s=document.createElement('div');s.id='suit';s.innerHTML='<i></i><b>J.A.R.V.I.S.</b><span>SYSTEMS ONLINE</span>';document.body.append(s)}s.classList.remove('on');void s.offsetWidth;s.classList.add('on');setTimeout(()=>s.classList.remove('on'),1600)}was=on}).observe(dr,{attributes:true,attributeFilter:['class']});
+// ---- speed streaks + weather particles inside Drive Mode
+  const c=document.createElement('canvas');c.id='fxd';dr.prepend(c);const x=c.getContext('2d');let st=[],pr=[],t0=0,raf=0,W=0,H=0;
+  const wx=()=>{try{const h=wxOf(/home/i)||wxOf(/work/i);const d=((h&&h.desc)||'').toLowerCase();return/snow|sleet/.test(d)?'snow':/rain|shower|drizzle|storm/.test(d)?'rain':/fog|mist/.test(d)?'fog':''}catch(e){return''}};
+  function size(){const r=dr.getBoundingClientRect(),dp=Math.min(devicePixelRatio||1,2);if(c.width!==Math.round(r.width*dp)||c.height!==Math.round(r.height*dp)){c.width=Math.round(r.width*dp);c.height=Math.round(r.height*dp)}W=c.width;H=c.height}
+  function frame(n){raf=0;if(!dr.classList.contains('open')||RM()||dr.classList.contains('oled')||document.hidden){x.clearRect(0,0,c.width,c.height);return}
+    if(n-t0>=33){t0=n;size();x.clearRect(0,0,W,H);const sp=(typeof trip!=='undefined'&&trip&&trip._sp)||0,g=glow(),k=Math.min(1,sp/80);
+      if(sp>8){const cx=W/2,cy=H*.46,N=Math.round(10+k*26);while(st.length<N)st.push({a:Math.random()*6.283,d:Math.random()});x.strokeStyle=g;x.lineCap='round';
+        st.forEach(p=>{p.d+=.012+k*.035;if(p.d>1){p.d=.02;p.a=Math.random()*6.283}const r0=Math.max(W,H)*.1+p.d*p.d*Math.max(W,H)*.6,r1=r0+(14+k*90)*p.d*(W/400);x.globalAlpha=Math.min(.9,p.d*1.2)*(.25+k*.5);x.lineWidth=(1+p.d*2)*(W/400);x.beginPath();x.moveTo(cx+Math.cos(p.a)*r0,cy+Math.sin(p.a)*r0);x.lineTo(cx+Math.cos(p.a)*r1,cy+Math.sin(p.a)*r1);x.stroke()});x.globalAlpha=1}
+      const w=wx();if(w==='rain'||w==='snow'){while(pr.length<(w==='rain'?60:50))pr.push({x:Math.random()*W,y:Math.random()*H,v:.5+Math.random()});x.strokeStyle=w==='rain'?'#9fd8ff':'#ffffff';x.fillStyle='#ffffff';x.globalAlpha=.45;
+        pr.forEach(p=>{if(w==='rain'){p.y+=(14+p.v*14)*(H/800);p.x-=3*(W/400);x.lineWidth=1.2*(W/400);x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x+3*(W/400),p.y-16*(W/400));x.stroke()}else{p.y+=(1.5+p.v*2)*(H/800);p.x+=Math.sin(p.y/40)*1.2;x.beginPath();x.arc(p.x,p.y,(1.5+p.v*1.5)*(W/400),0,6.283);x.fill()}if(p.y>H){p.y=-10;p.x=Math.random()*W}if(p.x<0)p.x=W});x.globalAlpha=1}else pr=[]}
+    raf=requestAnimationFrame(frame)}
+  const kick=()=>{if(!raf)raf=requestAnimationFrame(frame)};
+  new MutationObserver(kick).observe(dr,{attributes:true,attributeFilter:['class']});setInterval(kick,3000);document.addEventListener('visibilitychange',kick);
+}
+}catch(e){console.error('p20',e)}})();
 </script>
 </body>
 </html>
